@@ -1,9 +1,8 @@
 # Schedula Todo
 ## Individual Tasks
 ### Jian
-- Identify Features for Primary Dataset
-- Adjust Secondary Dataset
-- Design Sample Schedules for Survey
+- Feature 1, Feature 2, Feature 3
+- Fix use without User Login
 
 ### Adrian
 - Flowcharts for Feature 1
