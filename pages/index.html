@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedula</title>
+  <meta name="description"
+    content="Build conflict-free academic schedules, visualize your semester at a glance, and optimize your courses. Fast, minimal, and student-first.">
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="stylesheet" href="./frontend/css/landing.css">
+  <link rel="stylesheet" href="./frontend/css/glass.css"><script src="./frontend/scripts/theme.js"></script>
+</head>
+
+<body class="hero-root glass">
+  <div class="glass-bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <!-- Particle Canvas -->
+  <canvas id="particleCanvas" class="particleCanvas"></canvas>
+
+  <!-- Animated Accent Grid Lines -->
+  <div class="accent-lines" aria-hidden="true">
+    <div class="hline"></div>
+    <div class="hline"></div>
+    <div class="hline"></div>
+    <div class="vline"></div>
+    <div class="vline"></div>
+    <div class="vline"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="hero-header">
+    <a class="hero-brand" href="./index.html" aria-label="Schedula home">
+      <img src="./assets/logo.png" alt="Logo" class="hero-logo">
+      <span class="hero-brand-text">Schedula</span>
+    </a>
+    <nav class="hero-nav" aria-label="Main navigation">
+      <button class="hero-cta-secondary theme-toggle"
+        style="display: flex; align-items: center; justify-content: center; width: 36px; padding: 0; flex-shrink: 0;"
+        aria-label="Toggle theme"></button>
+      <button class="hero-cta-secondary" id="login-btn" aria-label="Log in to your account">Login</button>
+      <button class="hero-cta-primary" id="signup-btn" aria-label="Create a new account">Sign Up</button>
+    </nav>
+  </header>
+
+  <!-- Hero Center -->
+  <main class="hero-center" id="main-content">
+    <div class="hero-copy">
+      <p class="hero-kicker">Schedula</p>
+      <h1 class="hero-title">Build your Daily Blocks</h1>
+      <p class="hero-subtitle">Plan your semester, organize your teams, <br> and visualize your schedule all in one
+        place</p>
+      <div class="hero-actions">
+        <button class="hero-btn-primary" id="get-started-btn">Get Started</button>
+        <button class="hero-btn-ghost" id="login-hero-btn">Login</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="./frontend/scripts/popup.js"></script>
+  <script src="./frontend/scripts/footer.js"></script>
+  <script>
+    // ── Navigation ───────────────────────────────────────────────
+    document.getElementById('login-btn').addEventListener('click', () => {
+      window.location.href = './pages/login.html';
+    });
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      window.location.href = './pages/signup.html';
+    });
+    document.getElementById('get-started-btn').addEventListener('click', () => {
+      window.location.href = './pages/signup.html';
+    });
+    document.getElementById('login-hero-btn').addEventListener('click', () => {
+      window.location.href = './pages/login.html';
+    });
+
+    // ── Particle Canvas ──────────────────────────────────────────
+    (function () {
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function setSize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      setSize();
+
+      let particles = [];
+      let raf = 0;
+
+      function count() {
+        return Math.floor((canvas.width * canvas.height) / 7000);
+      }
+
+      function makeParticle() {
+        const fadeDelay = Math.random() * 600 + 100;
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          speed: Math.random() / 5 + 0.1,
+          opacity: 0.7,
+          fadeDelay,
+          fadeStart: Date.now() + fadeDelay,
+          fadingOut: false,
+        };
+      }
+
+      function resetParticle(p) {
+        p.x = Math.random() * canvas.width;
+        p.y = Math.random() * canvas.height;
+        p.speed = Math.random() / 5 + 0.1;
+        p.opacity = 0.7;
+        p.fadeDelay = Math.random() * 600 + 100;
+        p.fadeStart = Date.now() + p.fadeDelay;
+        p.fadingOut = false;
+      }
+
+      function init() {
+        particles = [];
+        const n = count();
+        for (let i = 0; i < n; i++) particles.push(makeParticle());
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const now = Date.now();
+        particles.forEach(p => {
+          p.y -= p.speed;
+          if (p.y < 0) { resetParticle(p); return; }
+          if (!p.fadingOut && now > p.fadeStart) p.fadingOut = true;
+          if (p.fadingOut) {
+            p.opacity -= 0.008;
+            if (p.opacity <= 0) { resetParticle(p); return; }
+          }
+          ctx.fillStyle = `rgba(200, 180, 255, ${p.opacity})`;
+          ctx.fillRect(p.x, p.y, 0.6, Math.random() * 2 + 1);
+        });
+        raf = requestAnimationFrame(draw);
+      }
+
+      function onResize() {
+        setSize();
+        cancelAnimationFrame(raf);
+        init();
+        raf = requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', onResize);
+      init();
+      raf = requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+
+</html>

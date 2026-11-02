@@ -8,10 +8,11 @@
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/main.css">
   <link rel="stylesheet" href="../frontend/css/plotter.css">
-  <script src="../frontend/scripts/theme.js"></script>
+  <link rel="stylesheet" href="../frontend/css/glass.css"><script src="../frontend/scripts/theme.js"></script>
 </head>
 
-<body>
+<body class="glass">
+  <div class="glass-bg" aria-hidden="true"><i></i><i></i><i></i></div>
   <header class="app-header">
     <div class="app-brand">
       <img src="../assets/logo.png" alt="Schedula" class="brand-icon">
@@ -25,7 +26,7 @@
           class="nav-icon"> Home</button>
       <button class="nav-button" onclick="window.location.href='builder.html'"><img src="../assets/builder.png"
           alt="Builder" class="nav-icon"> Builder</button>
-      <button class="nav-button" onclick="window.location.href='plotter.html'"><img src="../assets/plotter.png"
+      <button class="nav-button active" aria-current="page" onclick="window.location.href='plotter.html'"><img src="../assets/plotter.png"
           alt="Plotter" class="nav-icon"> Plotter</button>
     </nav>
 

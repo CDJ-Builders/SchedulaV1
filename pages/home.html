@@ -8,10 +8,13 @@
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/main.css">
   <link rel="stylesheet" href="../frontend/css/dashboard.css">
+  <link rel="stylesheet" href="../frontend/css/glass.css">
   <script src="../frontend/scripts/theme.js"></script>
 </head>
 
-<body>
+<body class="glass">
+  <div class="glass-bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
   <header class="app-header">
     <div class="app-brand">
       <img src="../assets/logo.png" alt="Schedula" class="brand-icon">
@@ -21,7 +24,7 @@
     </div>
 
     <nav class="app-nav">
-      <button class="nav-button" onclick="window.location.href='home.html'"><img src="../assets/home.png" alt="Home"
+      <button class="nav-button active" aria-current="page" onclick="window.location.href='home.html'"><img src="../assets/home.png" alt="Home"
           class="nav-icon"> Home</button>
       <button class="nav-button" onclick="window.location.href='builder.html'"><img src="../assets/builder.png"
           alt="Builder" class="nav-icon"> Builder</button>
@@ -80,6 +83,19 @@
         window.location.href = 'login.html';
         return;
       }
+
+      // Time-based greeting, like the Figma dashboard ("Good Morning, Alex")
+      const nameEl = document.getElementById('header-username-display');
+      const titleEl = document.querySelector('.page-title-text');
+      const greet = () => {
+        const name = (nameEl && nameEl.textContent.trim()) || 'User';
+        const h = new Date().getHours();
+        const part = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+        if (titleEl) titleEl.textContent = `${part}, ${name}`;
+      };
+      greet();
+      // auth.js fills in the real username after load, so update when it changes
+      if (nameEl) new MutationObserver(greet).observe(nameEl, { childList: true, characterData: true, subtree: true });
     });
   </script>
 </body>
