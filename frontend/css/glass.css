@@ -1,0 +1,143 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Schedula glass theme (purple / lavender)
+   Load AFTER main.css and each page's own CSS (plotter.css, etc.).
+   Works on pages that have <body class="glass">.
+
+   How it works: the app already styles everything through CSS variables
+   (--panel-glass, --text, --accent ...), so this file mostly REMAPS those
+   variables to the lavender glass palette for both themes, then adds the
+   things from the Figma design: blurred colour blobs, a larger brand,
+   an active nav pill, and glass icon tiles.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Dark theme palette (default) ─────────────────────────────── */
+body.glass {
+  --bg: #2a1450;
+  --panel: #2c1655;
+  --surface: rgba(255, 255, 255, 0.10);
+  --input-bg: #3b1d66;
+  --panel-glass: rgba(255, 255, 255, 0.12);
+  --glass: rgba(255, 255, 255, 0.10);
+  --panel-border-glass: rgba(255, 255, 255, 0.30);
+  --border: rgba(255, 255, 255, 0.20);
+  --panel-shadow-glass: 0 20px 60px rgba(20, 10, 60, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --text: #ffffff;
+  --muted: rgba(255, 255, 255, 0.74);
+  --accent: #bc92e6;
+  --accent-rgb: 188, 146, 230;
+  --accent-skeuo-border: rgba(255, 255, 255, 0.45);
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --radial-glow: transparent;
+  --center-glow: transparent;
+  --radius-container: 24px;
+  --radius-button: 14px;
+
+  background:
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(180deg, var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(135deg, #21103b 0%, #43206b 50%, #62298a 100%) fixed;
+}
+
+/* ── Light theme palette ──────────────────────────────────────── */
+html[data-theme="light"] body.glass {
+  --bg: #efe3fb;
+  --panel: #ffffff;
+  --surface: rgba(124, 58, 237, 0.07);
+  --input-bg: #ffffff;
+  --panel-glass: rgba(255, 255, 255, 0.58);
+  --glass: rgba(255, 255, 255, 0.6);
+  --panel-border-glass: rgba(255, 255, 255, 0.85);
+  --border: rgba(124, 58, 237, 0.18);
+  --panel-shadow-glass: 0 20px 60px rgba(98, 41, 138, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --text: #2a1245;
+  --muted: #5b4778;
+  --accent: #7c3aed;
+  --accent-rgb: 124, 58, 237;
+  --accent-skeuo-border: rgba(124, 58, 237, 0.35);
+  --grid-line: rgba(124, 58, 237, 0.04);
+
+  background:
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(180deg, var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(135deg, #f6eeff 0%, #e4d3fb 50%, #d3b8f2 100%) fixed;
+}
+
+/* ── Blurred colour blobs behind everything ───────────────────── */
+.glass-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.glass-bg i { position: absolute; border-radius: 50%; filter: blur(110px); animation: g-drift 22s ease-in-out infinite alternate; }
+.glass-bg i:nth-child(1) { width: 520px; height: 520px; left: -140px; bottom: -120px; background: #a27cb7; opacity: .85; }
+.glass-bg i:nth-child(2) { width: 560px; height: 560px; right: -160px; top: -180px; background: #c084fc; opacity: .75; animation-delay: -8s; }
+.glass-bg i:nth-child(3) { width: 440px; height: 440px; left: 36%; top: 38%; background: #8b4fc4; opacity: .7; animation-delay: -14s; }
+html[data-theme="light"] .glass-bg i { opacity: .38; }
+@keyframes g-drift { to { transform: translate(70px, -50px) scale(1.14); } }
+
+/* ── Header: larger brand, glass pill, active nav ─────────────── */
+body.glass .app-header { padding: 16px 28px; }
+body.glass .app-header .brand-icon,
+body.glass .hero-logo,
+body.glass .auth-logo {
+  width: 56px; height: 56px; max-width: 56px; max-height: 56px;
+  border-radius: 16px; object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(59, 15, 99, .5));
+}
+body.glass .auth-logo { width: 48px; height: 48px; max-width: 48px; max-height: 48px; }
+body.glass .brand-text,
+body.glass .hero-brand-text,
+body.glass .auth-brand-text {
+  font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em; text-transform: none; line-height: 1.1;
+  color: var(--text, var(--fg));
+}
+body.glass .brand-text { margin-right: 1.5em; }
+
+body.glass .nav-button { background: rgba(255, 255, 255, .08); }
+body.glass .nav-button.active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .38), rgba(255, 255, 255, .14));
+  border-color: rgba(255, 255, 255, .55);
+  box-shadow: 0 6px 20px rgba(20, 10, 60, .25), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+html[data-theme="light"] body.glass .nav-button { background: rgba(255, 255, 255, .5); }
+html[data-theme="light"] body.glass .nav-button.active {
+  background: linear-gradient(135deg, #bc92e6, #7a3fb5); color: #fff; border-color: rgba(255, 255, 255, .7);
+}
+body.glass .header-icon-btn {
+  border-radius: 12px; padding: 8px; border: 1px solid var(--border); background: rgba(255, 255, 255, .10);
+}
+body.glass .header-icon-btn:hover { background: rgba(255, 255, 255, .22); }
+body.glass .header-profile-img { width: 40px; height: 40px; max-width: 40px; max-height: 40px; border: 2px solid rgba(255, 255, 255, .7); }
+body.glass .header-username { color: var(--text); }
+
+/* ── Dashboard cards: glass icon tile like the Figma cards ────── */
+body.glass .card-icon {
+  display: grid; place-items: center; width: 84px; height: 84px; margin: 0 auto 20px; font-size: 0;
+  border-radius: 24px; background: linear-gradient(135deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .08));
+  border: 1px solid var(--panel-border-glass);
+  box-shadow: 0 10px 26px rgba(98, 41, 138, .35), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+body.glass .card-icon img.brand-icon { width: 44px; height: 44px; max-width: 44px; max-height: 44px; }
+html:not([data-theme="light"]) body.glass .dashboard-card:hover,
+html:not([data-theme="light"]) body.glass .plotter-schedule-item:hover { background: rgba(255, 255, 255, .20); }
+
+/* ── Landing page (does not load main.css) ────────────────────── */
+body.hero-root.glass .accent-lines { opacity: .45; }
+body.glass .hero-copy {
+  padding: 48px 56px; border-radius: 32px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .05));
+  border: 1px solid var(--panel-border-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: var(--panel-shadow-glass);
+}
+html[data-theme="light"] body.glass .hero-copy { background: linear-gradient(135deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .35)); }
+body.glass .hero-kicker {
+  display: inline-block; padding: 6px 16px; border-radius: 999px;
+  background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .28);
+}
+
+/* Keep the headline and kicker readable over the glass panel (dark theme) */
+html:not([data-theme="light"]) body.glass .hero-title { background: linear-gradient(135deg, #ffffff 0%, #e9d5ff 55%, #f0abfc 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html:not([data-theme="light"]) body.glass .hero-kicker { color: #e9d5ff; }
+@media (max-width: 600px) {
+  body.glass .hero-copy { padding: 32px 22px; border-radius: 26px; }
+  body.glass .hero-brand-text, body.glass .auth-brand-text { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) { .glass-bg i { animation: none; } }
