@@ -158,7 +158,8 @@
       </div>
     `;
 
-    document.body.appendChild(footer);
+    const landingCopy = isHero ? document.querySelector('.landing-copy') : null;
+    (landingCopy || document.body).appendChild(footer);
 
     if (!isHero) {
       document.body.classList.add('has-site-footer');

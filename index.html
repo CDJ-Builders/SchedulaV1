@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedula</title>
+  <title>Schedula – Build your daily blocks</title>
   <meta name="description"
     content="Build conflict-free academic schedules, visualize your semester at a glance, and optimize your courses. Fast, minimal, and student-first.">
   <link rel="icon" type="image/png" href="./favicon.png">
@@ -13,140 +13,251 @@
 </head>
 
 <body class="hero-root">
-
-  <!-- Particle Canvas -->
-  <canvas id="particleCanvas" class="particleCanvas"></canvas>
-
-  <!-- Animated Accent Grid Lines -->
+  <canvas id="particleCanvas" class="particleCanvas" aria-hidden="true"></canvas>
   <div class="accent-lines" aria-hidden="true">
-    <div class="hline"></div>
-    <div class="hline"></div>
-    <div class="hline"></div>
-    <div class="vline"></div>
-    <div class="vline"></div>
-    <div class="vline"></div>
+    <div class="hline"></div><div class="hline"></div><div class="hline"></div>
+    <div class="vline"></div><div class="vline"></div><div class="vline"></div>
   </div>
 
-  <!-- Header -->
   <header class="hero-header">
-    <a class="hero-brand" href="./index.html" aria-label="Schedula home">
-      <img src="./assets/logo.png" alt="Logo" class="hero-logo">
-      <span class="hero-brand-text">Schedula</span>
-    </a>
-    <nav class="hero-nav" aria-label="Main navigation">
-      <button class="hero-cta-secondary theme-toggle"
-        style="display: flex; align-items: center; justify-content: center; width: 36px; padding: 0; flex-shrink: 0;"
+    <div class="hero-brand-group">
+      <a class="hero-brand" href="./index.html" aria-label="Schedula home">
+        <img src="./assets/logo.png" alt="Schedula logo" class="hero-logo">
+        <span class="hero-brand-text">Schedula</span>
+      </a>
+      <button class="hero-cta-secondary theme-toggle theme-toggle-header" type="button"
         aria-label="Toggle theme"></button>
-      <button class="hero-cta-secondary" id="login-btn" aria-label="Log in to your account">Login</button>
-      <button class="hero-cta-primary" id="signup-btn" aria-label="Create a new account">Sign Up</button>
+    </div>
+    <nav class="hero-nav" aria-label="Main navigation">
+      <button class="hero-cta-secondary" id="login-btn" type="button">Log in</button>
+      <button class="hero-cta-primary" id="signup-btn" type="button">Create account</button>
     </nav>
   </header>
 
-  <!-- Hero Center -->
-  <main class="hero-center" id="main-content">
-    <div class="hero-copy">
-      <p class="hero-kicker">Schedula</p>
-      <h1 class="hero-title">Build your Daily Blocks</h1>
-      <p class="hero-subtitle">Plan your semester, organize your teams, <br> and visualize your schedule all in one
-        place</p>
-      <div class="hero-actions">
-        <button class="hero-btn-primary" id="get-started-btn">Get Started</button>
-        <button class="hero-btn-ghost" id="login-hero-btn">Login</button>
+  <main class="landing-page" id="main-content">
+    <section class="landing-copy" aria-labelledby="landing-title">
+      <h1 class="landing-title" id="landing-title"><span>Build your</span><span>daily blocks</span></h1>
+      <p class="landing-lede">Add your classes and meetings, see clashes the moment they happen, and share the plan
+        with your team.</p>
+      <div class="landing-actions">
+        <button class="key" id="get-started-btn" type="button">Create account</button>
+        <button class="key lav" id="login-hero-btn" type="button">Log in</button>
       </div>
-    </div>
+    </section>
+
+    <section class="schedule-demo" aria-labelledby="schedule-demo-title">
+      <div class="schedule-heading">
+        <h2 id="schedule-demo-title">Move a block to try it out.</h2>
+      </div>
+      <div class="days" id="days"></div>
+      <div class="dock">
+        <p id="msg"></p>
+        <div class="acts">
+          <button class="key sm" type="button" id="mv">Move</button>
+          <button class="key sm lav" type="button" id="rs">Reset</button>
+          <span class="chip" id="chip" data-s="ok">No overlaps</span>
+        </div>
+      </div>
+      <p class="sr" id="live" aria-live="polite"></p>
+    </section>
   </main>
 
   <script src="./frontend/scripts/popup.js"></script>
   <script src="./frontend/scripts/footer.js"></script>
   <script>
-    // ── Navigation ───────────────────────────────────────────────
-    document.getElementById('login-btn').addEventListener('click', () => {
-      window.location.href = './pages/login.html';
-    });
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      window.location.href = './pages/signup.html';
-    });
-    document.getElementById('get-started-btn').addEventListener('click', () => {
-      window.location.href = './pages/signup.html';
-    });
-    document.getElementById('login-hero-btn').addEventListener('click', () => {
-      window.location.href = './pages/login.html';
-    });
+    (() => {
+      const START = 420, END = 1020, STEP = 30;
+      const days = [
+        { n: 'Day 1', b: [
+          { t: 'CS 301 · Machine Learning', s: 'Prof. Reyes · Room 204', st: 480, d: 90 },
+          { t: 'CS 315 · Software Engineering', s: 'Prof. Santos · Room 118', st: 600, d: 90 },
+          { t: 'Capstone Team Sync', s: 'BSCS 3A · Google Meet', st: 660, d: 60 },
+          { t: 'Study group · Data Structures', s: 'Library · Room 3', st: 840, d: 90 }
+        ] },
+        { n: 'Day 2', b: [
+          { t: 'IT 220 · Database Systems', s: 'Prof. Cruz · Room 305', st: 540, d: 90 },
+          { t: 'Math 210 · Discrete Structures', s: 'Prof. Lim · Room 112', st: 660, d: 90 },
+          { t: 'Org Officers Meeting', s: 'Student Council · Room 2', st: 810, d: 60 },
+          { t: 'CS 340 · Network Security Lab', s: 'Prof. Tan · Lab 4', st: 900, d: 120 }
+        ] }
+      ];
+      const all = [], wrap = document.getElementById('days');
+      const chip = document.getElementById('chip'), msg = document.getElementById('msg');
+      const moveButton = document.getElementById('mv'), resetButton = document.getElementById('rs');
+      const live = document.getElementById('live');
 
-    // ── Particle Canvas ──────────────────────────────────────────
-    (function () {
-      const canvas = document.getElementById('particleCanvas');
-      const ctx = canvas.getContext('2d');
+      const parts = (minutes) => {
+        const hour = Math.floor(minutes / 60), minute = minutes % 60;
+        return [(hour % 12 || 12) + ':' + (minute < 10 ? '0' : '') + minute, minutes >= 720 ? 'PM' : 'AM'];
+      };
+      const formatTime = (minutes) => parts(minutes).join(' ');
+      const formatRange = (start, end) => {
+        const first = parts(start), last = parts(end);
+        return first[0] + (first[1] === last[1] ? '' : ' ' + first[1]) + ' – ' + last[0] + ' ' + last[1];
+      };
 
-      function setSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      setSize();
-
-      let particles = [];
-      let raf = 0;
-
-      function count() {
-        return Math.floor((canvas.width * canvas.height) / 7000);
-      }
-
-      function makeParticle() {
-        const fadeDelay = Math.random() * 600 + 100;
-        return {
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          speed: Math.random() / 5 + 0.1,
-          opacity: 0.7,
-          fadeDelay,
-          fadeStart: Date.now() + fadeDelay,
-          fadingOut: false,
-        };
-      }
-
-      function resetParticle(p) {
-        p.x = Math.random() * canvas.width;
-        p.y = Math.random() * canvas.height;
-        p.speed = Math.random() / 5 + 0.1;
-        p.opacity = 0.7;
-        p.fadeDelay = Math.random() * 600 + 100;
-        p.fadeStart = Date.now() + p.fadeDelay;
-        p.fadingOut = false;
-      }
-
-      function init() {
-        particles = [];
-        const n = count();
-        for (let i = 0; i < n; i++) particles.push(makeParticle());
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const now = Date.now();
-        particles.forEach(p => {
-          p.y -= p.speed;
-          if (p.y < 0) { resetParticle(p); return; }
-          if (!p.fadingOut && now > p.fadeStart) p.fadingOut = true;
-          if (p.fadingOut) {
-            p.opacity -= 0.008;
-            if (p.opacity <= 0) { resetParticle(p); return; }
-          }
-          ctx.fillStyle = `rgba(200, 180, 255, ${p.opacity})`;
-          ctx.fillRect(p.x, p.y, 0.6, Math.random() * 2 + 1);
+      days.forEach((day, dayIndex) => {
+        const column = document.createElement('div');
+        column.className = 'day';
+        column.innerHTML = '<h2></h2><div class="well"><div class="lane"></div></div>';
+        column.querySelector('h2').textContent = day.n;
+        const lane = column.querySelector('.lane');
+        wrap.appendChild(column);
+        day.b.forEach((block) => {
+          block.day = dayIndex;
+          block.home = block.st;
+          block.i = all.length;
+          const element = document.createElement('div');
+          element.className = 'block' + (block.d >= 90 ? ' tall' : '');
+          element.tabIndex = 0;
+          element.setAttribute('role', 'button');
+          element.style.setProperty('--i', block.i);
+          element.innerHTML = '<span class="grip" aria-hidden="true"></span><b></b><span class="tm"></span><span class="sb"></span>';
+          element.querySelector('b').textContent = block.t;
+          element.querySelector('.sb').textContent = block.s;
+          const time = element.querySelector('.tm');
+          const flag = document.createElement('em');
+          flag.className = 'flag';
+          flag.textContent = ' · Overlaps';
+          time.appendChild(flag);
+          block.el = element;
+          lane.appendChild(element);
+          all.push(block);
         });
-        raf = requestAnimationFrame(draw);
-      }
+      });
 
-      function onResize() {
-        setSize();
-        cancelAnimationFrame(raf);
-        init();
-        raf = requestAnimationFrame(draw);
+      let last = null, target = null, slot = null;
+      function place(block) {
+        const element = block.el;
+        element.style.top = 'calc(var(--row) * ' + ((block.st - START) / 60) + ')';
+        element.style.height = 'calc(var(--row) * ' + (block.d / 60) + ' - 4px)';
+        element.querySelector('.tm').firstChild
+          ? element.querySelector('.tm').firstChild.nodeValue = formatRange(block.st, block.st + block.d)
+          : element.querySelector('.tm').prepend(document.createTextNode(formatRange(block.st, block.st + block.d)));
+        element.setAttribute('aria-label', days[block.day].n + ', ' + block.t + ', ' + formatRange(block.st, block.st + block.d) + '. Use the up and down arrow keys to move it.');
       }
+      function pairs() {
+        return all.flatMap((a) => all.filter((b) => a.i < b.i && a.day === b.day).flatMap((b) => {
+          const overlap = Math.min(a.st + a.d, b.st + b.d) - Math.max(a.st, b.st);
+          return overlap > 0 ? [{ a, b }] : [];
+        }));
+      }
+      function freeSlot(block) {
+        let best = null;
+        for (let start = START; start + block.d <= END; start += STEP) {
+          if (all.some((other) => other !== block && other.day === block.day &&
+            start < other.st + other.d && other.st < start + block.d)) continue;
+          const distance = Math.abs(start - block.st);
+          if (!best || distance < best.distance) best = { start, distance };
+        }
+        return best;
+      }
+      function render() {
+        const overlaps = pairs();
+        all.forEach((block) => block.el.classList.remove('clash'));
+        overlaps.forEach(({ a, b }) => { a.el.classList.add('clash'); b.el.classList.add('clash'); });
+        chip.dataset.s = overlaps.length ? 'clash' : 'ok';
+        chip.textContent = overlaps.length + (overlaps.length === 1 ? ' overlap' : ' overlaps');
+        target = null; slot = null;
+        let text;
+        if (overlaps.length) {
+          const pair = overlaps[0];
+          target = pair.a === last ? pair.a : pair.b === last ? pair.b : (pair.a.st > pair.b.st ? pair.a : pair.b);
+          slot = freeSlot(target);
+          text = 'Overlap detected on ' + days[target.day].n + ', ' + (slot ? formatTime(slot.start) + ' is the optimal time.' : 'no free time is left for it.');
+        } else {
+          text = 'No overlaps. Drag a block onto another to see what happens.';
+        }
+        if (overlaps.length === 0) chip.textContent = 'No overlaps';
+        moveButton.disabled = !slot;
+        moveButton.setAttribute('aria-label', slot ? 'Move ' + target.t + ' to ' + formatTime(slot.start) : 'Move, unavailable');
+        resetButton.disabled = !all.some((block) => block.st !== block.home);
+        if (msg.textContent !== text) { msg.textContent = text; live.textContent = text; }
+      }
+      moveButton.addEventListener('click', () => {
+        if (slot) { target.st = slot.start; place(target); render(); }
+      });
+      resetButton.addEventListener('click', () => {
+        all.forEach((block) => { block.st = block.home; place(block); });
+        last = null; render();
+      });
+      function find(element) { return all.find((block) => block.el === element); }
+      wrap.addEventListener('pointerdown', (event) => {
+        const element = event.target.closest('.block');
+        if (!element || event.button > 0 || (event.pointerType === 'touch' && !event.target.closest('.grip'))) return;
+        const block = find(element), rowPixels = element.parentNode.clientHeight / 10;
+        const y0 = event.clientY, start0 = block.st;
+        last = block;
+        element.setPointerCapture(event.pointerId);
+        element.classList.add('drag');
+        element.focus({ preventScroll: true });
+        event.preventDefault();
+        const move = (current) => {
+          const next = Math.max(START, Math.min(END - block.d, Math.round((start0 + (current.clientY - y0) / rowPixels * 60) / STEP) * STEP));
+          if (next !== block.st) { block.st = next; place(block); render(); }
+        };
+        const up = () => {
+          element.classList.remove('drag');
+          element.removeEventListener('pointermove', move);
+          element.removeEventListener('pointerup', up);
+          element.removeEventListener('pointercancel', up);
+        };
+        element.addEventListener('pointermove', move);
+        element.addEventListener('pointerup', up);
+        element.addEventListener('pointercancel', up);
+      });
+      wrap.addEventListener('keydown', (event) => {
+        const element = event.target.closest('.block');
+        if (!element || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+        event.preventDefault();
+        const block = find(element);
+        last = block;
+        const next = Math.max(START, Math.min(END - block.d, block.st + (event.key === 'ArrowUp' ? -STEP : STEP)));
+        if (next !== block.st) { block.st = next; place(block); render(); }
+      });
+      all.forEach(place);
+      render();
+    })();
 
+    const goTo = (path) => { window.location.href = path; };
+    document.getElementById('login-btn').addEventListener('click', () => goTo('./pages/login.html'));
+    document.getElementById('signup-btn').addEventListener('click', () => goTo('./pages/signup.html'));
+    document.getElementById('get-started-btn').addEventListener('click', () => goTo('./pages/signup.html'));
+    document.getElementById('login-hero-btn').addEventListener('click', () => goTo('./pages/login.html'));
+
+    (() => {
+      const canvas = document.getElementById('particleCanvas'), context = canvas.getContext('2d');
+      let particles = [], animationFrame = 0;
+      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+      const reset = (particle) => Object.assign(particle, {
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        speed: Math.random() / 5 + 0.1, opacity: 0.7,
+        fadeStart: Date.now() + Math.random() * 600 + 100, fadingOut: false
+      });
+      const init = () => {
+        particles = Array.from({ length: Math.floor(canvas.width * canvas.height / 7000) }, () => {
+          const particle = {};
+          reset(particle);
+          return particle;
+        });
+      };
+      const draw = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const now = Date.now();
+        particles.forEach((particle) => {
+          particle.y -= particle.speed;
+          if (particle.y < 0) { reset(particle); return; }
+          if (!particle.fadingOut && now > particle.fadeStart) particle.fadingOut = true;
+          if (particle.fadingOut) particle.opacity -= 0.008;
+          if (particle.opacity <= 0) { reset(particle); return; }
+          context.fillStyle = 'rgba(200, 180, 255, ' + particle.opacity + ')';
+          context.fillRect(particle.x, particle.y, 0.6, Math.random() * 2 + 1);
+        });
+        animationFrame = requestAnimationFrame(draw);
+      };
+      const onResize = () => { resize(); cancelAnimationFrame(animationFrame); init(); animationFrame = requestAnimationFrame(draw); };
+      resize(); init(); animationFrame = requestAnimationFrame(draw);
       window.addEventListener('resize', onResize);
-      init();
-      raf = requestAnimationFrame(draw);
     })();
   </script>
 </body>

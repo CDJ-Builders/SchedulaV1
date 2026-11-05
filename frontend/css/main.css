@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Patrick+Hand&display=swap');
-@import url('https://fonts.cdnfonts.com/css/hubot-sans');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap');
 
 :root {
   color-scheme: dark;
@@ -71,7 +70,7 @@ body, header, main, section, div, input, select, button, span, h1, h2, h3, p, a 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   color: var(--text);
   background: radial-gradient(circle at top, var(--radial-glow), transparent 30%),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
@@ -287,7 +286,7 @@ body::before {
 
 h1 {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   font-weight: 700;
   font-size: clamp(2rem, 3vw, 2.75rem);
   letter-spacing: -0.02em;
@@ -882,7 +881,7 @@ select option {
   font-weight: 700;
   margin: 0 0 12px;
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
 }
 
 .custom-modal-body {
