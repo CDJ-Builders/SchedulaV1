@@ -17,6 +17,7 @@ module.exports = {
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || (process.env.JWT_SECRET + '_refresh'),
   ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || process.env.JWT_SECRET,
   PORT: process.env.PORT || 3000,
+  API_RATE_LIMIT: parseInt(process.env.API_RATE_LIMIT, 10) || (isProd ? 100 : 1000),
   SERVE_STATIC: process.env.SERVE_STATIC === 'true',
   SMTP: {
     HOST: process.env.SMTP_HOST,

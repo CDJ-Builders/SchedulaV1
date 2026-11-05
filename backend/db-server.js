@@ -24,7 +24,8 @@ app.use((req, res, next) => {
 // 3. Rate limiting (Global, per IP for /api)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: env.API_RATE_LIMIT,
+  skip: req => req.method === 'OPTIONS',
   message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 app.use('/api', limiter);

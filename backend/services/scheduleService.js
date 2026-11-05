@@ -1,4 +1,32 @@
 const { pool } = require('../config/database');
+const WEEKDAYS = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+
+function configurationError(message) {
+  const error = new Error(message);
+  error.status = 400;
+  return error;
+}
+
+function normalizeConfiguration(configuration) {
+  if (!Array.isArray(configuration) || !configuration.length) {
+    throw configurationError('configuration must contain at least one weekly block');
+  }
+  return configuration.map((block) => {
+    const title = typeof block?.title === 'string' ? block.title.trim() : '';
+    const description = typeof block?.description === 'string' ? block.description.trim() : '';
+    const weekdays = Array.isArray(block?.weekdays)
+      ? [...new Set(block.weekdays.filter(day => WEEKDAYS.has(day)))]
+      : [];
+    const startTime = typeof block?.start_time === 'string' ? block.start_time : '';
+    const endTime = typeof block?.end_time === 'string' ? block.end_time : '';
+    const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+    if (!title || weekdays.length !== 1 || !validTime.test(startTime) || !validTime.test(endTime)) {
+      throw configurationError('Each weekly block requires title, weekdays, start_time, and end_time');
+    }
+    if (endTime <= startTime) throw configurationError('end_time must be later than start_time');
+    return { title, description, weekdays, start_time: startTime, end_time: endTime };
+  });
+}
 
 const EVENT_COLUMNS = `
   e.id,
@@ -75,13 +103,15 @@ function validateEvent(event) {
 async function listSchedules(userId) {
   const result = await pool.query(
     `SELECT s.id, s.owner_user_id, s.group_id, s.title, s.timezone, s.color,
+            COALESCE(sc.context, '[]'::jsonb) AS configuration,
             s.created_at, s.updated_at,
             COALESCE(jsonb_agg(to_jsonb(e) - 'event_window' ORDER BY e.start_at)
               FILTER (WHERE e.id IS NOT NULL), '[]'::jsonb) AS events
        FROM schedules s
+       LEFT JOIN schedule_context sc ON sc.schedule_id = s.id AND sc.deleted_at IS NULL
        LEFT JOIN events e ON e.schedule_id = s.id AND e.deleted_at IS NULL
       WHERE s.owner_user_id = $1 AND s.deleted_at IS NULL
-      GROUP BY s.id
+      GROUP BY s.id, sc.context
       ORDER BY s.updated_at DESC`,
     [userId]
   );
@@ -106,6 +136,9 @@ async function createSchedule(userId, input) {
 }
 
 async function updateSchedule(userId, scheduleId, input) {
+  const configuration = Object.prototype.hasOwnProperty.call(input, 'configuration')
+    ? normalizeConfiguration(input.configuration)
+    : null;
   const result = await pool.query(
     `UPDATE schedules
         SET title = COALESCE($1, title),
@@ -120,6 +153,17 @@ async function updateSchedule(userId, scheduleId, input) {
     const error = new Error('Schedule not found');
     error.status = 404;
     throw error;
+  }
+  if (configuration) {
+    await pool.query(
+      `INSERT INTO schedule_context (schedule_id, context)
+       VALUES ($1, $2::jsonb)
+       ON CONFLICT (schedule_id)
+       DO UPDATE SET context = EXCLUDED.context,
+                     updated_at = CURRENT_TIMESTAMP,
+                     deleted_at = NULL`,
+      [scheduleId, JSON.stringify(configuration)]
+    );
   }
   return result.rows[0];
 }

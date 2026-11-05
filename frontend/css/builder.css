@@ -8,19 +8,20 @@
 }
 
 .event-form-panel h2 { margin: 0 0 16px; }
-.event-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.event-form-grid { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(260px, 2fr); gap: 18px; align-items: stretch; }
+.builder-form-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.builder-form-column .field { flex: 1; }
 .event-form-grid .field { display: flex; flex-direction: column; gap: 6px; }
 .event-form-grid .field span { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .event-form-grid input, .event-form-grid select, .event-form-grid textarea {
   width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-button);
   background: var(--input-bg); color: var(--text); font: inherit; box-sizing: border-box;
 }
-.event-form-grid textarea { resize: vertical; }
+.event-form-grid textarea { height: 100%; min-height: 132px; resize: none; }
+.event-form-grid small { color: var(--muted); font-size: 0.72rem; line-height: 1.3; }
 .event-form-grid input:focus, .event-form-grid select:focus, .event-form-grid textarea:focus {
   outline: 2px solid var(--accent); outline-offset: 1px;
 }
-.event-details { margin: 18px 0; }
-.event-details summary { cursor: pointer; color: var(--accent); font-weight: 700; margin-bottom: 14px; }
 .events-list { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 16px 0; }
 .event-card {
   background: var(--panel-glass); border: 1px solid var(--panel-border-glass); border-left: 4px solid var(--accent);
@@ -38,4 +39,15 @@
 .save-schedule-container { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; background: var(--panel-glass); border: 1px solid var(--panel-border-glass); border-radius: var(--radius-container); }
 .save-schedule-wrapper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-weight: 700; }
 .save-input { min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-button); background: var(--input-bg); color: var(--text); font: inherit; }
-@media (max-width: 640px) { .save-schedule-container, .schedules-header-container { align-items: stretch; } .schedules-header-container > .flex-center-gap { width: 100%; } .schedule-selector { width: auto; flex: 1; min-width: 0; } .save-input { width: 100%; } }
+@media (max-width: 760px) {
+  .event-form-grid { grid-template-columns: 1fr 1fr; }
+  .description-field { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .event-form-grid { grid-template-columns: 1fr; }
+  .description-field { grid-column: auto; }
+  .save-schedule-container, .schedules-header-container { align-items: stretch; }
+  .schedules-header-container > .flex-center-gap { width: 100%; }
+  .schedule-selector { width: auto; flex: 1; min-width: 0; }
+  .save-input { width: 100%; }
+}

@@ -23,33 +23,30 @@
   <main class="page-content">
     <div class="page-title"><div class="page-title-header"><img src="../assets/builder.png" alt="Schedule Builder" class="page-title-icon"><h1 class="page-title-text">Schedule Builder</h1></div><p>Create a schedule and add events to it.</p></div>
     <section class="page-panel">
-      <div class="schedules-header-container"><h2 class="schedules-title">Schedules</h2><div class="flex-center-gap"><button id="delete-schedule-btn" class="btn-remove btn-delete-schedule"><img src="../assets/delete.png" alt="Delete" class="btn-icon"> DELETE</button><select id="schedule-selector" class="schedule-selector" aria-label="Select schedule"><option value="new">+ Create New Schedule</option></select></div></div>
+      <div class="schedules-header-container"><h2 class="schedules-title">Schedules</h2><div class="flex-center-gap"><button id="delete-schedule-btn" class="btn-remove btn-delete-schedule" type="button"><img src="../assets/delete.png" alt="Delete" class="btn-icon"> DELETE</button><select id="schedule-selector" class="schedule-selector" aria-label="Select schedule"><option value="new">+ Create New Schedule</option></select></div></div>
       <div class="event-form-panel">
-        <h2>Add event</h2>
+        <h2>Add weekly block</h2>
         <div class="event-form-grid">
-          <label class="field"><span>Title</span><input id="event-title" type="text" required placeholder="Team planning"></label>
-          <label class="field"><span>Start</span><input id="event-start" type="datetime-local" required></label>
-          <label class="field"><span>End</span><input id="event-end" type="datetime-local" required></label>
-          <label class="field"><span>Timezone</span><input id="event-timezone" type="text" value="UTC" placeholder="UTC"></label>
+          <div class="builder-form-column">
+            <label class="field"><span>Title</span><input id="event-title" type="text" required placeholder="Enter a Title"></label>
+            <label class="field"><span>Weekday</span><select id="event-weekdays" required>
+              <option value="">Select a weekday</option>
+              <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option>
+            </select></label>
+          </div>
+          <div class="builder-form-column">
+            <label class="field"><span>Start time</span><input id="event-start" type="time" required></label>
+            <label class="field"><span>End time</span><input id="event-end" type="time" required></label>
+          </div>
+          <label class="field description-field"><span>Description</span><textarea id="event-description" rows="5"></textarea></label>
         </div>
-        <details class="event-details"><summary>Add details</summary><div class="event-form-grid">
-          <label class="field"><span>Description</span><textarea id="event-description" rows="2"></textarea></label>
-          <label class="field"><span>Location or URL</span><input id="event-location" type="text"></label>
-          <label class="field"><span>Modality</span><select id="event-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></label>
-          <label class="field"><span>Category or tag</span><input id="event-category" type="text"></label>
-          <label class="field"><span>Priority</span><input id="event-priority" type="number" min="0"></label>
-          <label class="field"><span>Status</span><input id="event-status" type="text" placeholder="planned"></label>
-          <label class="field"><span>Recurrence rule</span><input id="event-recurrence-rule" type="text" placeholder="FREQ=WEEKLY"></label>
-          <label class="field"><span>Reminder offset (minutes)</span><input id="event-reminder" type="number" min="0"></label>
-          <label class="field"><span>Notes</span><textarea id="event-notes" rows="2"></textarea></label>
-          <label class="field"><span>Color</span><input id="event-color" type="color" value="#2f6f68"></label>
-        </div></details>
-        <button id="add-event-btn" class="btn-primary" type="button">Add event</button><p id="builder-message" class="text-muted-light" role="status"></p>
+        <button id="add-event-btn" class="btn-primary" type="button">Add block</button><p id="builder-message" class="text-muted-light" role="status"></p>
       </div>
       <div class="events-list single-column" id="scheduledList"></div>
       <div class="save-schedule-container"><label class="save-schedule-wrapper" for="schedule-name-input">Schedule title<input type="text" id="schedule-name-input" class="save-input" value="My schedule"></label><button id="save-schedule-btn" class="btn-primary btn-save" type="button"><img src="../assets/save.png" alt="Save" class="btn-icon"> SAVE</button></div>
     </section>
   </main>
-  <script src="../frontend/scripts/utils.js"></script><script src="../frontend/scripts/popup.js"></script><script src="../frontend/scripts/footer.js"></script><script src="../frontend/scripts/auth.js"></script><script src="../frontend/scripts/subjects.js"></script>
+  <script src="../frontend/scripts/utils.js"></script><script src="../frontend/scripts/popup.js"></script><script src="../frontend/scripts/footer.js"></script><script src="../frontend/scripts/auth.js"></script><script src="../frontend/scripts/schedules.js"></script>
 </body>
 </html>

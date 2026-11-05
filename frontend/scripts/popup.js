@@ -77,6 +77,10 @@
     window.alert(`Success: ${message}`, title || 'Success');
   };
 
+  window.noticePopup = function (message, title) {
+    window.alert(message, title || 'Notice');
+  };
+
   /**
    * Spawns a custom confirmation dialog.
    * Fires the appropriate callback depending on user interaction.
