@@ -1,5 +1,5 @@
   
-***Deliverable 1: Sprint Planning and Goal***
+***Sprint Planning and Goal***
 
 | Project Name:  | Schedula: Build Your Daily Blocks |  |
 | :---- | :---- | :---- |
@@ -8,7 +8,7 @@
 |  | **Scrum Master:** Devega, Adrian Nate | Tracks milestones, removes blockers, and manages time. |
 |  | **Development Team:** Carmona, Devega, Jimenez | Handles design, wireframing, architecture, and prototyping |
 
-***Deliverable 2: Product Backlog and Sprint Backlog*** 
+***Product Backlog and Sprint Backlog*** 
 
 1. Product Backlog (Master Features List): 
 
@@ -28,24 +28,21 @@
 |  | As a **user**, I want to export my schedule as a PNG/PDF so that I can easily share and use it for purposes outside the system. |
 |  | As a **user**, I want to be able to copy my schedule link so that I can share it with others within the system. |
 |  | As a **user**, I want to customize the visual layout of my schedule so that it suits my preferences. |
-| **Core Feature 4: Chat Scheduling Assistant** *Artificial Intelligence integration* | As a **user**, I want to have an assistant to make scheduling suggestions so that I don’t have to manually navigate the system. |
-|  | As a **user**, I want the assistant to understand my data and preferences so that it makes relevant decisions and learns over time. |
-|  | As a **leader**, I want the assistant to propose meeting times and deadlines across team members so that I can coordinate and delegate quickly. |
-| **Core Feature 5: Authentication** *Save and Secure Schedule, Preferences, and Availability Data* | As a **user**, I want to create an account so that my schedules and data are saved and protected |
+| **Core Feature 4: Authentication** *Save and Secure Schedule, Preferences, and Availability Data* | As a **user**, I want to create an account so that my schedules and data are saved and protected |
 |  | As a **user**, I want to log-in securely so that I can consistently access my saved schedules. |
 |  | As a **user**, I want my passwords encrypted so that it is stored in the system securely. |
 |  | As a **user**, I want to control what data is collected and how it is used so that I retain my user rights and agency. |
-| **Core Feature 6: Authorization** *Personal users, Team Users, Team Admins, Super Admins or Developers* | As a **user**, I want only-me access to my personal schedule so that my data remains private. |
+| **Core Feature 5: Authorization** *Personal users, Team Users, Team Admins, Super Admins or Developers* | As a **user**, I want only-me access to my personal schedule so that my data remains private. |
 |  | As a **team leade**r, I want to grant team members flexible access so that we can collaborate efficiently. |
 |  | As a **developer**, I want super-admin access so that I can debug and manage system issues to maintain application health. |
 | **SECONDARY FEATURES** |  |
 | **Feature** | **User Story** |
-| **Secondary Feature 7: Smart Deadlines and Reminders** *For Tasks and Meetings* | As a **student,** I want to set flexible deadlines for assignments so that I work on them before the submission date. |
+| **Secondary Feature 5: Smart Deadlines and Reminders** *For Tasks and Meetings* | As a **student,** I want to set flexible deadlines for assignments so that I work on them before the submission date. |
 |  | As a **user**, I want to receive reminders before set deadlines so that I can prepare to do them. |
 |  | As a **user**, I want to receive meeting reminders so that I don’t miss group sessions. |
-| **Secondary Feature 8: Streak Reward System** *For Consistent Users* | As a user, I want to see my usage streak so that I’m incentivized to be consistent with following deadlines and attending meetings. |
+| **Secondary Feature 7: Streak Reward System** *For Consistent Users* | As a user, I want to see my usage streak so that I’m incentivized to be consistent with following deadlines and attending meetings. |
 |  | As a team leader, I want to see which members have a consistent streak so that I can rate their performance. |
-| **Secondary Feature 9: Enhanced User Interface and User Experience**  *React-based, Skeuomorphic and Glassmorphic* | As a user, I want to see smooth animations and transitions so that the interface feels responsive. |
+| **Secondary Feature 8: Enhanced User Interface and User Experience**  *React-based, Skeuomorphic and Glassmorphic* | As a user, I want to see smooth animations and transitions so that the interface feels responsive. |
 |  | As a user, I want the interface to work on mobile, tablet, and desktop so that I can access my schedule anywhere. |
 
 2. Sprint Backlog (Selected Scope for 3-Hour Lab Target): 
@@ -60,7 +57,7 @@
 | Task 6:  | Create an MVP prototype of Schedula, with a demo of Smart Scheduling. | Urgent | Done |
 | Task 7: | Create a logo and banner for Schedula / CDJ Builders | Low | Done |
 
-***Deliverable 3: Collaborative Teamwork and Kanban Board***
+**Collaborative Teamwork and Kanban Board***
 
 | To Do (Not Started) | In Progress (Current)  | Done (Completed) |
 | ----- | ----- | :---: |
@@ -68,18 +65,6 @@
 | **Task 5:**  Finalize data description |  | **Task 4:**  Create a survey |
 |  |  | **Task 3:**  Create a flowchart for Feature 1 |
 |  |  | **Task 7:** Create Logos |
-
-***Deliverable 4: Responsible AI-Assisted Project Planning***  
-**AI Usage in Project Planning:**   
-AI tools were used to assist with the documentation process and debugging. AI was strictly used for explaining the syntax and functionality of features, the team did not use it for the finalizing steps with the project documentation or program code itself.
-
-**Data Privacy & Ethics Compliance:**   
-Data gathered from surveys and questionnaires were anonymized to protect personal surveyee information. Any sensitive data and proprietary code is strictly not inputted into any systems or code. 
-
-**Human Oversight & Verification:**   
-AI assistance in code writing was used, but all output from AI was rigorously reviewed and modified when needed. It is ensured that all code is scalable and without error.
-
-***Deliverable 5: Sprint Review & Retrospective***
 
 **Sprint Review (Demo Summary):**  
 The team successfully demonstrated a working prototype of Schedula: Build Your Daily Blocks. The prototype is guided by a flowchart that effectively expresses the system flow. The program successfully adapted to the users’ schedules with the core smart scheduling module to deliver a schedule with common hours between team members. In addition, the team created a User Requirements Survey to assess all proposed features with data from a real user base. The team also finalized logos for both the project and the organization.
@@ -91,9 +76,4 @@ In the next sprint, the team will aim to develop UI mockups, design data flow, a
 | Team coordination and planning was sufficient. | Team assigned deadlines need to be more specific. |
 | The division of workloads was the right amount. |  |
 | Team members were assigned tasks according to their strengths. |  |
-
-| Survey Link | https\://tinyurl.com/00SchedulaUserSurvey |
-| :---: | :---- |
-| **Prototype Repository** | https\://github.com/CDJ-AppDev/SchedulaV1 |
-| **Feature 1 Flowchart** | https\://canva.link/czi01saota6qiac |
 
