@@ -1,154 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedula</title>
-  <meta name="description"
-    content="Build conflict-free academic schedules, visualize your semester at a glance, and optimize your courses. Fast, minimal, and student-first.">
-  <link rel="icon" type="image/png" href="./favicon.png">
-  <link rel="stylesheet" href="./frontend/css/landing.css">
-  <script src="./frontend/scripts/theme.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schedula – Build your daily blocks</title>
+<link rel="stylesheet" href="frontend/css/theme.css">
+<link rel="stylesheet" href="frontend/css/landing.css">
 </head>
-
-<body class="hero-root">
-
-  <!-- Particle Canvas -->
-  <canvas id="particleCanvas" class="particleCanvas"></canvas>
-
-  <!-- Animated Accent Grid Lines -->
-  <div class="accent-lines" aria-hidden="true">
-    <div class="hline"></div>
-    <div class="hline"></div>
-    <div class="hline"></div>
-    <div class="vline"></div>
-    <div class="vline"></div>
-    <div class="vline"></div>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="m" fill-rule="evenodd" d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z"/></defs></svg>
+<div class="page">
+ <a class="brand" href="#top"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#A27CB7"/><use href="#m" x="10.5" y="11.5" fill="#62298A"/><use href="#m" fill="#fff"/></svg>Schedula</a>
+ <main class="hero" id="top">
+  <div>
+   <h1><span>Build your</span><span>daily blocks</span></h1>
+   <p class="lede">Add your classes and meetings, see clashes the moment they happen, and share the plan with your team.</p>
+   <div class="cta"><button class="key" type="button">Create account</button><button class="key lav" type="button">Log in</button></div>
   </div>
-
-  <!-- Header -->
-  <header class="hero-header">
-    <a class="hero-brand" href="./index.html" aria-label="Schedula home">
-      <img src="./assets/logo.png" alt="Logo" class="hero-logo">
-      <span class="hero-brand-text">Schedula</span>
-    </a>
-    <nav class="hero-nav" aria-label="Main navigation">
-      <button class="hero-cta-secondary theme-toggle"
-        style="display: flex; align-items: center; justify-content: center; width: 36px; padding: 0; flex-shrink: 0;"
-        aria-label="Toggle theme"></button>
-      <button class="hero-cta-secondary" id="login-btn" aria-label="Log in to your account">Login</button>
-      <button class="hero-cta-primary" id="signup-btn" aria-label="Create a new account">Sign Up</button>
-    </nav>
-  </header>
-
-  <!-- Hero Center -->
-  <main class="hero-center" id="main-content">
-    <div class="hero-copy">
-      <p class="hero-kicker">Schedula</p>
-      <h1 class="hero-title">Build your Daily Blocks</h1>
-      <p class="hero-subtitle">Plan your semester, organize your teams, <br> and visualize your schedule all in one
-        place</p>
-      <div class="hero-actions">
-        <button class="hero-btn-primary" id="get-started-btn">Get Started</button>
-        <button class="hero-btn-ghost" id="login-hero-btn">Login</button>
-      </div>
+  <section aria-label="Try moving blocks on two sample days">
+   <div class="days" id="days"></div>
+   <div class="dock">
+    <p id="msg"></p>
+    <div class="acts">
+     <button class="key sm" type="button" id="mv">Move</button>
+     <button class="key sm lav" type="button" id="rs">Reset</button>
+     <span class="chip" id="chip" data-s="ok">No overlaps</span>
     </div>
-  </main>
-
-  <script src="./frontend/scripts/popup.js"></script>
-  <script src="./frontend/scripts/footer.js"></script>
-  <script>
-    // ── Navigation ───────────────────────────────────────────────
-    document.getElementById('login-btn').addEventListener('click', () => {
-      window.location.href = './pages/login.html';
-    });
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      window.location.href = './pages/signup.html';
-    });
-    document.getElementById('get-started-btn').addEventListener('click', () => {
-      window.location.href = './pages/signup.html';
-    });
-    document.getElementById('login-hero-btn').addEventListener('click', () => {
-      window.location.href = './pages/login.html';
-    });
-
-    // ── Particle Canvas ──────────────────────────────────────────
-    (function () {
-      const canvas = document.getElementById('particleCanvas');
-      const ctx = canvas.getContext('2d');
-
-      function setSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      setSize();
-
-      let particles = [];
-      let raf = 0;
-
-      function count() {
-        return Math.floor((canvas.width * canvas.height) / 7000);
-      }
-
-      function makeParticle() {
-        const fadeDelay = Math.random() * 600 + 100;
-        return {
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          speed: Math.random() / 5 + 0.1,
-          opacity: 0.7,
-          fadeDelay,
-          fadeStart: Date.now() + fadeDelay,
-          fadingOut: false,
-        };
-      }
-
-      function resetParticle(p) {
-        p.x = Math.random() * canvas.width;
-        p.y = Math.random() * canvas.height;
-        p.speed = Math.random() / 5 + 0.1;
-        p.opacity = 0.7;
-        p.fadeDelay = Math.random() * 600 + 100;
-        p.fadeStart = Date.now() + p.fadeDelay;
-        p.fadingOut = false;
-      }
-
-      function init() {
-        particles = [];
-        const n = count();
-        for (let i = 0; i < n; i++) particles.push(makeParticle());
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const now = Date.now();
-        particles.forEach(p => {
-          p.y -= p.speed;
-          if (p.y < 0) { resetParticle(p); return; }
-          if (!p.fadingOut && now > p.fadeStart) p.fadingOut = true;
-          if (p.fadingOut) {
-            p.opacity -= 0.008;
-            if (p.opacity <= 0) { resetParticle(p); return; }
-          }
-          ctx.fillStyle = `rgba(200, 180, 255, ${p.opacity})`;
-          ctx.fillRect(p.x, p.y, 0.6, Math.random() * 2 + 1);
-        });
-        raf = requestAnimationFrame(draw);
-      }
-
-      function onResize() {
-        setSize();
-        cancelAnimationFrame(raf);
-        init();
-        raf = requestAnimationFrame(draw);
-      }
-
-      window.addEventListener('resize', onResize);
-      init();
-      raf = requestAnimationFrame(draw);
-    })();
-  </script>
+   </div>
+   <p class="sr" id="live" aria-live="polite"></p>
+  </section>
+ </main>
+</div>
+<script>
+(function(){
+ var START=420,END=1020,STEP=30;
+ var days=[
+  {n:'Day 1',b:[
+   {t:'CS 301 · Machine Learning',s:'Prof. Reyes · Room 204',st:480,d:90},
+   {t:'CS 315 · Software Engineering',s:'Prof. Santos · Room 118',st:600,d:90},
+   {t:'Capstone Team Sync',s:'BSCS 3A · Google Meet',st:660,d:60},
+   {t:'Study group · Data Structures',s:'Library · Room 3',st:840,d:90}]},
+  {n:'Day 2',b:[
+   {t:'IT 220 · Database Systems',s:'Prof. Cruz · Room 305',st:540,d:90},
+   {t:'Math 210 · Discrete Structures',s:'Prof. Lim · Room 112',st:660,d:90},
+   {t:'Org Officers Meeting',s:'Student Council · Room 2',st:810,d:60},
+   {t:'CS 340 · Network Security Lab',s:'Prof. Tan · Lab 4',st:900,d:120}]}
+ ];
+ var all=[],wrap=document.getElementById('days');
+ var chip=document.getElementById('chip'),msg=document.getElementById('msg'),mv=document.getElementById('mv'),rs=document.getElementById('rs'),live=document.getElementById('live');
+ function parts(m){var h=Math.floor(m/60),mm=m%60;return[(h%12||12)+':'+(mm<10?'0':'')+mm,m>=720?'PM':'AM']}
+ function fmt(m){var p=parts(m);return p[0]+' '+p[1]}
+ function range(a,b){var x=parts(a),y=parts(b);return x[0]+(x[1]===y[1]?'':' '+x[1])+' – '+y[0]+' '+y[1]}
+ days.forEach(function(d,di){
+  var col=document.createElement('div');col.className='day';
+  col.innerHTML='<h2></h2><div class="well"><div class="lane"></div></div>';col.firstChild.textContent=d.n;
+  var lane=col.querySelector('.lane');wrap.appendChild(col);
+  d.b.forEach(function(b){
+   b.day=di;b.home=b.st;b.i=all.length;
+   var el=document.createElement('div');el.className='block'+(b.d>=90?' tall':'');el.tabIndex=0;el.setAttribute('role','button');el.style.setProperty('--i',b.i);
+   el.innerHTML='<span class="grip" aria-hidden="true"></span><b></b><span class="tm"></span><span class="sb"></span>';
+   el.querySelector('b').textContent=b.t;el.querySelector('.sb').textContent=b.s;
+   var tm=el.querySelector('.tm'),fl=document.createElement('em');fl.className='flag';fl.textContent=' · Overlaps';
+   tm.appendChild(document.createTextNode(''));tm.appendChild(fl);
+   b.el=el;lane.appendChild(el);all.push(b);
+  });
+ });
+ var last=null,target=null,slot=null;
+ function place(b){
+  var e=b.el,r=range(b.st,b.st+b.d);
+  e.style.top='calc(var(--row)*'+((b.st-START)/60)+')';e.style.height='calc(var(--row)*'+(b.d/60)+' - 4px)';
+  e.querySelector('.tm').firstChild.nodeValue=r;
+  e.setAttribute('aria-label',days[b.day].n+', '+b.t+', '+r+'. Use the up and down arrow keys to move it.');
+ }
+ function pairs(){var o=[];all.forEach(function(a){all.forEach(function(b){if(a.i<b.i&&a.day===b.day){var m=Math.min(a.st+a.d,b.st+b.d)-Math.max(a.st,b.st);if(m>0)o.push({a:a,b:b,m:m})}})});return o}
+ function freeSlot(b){var best=null;for(var s=START;s+b.d<=END;s+=STEP){
+  if(all.some(function(o){return o!==b&&o.day===b.day&&s<o.st+o.d&&o.st<s+b.d}))continue;
+  var dist=Math.abs(s-b.st);if(!best||dist<best.dist)best={s:s,dist:dist}}return best}
+ function render(){
+  var ps=pairs();all.forEach(function(b){b.el.classList.remove('clash')});
+  ps.forEach(function(p){p.a.el.classList.add('clash');p.b.el.classList.add('clash')});
+  chip.dataset.s=ps.length?'clash':'ok';chip.textContent=ps.length?ps.length+(ps.length>1?' overlaps':' overlap'):'No overlaps';
+  var text;target=null;slot=null;
+  if(ps.length){
+   var p=ps[0];target=(p.a===last)?p.a:(p.b===last)?p.b:(p.a.st>p.b.st?p.a:p.b);
+   slot=freeSlot(target);
+   text='Overlap detected on '+days[target.day].n+', '+(slot?fmt(slot.s)+' is the optimal time.':'no free time is left for it.');
+  }else{text='No overlaps. Drag a block onto another to see what happens.'}
+  mv.disabled=!slot;mv.setAttribute('aria-label',slot?'Move '+target.t+' to '+fmt(slot.s):'Move, unavailable');
+  rs.disabled=!all.some(function(b){return b.st!==b.home});
+  if(msg.textContent!==text){msg.textContent=text;live.textContent=text}
+ }
+ mv.addEventListener('click',function(){if(slot){target.st=slot.s;place(target);render()}});
+ rs.addEventListener('click',function(){all.forEach(function(b){b.st=b.home;place(b)});last=null;render()});
+ function find(el){for(var i=0;i<all.length;i++)if(all[i].el===el)return all[i]}
+ wrap.addEventListener('pointerdown',function(e){
+  var el=e.target.closest('.block');if(!el||e.button>0)return;
+  if(e.pointerType==='touch'&&!e.target.closest('.grip'))return;
+  var b=find(el),rowPx=el.parentNode.clientHeight/10,y0=e.clientY,s0=b.st;last=b;
+  el.setPointerCapture(e.pointerId);el.classList.add('drag');el.focus({preventScroll:true});e.preventDefault();
+  function mvf(ev){var m=Math.round((s0+(ev.clientY-y0)/rowPx*60)/STEP)*STEP;m=Math.max(START,Math.min(END-b.d,m));if(m!==b.st){b.st=m;place(b);render()}}
+  function up(){el.classList.remove('drag');el.removeEventListener('pointermove',mvf);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up)}
+  el.addEventListener('pointermove',mvf);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+ });
+ wrap.addEventListener('keydown',function(e){
+  var el=e.target.closest('.block');if(!el||(e.key!=='ArrowUp'&&e.key!=='ArrowDown'))return;
+  e.preventDefault();var b=find(el);last=b;
+  var m=b.st+(e.key==='ArrowUp'?-STEP:STEP);m=Math.max(START,Math.min(END-b.d,m));if(m!==b.st){b.st=m;place(b);render()}
+ });
+ all.forEach(place);render();
+})();
+</script>
 </body>
-
 </html>

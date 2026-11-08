@@ -37,11 +37,16 @@ body.has-site-footer .page-shell {
 }
 
 body.has-site-footer > .app-header,
+body.has-site-footer > .top,
 body.has-site-footer > main.page-content,
 body.has-site-footer > .site-footer--static {
   align-self: center;
   width: var(--app-chrome-width, min(1200px, calc(100% - 48px)));
   max-width: var(--app-chrome-max, 1200px);
+}
+
+body.has-site-footer > .page {
+  width: 100%;
 }
 
 .site-footer--static {

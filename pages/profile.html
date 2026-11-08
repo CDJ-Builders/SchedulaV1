@@ -1,18 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Schedula Profile</title>
-  <link rel="icon" type="image/png" href="../favicon.png"><link rel="stylesheet" href="../frontend/css/main.css"><link rel="stylesheet" href="../frontend/css/profile.css"><link rel="stylesheet" href="../frontend/css/glass.css"><script src="../frontend/scripts/theme.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedula Profile</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="stylesheet" href="../frontend/css/main.css">
+  <link rel="stylesheet" href="../frontend/css/profile.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap" rel="stylesheet">
+  <style>
+    /* Profile page: raised white panels, keycap buttons, lavender wells (same family as the landing page).
+       Scoped to body.pf so nothing else in the app changes. Light and dark themes follow the theme toggle. */
+    body.pf {
+      --bg: #ffffff; --panel: #ffffff; --surface: #f4ecfa; --input-bg: #ffffff;
+      --panel-glass: #ffffff; --glass: #ffffff; --panel-border-glass: #ffffff;
+      --border: rgba(42, 18, 69, .26); --text: #2a1245; --muted: #5b4778;
+      --accent: #7a3fb5; --accent-rgb: 122, 63, 181; --accent-skeuo-border: rgba(42, 18, 69, .6);
+      --grid-line: transparent; --radial-glow: transparent; --center-glow: transparent;
+      --radius-container: 24px; --radius-button: 14px;
+      --bezel: #ffffff; --edge: #62298a; --hair: rgba(42, 18, 69, .10);
+      --well: #b596c8; --dock: #e6d6f1; --dockline: #2a1245; --flag: #c2255c;
+      --bezel-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .10), 0 6px 0 #62298a, 0 14px 20px rgba(42, 18, 69, .24);
+      background: var(--bg); color: var(--text);
+      font-family: "Bricolage Grotesque", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; font-optical-sizing: auto;
+    }
+    html:not([data-theme="light"]) body.pf {
+      --bg: #1b0b33; --panel: #2c1655; --surface: #351a66; --input-bg: #3b1d66;
+      --panel-glass: #2c1655; --glass: #2c1655; --panel-border-glass: #2c1655;
+      --border: rgba(255, 255, 255, .26); --text: #ffffff; --muted: rgba(255, 255, 255, .76);
+      --accent: #bc92e6; --accent-rgb: 188, 146, 230; --accent-skeuo-border: rgba(255, 255, 255, .5);
+      --bezel: #2c1655; --hair: rgba(255, 255, 255, .14);
+      --well: #4a2080; --dock: #3a1c66; --dockline: rgba(255, 255, 255, .55);
+      --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), inset 0 -3px 0 rgba(0, 0, 0, .25), 0 0 0 1px rgba(255, 255, 255, .12), 0 6px 0 #62298a, 0 14px 20px rgba(0, 0, 0, .4);
+    }
+    body.pf::before, body.pf::after { display: none; }
+
+    /* keys */
+    body.pf :is(.nav-button, .header-icon-btn, .btn-primary, .btn-danger) {
+      --kt: #fff; --km: #f2e8fa; --kb: #e0cfee; --ks: #62298a; --kd: 5px;
+      font-family: inherit; font-weight: 700; color: #2a1245; text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+      background: linear-gradient(180deg, var(--kt), var(--km) 48%, var(--kb)); border: 1px solid rgba(42, 18, 69, .6);
+      border-radius: var(--radius-button); cursor: pointer; transform: none; transition: transform .08s, box-shadow .08s;
+      box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .18), 0 var(--kd) 0 var(--ks), 0 calc(var(--kd) + 5px) 14px rgba(42, 18, 69, .34);
+    }
+    body.pf :is(.nav-button, .header-icon-btn) { --kt: #d9c2ec; --km: #bb99d2; --kb: #a27cb7; --ks: #4a1d6d; --kd: 3px; }
+    body.pf .btn-danger { --kt: #f4a3bf; --km: #e0507f; --kb: #c2255c; --ks: #7d1239; color: #fff; text-shadow: 0 -1px 0 rgba(0, 0, 0, .3); }
+    body.pf :is(.nav-button, .header-icon-btn, .btn-primary, .btn-danger):hover:not(:disabled) { transform: translateY(-1px); }
+    body.pf :is(.nav-button, .header-icon-btn, .btn-primary, .btn-danger):active:not(:disabled) {
+      transform: translateY(calc(var(--kd) - 1px)); box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 var(--ks), 0 2px 4px rgba(42, 18, 69, .3);
+    }
+    body.pf :is(.btn-primary, .btn-danger):disabled { opacity: .55; cursor: not-allowed; transform: translateY(3px); box-shadow: inset 0 2px 4px rgba(42, 18, 69, .25), 0 2px 0 rgba(98, 41, 138, .7); }
+    body.pf :is(.btn-primary, .btn-danger) { padding: 14px 26px 15px; font-size: 1rem; }
+    body.pf :is(.nav-icon, .header-icon-img) { filter: brightness(0); opacity: .85; }
+    body.pf :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+    /* header */
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px 24px;
+      width: var(--app-chrome-width, min(1200px, calc(100% - 48px)));
+      max-width: var(--app-chrome-max, 1200px);
+      margin: 28px auto 24px;
+      align-self: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 26px;
+      letter-spacing: -.02em;
+      color: inherit;
+      text-decoration: none;
+    }
+    .mark { width: 48px; height: 48px; flex: none; }
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px 16px;
+    }
+    .nav { display: flex; flex-wrap: wrap; gap: 12px; }
+    .acct {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 42px;
+      padding: 0 16px 0 6px;
+      border-radius: 999px;
+      border: 2px solid #2a1245;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      color: #2a1245;
+    }
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid rgba(42, 18, 69, .6);
+      background: linear-gradient(180deg, #d9c2ec 0%, #a27cb7 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+      color: #2a1245;
+    }
+    .acct-name {
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #2a1245;
+    }
+
+    /* Skeuomorphic keys: raised faces with a visible side that press down */
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      font: 700 15px/1 "Bricolage Grotesque", system-ui, sans-serif;
+      padding: 12px 20px 13px;
+      border-radius: 12px;
+      border: 1px solid rgba(42, 18, 69, .6);
+      cursor: pointer;
+      color: #2a1245;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+      transition: transform .08s, box-shadow .08s;
+      background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+      box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .18), 0 5px 0 #62298a, 0 10px 14px rgba(42, 18, 69, .34);
+    }
+    .key.lav {
+      background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 50%, #a27cb7 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -3px 0 rgba(42, 18, 69, .2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42, 18, 69, .34);
+    }
+    .key:hover:not(:disabled) { transform: translateY(-1px); }
+    .key:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 #62298a, 0 2px 4px rgba(42, 18, 69, .3);
+    }
+    .key.lav:active:not(:disabled) {
+      box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 #4a1d6d, 0 2px 4px rgba(42, 18, 69, .3);
+    }
+    .key.sm { padding: 12px 20px 13px; font-size: 15px; border-radius: 12px; }
+    .key.icon { width: 42px; height: 42px; padding: 0; }
+    .key svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .key.icon svg { width: 20px; height: 20px; }
+    /* The page you are on stays pressed down */
+    .key[aria-current="page"] {
+      cursor: default;
+      transform: translateY(4px);
+      background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 50%, #a27cb7 100%);
+      box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 #4a1d6d, 0 2px 4px rgba(42, 18, 69, .3);
+    }
+    .key[aria-current="page"]:hover:not(:disabled) { transform: translateY(4px); }
+
+    /* page title */
+    body.pf .page-content { background: transparent; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    body.pf .page-title-header { display: flex; align-items: center; gap: 16px; }
+    body.pf .pf-tile { display: grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 16px; background: var(--well); border: 2px solid #fff; box-shadow: inset 0 3px 7px rgba(42, 18, 69, .3); }
+    body.pf .page-title-icon { width: 30px; height: 30px; object-fit: contain; filter: brightness(0); opacity: .85; }
+    body.pf .page-title-text { font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: .95; font-weight: 800; font-variation-settings: "wdth" 80; letter-spacing: -.035em; color: var(--text); }
+    body.pf .page-title p { margin-top: 12px; font-size: 1.15rem; font-weight: 500; color: var(--muted); max-width: 46ch; }
+
+    /* layout */
+    body.pf .profile-container-two-col { background: transparent; border: 0; box-shadow: none; padding: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    body.pf .pf-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 36px; align-items: start; margin-top: 32px; }
+    body.pf .pf-stack { display: grid; gap: 36px; }
+    body.pf .pf-panel {
+      display: flex; flex-direction: column; gap: 18px; padding: 28px; margin: 0;
+      background: var(--bezel); border: 2px solid var(--bezel); border-radius: var(--radius-container); box-shadow: var(--bezel-shadow);
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+    body.pf .pf-panel h2 { margin: 0; font-size: 1.5rem; font-weight: 800; font-variation-settings: "wdth" 85; letter-spacing: -.02em; color: var(--text); }
+    body.pf .pf-panel > p, body.pf .pf-dock p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.4; }
+
+    /* fields: recessed */
+    body.pf .pf-fields { display: flex; flex-direction: column; gap: 16px; }
+    body.pf .pf-field, body.pf .profile-select-group { display: flex; flex-direction: column; gap: 7px; margin: 0; font-size: .76rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+    body.pf .pf-field :is(input, select), body.pf .profile-select-group :is(input, select) {
+      width: 100%; padding: 13px 14px; border: 1px solid var(--border); border-radius: var(--radius-button);
+      background: var(--input-bg); color: var(--text); font: 500 1rem/1.3 "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: 0; text-transform: none; box-sizing: border-box;
+      box-shadow: inset 0 2px 4px rgba(42, 18, 69, .14);
+    }
+    body.pf .pf-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    body.pf :is(.pf-field, .profile-select-group) { min-width: 0; }
+    body.pf :is(.pf-field, .profile-select-group) :is(input, select) { min-width: 0; max-width: 100%; }
+    body.pf ::-webkit-calendar-picker-indicator { opacity: .7; }
+    html:not([data-theme="light"]) body.pf ::-webkit-calendar-picker-indicator { filter: invert(1); }
+    body.pf select option { color: #2a1245; background: #fff; }
+    body.pf :is(#save-profile-btn, #save-preferences-btn, #add-availability-btn) { align-self: flex-start; }
+
+    /* availability: form in a flat dock, entries as glass blocks on a lavender well */
+    body.pf .pf-dock { display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--dock); border: 2px solid var(--dockline); border-radius: 18px; }
+    body.pf #availability-list { display: flex; flex-direction: column; gap: 10px; min-height: 96px; padding: 12px; border-radius: 18px; background: var(--well); border: 1px solid var(--bezel); box-shadow: inset 0 3px 7px rgba(42, 18, 69, .3); }
+    body.pf #availability-list:empty::before { content: "Nothing added yet. Free and busy windows you add will show up here."; color: #2a1245; font-weight: 600; font-size: .95rem; padding: 10px 6px; }
+    body.pf #availability-list > * {
+      padding: 12px 14px; border-radius: 14px; margin: 0; color: #2a1245;
+      background: rgba(255, 255, 255, .46); border: 1px solid rgba(255, 255, 255, .85);
+      -webkit-backdrop-filter: blur(14px) saturate(150%); backdrop-filter: blur(14px) saturate(150%);
+      box-shadow: 0 10px 26px rgba(42, 18, 69, .26), inset 0 1px 0 rgba(255, 255, 255, .95);
+    }
+
+    /* danger zone */
+    body.pf .danger-zone-col { margin: 6px 0 0; padding: 18px; border: 2px solid var(--flag); border-radius: 16px; background: rgba(194, 37, 92, .08); }
+    body.pf .danger-zone-col h3 { margin: 0 0 4px; font-size: .95rem; letter-spacing: .08em; text-transform: uppercase; color: var(--flag); }
+    html:not([data-theme="light"]) body.pf .danger-zone-col h3 { color: #ff8fb1; }
+    body.pf .danger-zone-col p { margin: 0 0 14px; font-size: .92rem; color: var(--muted); }
+    body.pf .danger-zone-col .btn-danger { width: auto; }
+
+    @media (max-width: 1000px) { body.pf .pf-grid { grid-template-columns: minmax(0, 1fr); } }
+    body.pf :is(.pf-panel, .pf-stack, .pf-dock) { min-width: 0; }
+    @media (max-width: 600px) { body.pf .pf-row { grid-template-columns: minmax(0, 1fr); } body.pf .pf-panel { padding: 20px; } body.pf .tools { justify-content: flex-start; } }
+    @media (prefers-reduced-motion: reduce) { body.pf * { transition: none !important; } }
+  </style>
+  <script src="../frontend/scripts/theme.js"></script>
 </head>
-<body class="glass">
-  <div class="glass-bg" aria-hidden="true"><i></i><i></i><i></i></div>
-  <header class="app-header"><div class="app-brand"><img src="../assets/logo.png" alt="Schedula" class="brand-icon"><div class="brand-text"><span>Schedula</span></div></div><nav class="app-nav"><button class="nav-button" onclick="window.location.href='home.html'"><img src="../assets/home.png" alt="Home" class="nav-icon"> Home</button><button class="nav-button" onclick="window.location.href='builder.html'"><img src="../assets/builder.png" alt="Builder" class="nav-icon"> Builder</button><button class="nav-button" onclick="window.location.href='plotter.html'"><img src="../assets/plotter.png" alt="Plotter" class="nav-icon"> Plotter</button></nav><div class="header-profile"><img src="../assets/profile.png" alt="Profile" class="header-profile-img"><span class="header-username" id="header-username-display">User</span></div><div class="header-controls"><button class="header-icon-btn theme-toggle" aria-label="Toggle theme"></button><button class="header-icon-btn close-btn" onclick="handleLogout('../index.html')"><img src="../assets/logout.png" alt="Log out" class="header-icon-img"></button></div></header>
-  <main class="page-content"><div class="page-title"><div class="page-title-header"><img src="../assets/profile.png" alt="Profile" class="page-title-icon"><h1 class="page-title-text">Profile</h1></div><p>Manage your account, preferences, and availability.</p></div>
-    <div class="profile-container-two-col">
-      <section class="profile-info-panel-col"><h2>Account</h2><div class="profile-info-list-col"><label class="profile-info-field-wrapper">Display name<input id="profile-display-name" type="text"></label><label class="profile-info-field-wrapper">Email<input id="profile-email" type="email"></label><label class="profile-info-field-wrapper">New password<input id="profile-password" type="password" placeholder="Leave blank to keep it"></label><label class="profile-info-field-wrapper">Timezone<input id="profile-timezone" type="text" value="UTC"></label><label class="profile-info-field-wrapper">Locale<input id="profile-locale" type="text" value="en-US"></label></div><button id="save-profile-btn" class="btn-primary">Save profile</button><div class="danger-zone-col"><h3>Danger zone</h3><p>Permanently delete your account and its schedules.</p><button id="delete-account-btn" class="btn-danger">Delete account</button></div></section>
-      <section class="profile-selection-panel-col"><h2>Preferences</h2><div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div><div class="profile-select-group"><label for="preference-buffer">Buffer between events (minutes)</label><input id="preference-buffer" type="number" min="0" value="15"></div><div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div><button id="save-preferences-btn" class="btn-primary">Save preferences</button><hr><h2>Availability</h2><p>Mark a free or busy time window.</p><div class="event-form-grid"><label class="field"><span>Start</span><input id="availability-start" type="datetime-local"></label><label class="field"><span>End</span><input id="availability-end" type="datetime-local"></label><label class="field"><span>Type</span><select id="availability-type"><option value="busy">Busy</option><option value="free">Free</option></select></label><label class="field"><span>Label</span><input id="availability-label" type="text"></label></div><button id="add-availability-btn" class="btn-primary">Add availability</button><div id="availability-list"></div></section>
+<body class="pf">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="m" fill-rule="evenodd" d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z"/></defs></svg>
+  <header class="top">
+    <a class="brand" href="home.html" aria-label="Schedula home"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#A27CB7"/><use href="#m" x="10.5" y="11.5" fill="#62298A"/><use href="#m" fill="#fff"/></svg>Schedula</a>
+
+    <div class="tools">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="key sm" href="home.html">Home</a>
+        <a class="key sm" href="builder.html">Builder</a>
+        <a class="key sm" href="plotter.html">Plotter</a>
+      </nav>
+      <div class="acct" role="group" aria-label="Signed-in account">
+        <span class="avatar" id="avatar" aria-hidden="true">U</span>
+        <span class="acct-name header-username" id="header-username-display">User</span>
+      </div>
+      <a class="key sm icon" href="profile.html" aria-current="page" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
+      <button class="key sm lav icon" type="button" onclick="handleLogout('../index.html')" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="page-title">
+      <div class="page-title-header">
+        <span class="pf-tile"><img src="../assets/profile.png" alt="Profile" class="page-title-icon"></span>
+        <h1 class="page-title-text">Profile</h1>
+      </div>
+      <p>Manage your account, preferences, and availability.</p>
+    </div>
+
+    <div class="profile-container-two-col pf-grid">
+      <section class="profile-info-panel-col pf-panel" aria-labelledby="account-title">
+        <h2 id="account-title">Account</h2>
+        <div class="profile-info-list-col pf-fields">
+          <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name" type="text"></label>
+          <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
+          <label class="profile-info-field-wrapper pf-field">New password<input id="profile-password" type="password" placeholder="Leave blank to keep it"></label>
+          <label class="profile-info-field-wrapper pf-field">Timezone<input id="profile-timezone" type="text" value="UTC"></label>
+          <label class="profile-info-field-wrapper pf-field">Locale<input id="profile-locale" type="text" value="en-US"></label>
+        </div>
+        <button id="save-profile-btn" class="btn-primary">Save profile</button>
+        <div class="danger-zone-col">
+          <h3>Danger zone</h3>
+          <p>Permanently delete your account and its schedules.</p>
+          <button id="delete-account-btn" class="btn-danger">Delete account</button>
+        </div>
+      </section>
+
+      <div class="pf-stack">
+        <section class="profile-selection-panel-col pf-panel" aria-labelledby="prefs-title">
+          <h2 id="prefs-title">Preferences</h2>
+          <div class="pf-fields">
+            <div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div>
+            <div class="profile-select-group"><label for="preference-buffer">Buffer between events (minutes)</label><input id="preference-buffer" type="number" min="0" value="15"></div>
+            <div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div>
+          </div>
+          <button id="save-preferences-btn" class="btn-primary">Save preferences</button>
+        </section>
+
+        <section class="pf-panel" aria-labelledby="avail-title">
+          <h2 id="avail-title">Availability</h2>
+          <div class="pf-dock">
+            <p>Mark a free or busy time window.</p>
+            <div class="event-form-grid pf-row">
+              <label class="field pf-field"><span>Start</span><input id="availability-start" type="datetime-local"></label>
+              <label class="field pf-field"><span>End</span><input id="availability-end" type="datetime-local"></label>
+              <label class="field pf-field"><span>Type</span><select id="availability-type"><option value="busy">Busy</option><option value="free">Free</option></select></label>
+              <label class="field pf-field"><span>Label</span><input id="availability-label" type="text"></label>
+            </div>
+            <button id="add-availability-btn" class="btn-primary">Add availability</button>
+          </div>
+          <div id="availability-list"></div>
+        </section>
+      </div>
     </div>
   </main>
   <script src="../frontend/scripts/utils.js"></script><script src="../frontend/scripts/popup.js"></script><script src="../frontend/scripts/footer.js"></script><script src="../frontend/scripts/auth.js"></script><script src="../frontend/scripts/profile.js"></script>
+  <script>
+  // Show the first letter of the username in the header avatar once auth.js loads it.
+  (function () {
+    var nameEl = document.getElementById('header-username-display');
+    var avatarEl = document.getElementById('avatar');
+    if (!nameEl || !avatarEl) return;
+    function sync() { avatarEl.textContent = (nameEl.textContent.trim() || 'U').charAt(0).toUpperCase(); }
+    sync();
+    new MutationObserver(sync).observe(nameEl, { childList: true, characterData: true, subtree: true });
+  })();
+  </script>
 </body>
 </html>

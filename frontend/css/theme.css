@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════
+   theme.css — Schedula Shared Design System & Skeuomorphic Tokens
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --lav: #b596c8;
+  --plum: #2a1245;
+  --purple: #62298a;
+  --flag: #c2255c;
+  --row: 56px;
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  min-height: 100svh;
+  background: #fff;
+  color: var(--plum);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-optical-sizing: auto;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 32px 56px;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+
+/* ─── Header: Brand, Navigation, Account & Tools ────────────── */
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -.02em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mark {
+  width: 48px;
+  height: 48px;
+  flex: none;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px 16px;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.acct {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px 0 6px;
+  border-radius: 999px;
+  border: 2px solid var(--plum);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--plum);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  border: 1px solid rgba(42, 18, 69, .6);
+  background: linear-gradient(180deg, #d9c2ec 0%, #a27cb7 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+  color: var(--plum);
+}
+
+.acct-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--plum);
+}
+
+/* ─── Skeuomorphic Keys: Raised Faces That Press Down ────────── */
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font: 700 16px/1 "Bricolage Grotesque", system-ui, sans-serif;
+  padding: 14px 26px 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(42, 18, 69, .6);
+  cursor: pointer;
+  color: var(--plum);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
+  transition: transform .08s, box-shadow .08s;
+  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .18), 0 5px 0 var(--purple), 0 10px 14px rgba(42, 18, 69, .34);
+}
+
+.key.lav {
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 50%, #a27cb7 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -3px 0 rgba(42, 18, 69, .2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42, 18, 69, .34);
+}
+
+.key:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 var(--purple), 0 2px 4px rgba(42, 18, 69, .3);
+}
+
+.key.lav:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 #4a1d6d, 0 2px 4px rgba(42, 18, 69, .3);
+}
+
+.key:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .25), 0 2px 0 rgba(98, 41, 138, .7);
+}
+
+.key.sm {
+  padding: 11px 18px 12px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+
+.key.icon {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+}
+
+.key svg,
+.key.icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.key.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Page indicator stays pressed down */
+.key[aria-current="page"] {
+  cursor: default;
+  transform: translateY(4px);
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 50%, #a27cb7 100%);
+  box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 #4a1d6d, 0 2px 4px rgba(42, 18, 69, .3);
+}
+
+.key[aria-current="page"]:hover:not(:disabled) {
+  transform: translateY(4px);
+}
+
+/* ─── Lavender Wells & Grid Lanes ────────────────────────────── */
+.well {
+  background: #b596c8;
+  border: 1px solid #fff;
+  border-radius: 18px;
+}
+
+.lane {
+  position: relative;
+  border-radius: inherit;
+  padding: 18px 22px;
+  background-color: rgba(255, 255, 255, .32);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 3px 7px rgba(42, 18, 69, .28), inset 0 0 0 1px rgba(255, 255, 255, .55);
+  background-image: repeating-linear-gradient(to bottom, rgba(98, 41, 138, .22) 0 1px, transparent 1px var(--row)),
+                    repeating-linear-gradient(to bottom, rgba(98, 41, 138, .08) 0 1px, transparent 1px calc(var(--row) / 2));
+}
+
+.tip-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tip-box b {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--plum);
+}
+
+.tip-box p {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgba(42, 18, 69, .85);
+}
+
+/* ─── Skeuomorphic Cards & Form Fields ───────────────────────── */
+.card {
+  padding: 30px 32px 32px;
+  border-radius: 24px;
+  background: #fff;
+  border: 2px solid #fff;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .1), 0 6px 0 var(--purple), 0 14px 20px rgba(42, 18, 69, .26);
+}
+
+.card h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.card .subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(42, 18, 69, .7);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--plum);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  font: 600 16px/1.3 "Bricolage Grotesque", system-ui, sans-serif;
+  color: var(--plum);
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--plum);
+  background: #fff;
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .18);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(42, 18, 69, .45);
+  font-weight: 500;
+}
+
+.field input:disabled {
+  background: #f3ecf8;
+  cursor: not-allowed;
+  opacity: .75;
+}
+
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+/* ─── Utilities ──────────────────────────────────────────────── */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
