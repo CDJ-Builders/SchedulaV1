@@ -16,8 +16,8 @@ FROM inserted_users u
 JOIN demo_users d ON d.email = u.email
 ON CONFLICT (user_id) DO UPDATE SET display_name = EXCLUDED.display_name, deleted_at = NULL;
 
-INSERT INTO preferences (user_id, buffer_minutes, modality_preference, default_view, time_of_day_preferences, conflict_tolerance)
-SELECT id, 15, 'hybrid', 'week', '{"preferred": ["morning", "afternoon"]}'::jsonb, 'strict'
+INSERT INTO preferences (user_id, preferred_modality)
+SELECT id, 'no preference'
 FROM users
 WHERE email = 'alex@example.test'
 ON CONFLICT (user_id) DO UPDATE SET deleted_at = NULL;

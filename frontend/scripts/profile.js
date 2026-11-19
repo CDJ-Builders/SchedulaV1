@@ -1,4 +1,4 @@
-/** Generic profile, preference, and availability controls. */
+/** Generic profile and preference controls. */
 
 const getElement = id => document.getElementById(id);
 
@@ -32,14 +32,6 @@ function formatDate(value) {
     dateStyle: 'medium',
     timeStyle: 'short'
   });
-}
-
-function setAvailabilityMessage(text, isError = false) {
-  const target = getElement('availability-list');
-  if (!target) return;
-
-  target.dataset.message = text;
-  target.classList.toggle('text-error-center', isError);
 }
 
 async function loadProfile() {
@@ -92,31 +84,10 @@ window.populateProfileFromUser = function (user) {
 };
 
 async function loadPreferences() {
-  const data = await api('/preferences');
-  getElement('preference-modality').value = data.modality_preference || '';
-  getElement('preference-buffer').value = data.buffer_minutes ?? 15;
-  getElement('preference-view').value = data.default_view || '';
-}
-
-async function loadAvailability() {
-  const blocks = await api('/availability');
-  const list = getElement('availability-list');
-  list.innerHTML = '';
-
-  blocks.forEach(block => {
-    const row = document.createElement('div');
-    row.className = 'profile-info-row-col';
-
-    const label = `${block.availability_type}: ${formatDate(block.start_at)} - ${formatDate(block.end_at)}${block.label ? ` | ${window.APP_UTILS.escapeHtml(block.label)}` : ''}`;
-    row.innerHTML = `
-      <span>${label}</span>
-      <button class="btn-remove" type="button" data-availability-id="${block.id}">
-        <img src="../assets/delete.png" alt="" class="btn-icon">
-        Remove
-      </button>
-    `;
-    list.appendChild(row);
-  });
+  const root = getElement('profile-preferences');
+  if (root && window.APP_PREFERENCES) {
+    await window.APP_PREFERENCES.load(root);
+  }
 }
 
 getElement('save-profile-btn').addEventListener('click', async () => {
@@ -190,61 +161,20 @@ getElement('save-profile-btn').addEventListener('click', async () => {
 });
 
 getElement('save-preferences-btn').addEventListener('click', async () => {
+  const root = getElement('profile-preferences');
   try {
-    await api('/preferences', {
-      method: 'PUT',
-      body: JSON.stringify({
-        modality_preference: getElement('preference-modality').value || null,
-        buffer_minutes: Number(getElement('preference-buffer').value) || 0,
-        default_view: getElement('preference-view').value.trim() || null
-      })
-    });
-
-    alert('Preferences saved.');
+    await window.APP_PREFERENCES.save(root);
+    if (typeof window.successPopup === 'function') {
+      window.successPopup('Preferences saved successfully.', 'Preferences saved');
+    } else {
+      alert('Preferences saved.');
+    }
   } catch (error) {
-    alert(error.message);
-  }
-});
-
-getElement('add-availability-btn').addEventListener('click', async () => {
-  const start = getElement('availability-start').value;
-  const end = getElement('availability-end').value;
-
-  if (!start || !end || new Date(end) <= new Date(start)) {
-    setAvailabilityMessage('Enter a valid availability range.', true);
-    return;
-  }
-
-  try {
-    await api('/availability', {
-      method: 'POST',
-      body: JSON.stringify({
-        start_at: new Date(start).toISOString(),
-        end_at: new Date(end).toISOString(),
-        timezone: 'UTC',
-        availability_type: getElement('availability-type').value,
-        label: getElement('availability-label').value.trim() || null
-      })
-    });
-
-    getElement('availability-label').value = '';
-    await loadAvailability();
-  } catch (error) {
-    setAvailabilityMessage(error.message, true);
-  }
-});
-
-getElement('availability-list').addEventListener('click', async event => {
-  const button = event.target.closest('[data-availability-id]');
-  if (!button) return;
-
-  try {
-    await api(`/availability/${button.dataset.availabilityId}`, {
-      method: 'DELETE'
-    });
-    await loadAvailability();
-  } catch (error) {
-    setAvailabilityMessage(error.message, true);
+    if (typeof window.noticePopup === 'function') {
+      window.noticePopup(error.message, 'Unable to save preferences');
+    } else {
+      alert(error.message);
+    }
   }
 });
 
@@ -278,10 +208,7 @@ async function initializeProfilePage() {
     setAvailabilityMessage(error.message, true);
   }
 
-  await Promise.allSettled([
-    loadPreferences(),
-    loadAvailability()
-  ]);
+  await loadPreferences();
 }
 
 if (document.readyState === 'loading') {

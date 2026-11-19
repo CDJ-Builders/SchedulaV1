@@ -25,7 +25,11 @@ router.get('/preferences', asyncHandler(async (req, res) => {
 }));
 
 router.put('/preferences', asyncHandler(async (req, res) => {
-  res.json(await userService.updatePreferences(req.user.user_id, req.body));
+  try {
+    res.json(await userService.updatePreferences(req.user.user_id, req.body));
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message || 'Unable to update preferences' });
+  }
 }));
 
 router.get('/availability', asyncHandler(async (req, res) => {

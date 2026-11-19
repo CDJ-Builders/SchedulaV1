@@ -51,7 +51,7 @@
       title: 'Privacy Policy',
       body: `
         <h4>INFORMATION WE COLLECT</h4>
-        <p>We collect information you provide when creating an account, profile preferences, availability, and schedule data you save within the application.</p>
+        <p>We collect information you provide when creating an account, profile preferences, and schedule data you save within the application.</p>
         <h4>HOW WE USE YOUR INFORMATION</h4>
         <p>Your information is used to authenticate your account, store your schedules, personalize your experience, and improve the reliability of the service.</p>
         <h4>DATA STORAGE AND SECURITY</h4>

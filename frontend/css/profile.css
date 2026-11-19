@@ -308,13 +308,21 @@ body.pf .profile-password-link:hover {
   text-underline-offset: 3px;
 }
 
-body.pf #save-profile-btn {
+body.pf #save-profile-btn,
+body.pf #save-preferences-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   height: 46px;
   min-width: 118px;
   margin: 0;
+  padding: 12px 20px 13px;
+  border-radius: 12px;
   border: 2px solid #16724a;
   background: linear-gradient(180deg, #75d9ac 0%, #3fc58a 48%, #20a96f 100%);
   color: #fff;
+  font: 700 15px/1 "Bricolage Grotesque", system-ui, sans-serif;
   text-shadow: 0 -1px 0 rgba(20,112,72,.45);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.72),
@@ -323,7 +331,8 @@ body.pf #save-profile-btn {
     0 10px 18px rgba(20,112,72,.28);
 }
 
-body.pf #save-profile-btn:hover:not(:disabled) {
+body.pf #save-profile-btn:hover:not(:disabled),
+body.pf #save-preferences-btn:hover:not(:disabled) {
   background: linear-gradient(180deg, #75d9ac 0%, #3fc58a 48%, #20a96f 100%);
   transform: translateY(-3px) scale(1.015);
   box-shadow:
@@ -333,9 +342,80 @@ body.pf #save-profile-btn:hover:not(:disabled) {
     0 14px 24px rgba(20,112,72,.28);
 }
 
-body.pf #save-profile-btn:active:not(:disabled) {
+body.pf #save-profile-btn:active:not(:disabled),
+body.pf #save-preferences-btn:active:not(:disabled) {
   transform: translateY(4px) scale(.985);
   box-shadow: inset 0 2px 5px rgba(20,112,72,.35), 0 1px 0 #16724a;
+}
+
+body.pf #save-profile-btn svg,
+body.pf #save-profile-btn svg *,
+body.pf #save-preferences-btn svg,
+body.pf #save-preferences-btn svg * {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.pf .preferences-form {
+  display: grid;
+  gap: 16px;
+}
+
+body.pf .preference-group {
+  min-width: 0;
+  border: 1px solid rgba(42, 18, 69, .18);
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px;
+}
+
+body.pf .preference-group legend {
+  padding: 0 6px;
+  color: #5b4778;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+body.pf .preference-check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.pf .preference-check-grid label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid rgba(42, 18, 69, .14);
+  border-radius: 10px;
+  background: #f8f5fb;
+  color: #2a1245;
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+body.pf .preference-check-grid input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #62298a;
+}
+
+@media (max-width: 600px) {
+  body.pf .preference-check-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 html:not([data-theme="light"]) body.pf .pf-panel,
@@ -375,7 +455,7 @@ body.pf select option {
 }
 
 body.pf :is(#save-profile-btn, #save-preferences-btn, #add-availability-btn) {
-  align-self: flex-start;
+  align-self: center;
 }
 
 /* ─── Availability Dock & List ───────────────────────────────── */
@@ -424,7 +504,7 @@ body.pf #availability-list > * {
 
 /* ─── Danger Zone ────────────────────────────────────────────── */
 body.pf .danger-zone-col {
-  margin: 6px 0 0;
+  margin: 100px 0 0;
   padding: 18px;
   border: 2px solid var(--flag);
   border-radius: 16px;

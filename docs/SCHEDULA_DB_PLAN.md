@@ -69,9 +69,7 @@ Indexes: unique user FK and active user lookup.
 
 #### `preferences`
 
-`id uuid PK`; `user_id uuid NOT NULL UNIQUE FK users`; `preferred_time_start time`; `preferred_time_end time`; `preferred_days smallint[]`; `buffer_minutes integer CHECK >= 0`; `modality_preference text CHECK (in_person/online/hybrid)`; `default_view text`; `notification_settings jsonb`; `time_of_day_preferences jsonb`; `conflict_tolerance text CHECK (strict/flexible/allow)`; standard audit timestamps.
-
-The structured JSON fields preserve feature names that SchedulaML can consume later, including time-of-day, modality, notification intent, and conflict tolerance, without requiring a model-specific schema now.
+`id uuid PK`; `user_id uuid NOT NULL UNIQUE FK users`; nine preferred time booleans (`pref_time_0708` through `pref_time_2224`); six preferred day booleans (`PrefMon` through `PrefSat`); nine avoided time booleans (`avoid_time_0708` through `avoid_time_2224`); six avoided day booleans (`AvoidMon` through `AvoidSat`); `max_back_to_back integer NOT NULL CHECK >= 0`; `commute_time integer NOT NULL CHECK >= 0`; `preferred_modality text NOT NULL CHECK (onsite/online/no preference)`.
 
 ### Scheduling core
 

@@ -39,7 +39,7 @@
           <span class="pf-tile"><img src="../assets/profile.png" alt="Profile" class="page-title-icon"></span>
           <h1 class="page-title-text">Profile</h1>
         </div>
-        <p>Manage your account, preferences, and availability.</p>
+        <p>Manage your account and scheduling preferences.</p>
       </div>
 
       <div class="profile-container-two-col pf-grid">
@@ -51,38 +51,67 @@
             <div class="profile-password-link-wrapper">
               <span><a href="forgot-password.html">Change password?</a></span>
           </div>
-          <button id="save-profile-btn" class="btn-primary" type="button">Save profile</button>
+          <button id="save-profile-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/></svg>Save Profile</button>
           <div class="danger-zone-col">
             <h3>Danger zone</h3>
             <p>Permanently delete your account and its schedules.</p>
-            <button id="delete-account-btn" class="btn-danger" type="button">Delete account</button>
+            <button id="delete-account-btn" class="btn-danger" type="button">Delete Account</button>
           </div>
         </section>
 
         <div class="pf-stack">
           <section class="profile-selection-panel-col pf-panel" aria-labelledby="prefs-title">
             <h2 id="prefs-title">Preferences</h2>
-            <div class="pf-fields">
-              <div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div>
-              <div class="profile-select-group"><label for="preference-buffer">Preferred Break Time</label><input id="preference-buffer" type="number" min="0" value="15"></div>
-              <div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div>
-            </div>
-            <button id="save-preferences-btn" class="btn-primary" type="button">Save preferences</button>
-          </section>
-
-          <section class="pf-panel" aria-labelledby="avail-title">
-            <h2 id="avail-title">Availability</h2>
-            <div class="pf-dock">
-              <p>Mark a free or busy time window.</p>
-              <div class="event-form-grid pf-row">
-                <label class="field pf-field"><span>Start</span><input id="availability-start" type="datetime-local"></label>
-                <label class="field pf-field"><span>End</span><input id="availability-end" type="datetime-local"></label>
-                <label class="field pf-field"><span>Type</span><select id="availability-type"><option value="busy">Busy</option><option value="free">Free</option></select></label>
-                <label class="field pf-field"><span>Label</span><input id="availability-label" type="text"></label>
+            <div class="preferences-form" id="profile-preferences">
+              <div class="profile-select-group"><label for="preference-modality">Preferred modality</label>
+                <select id="preference-modality" data-pref-column="preferred_modality">
+                  <option value="no preference">No Preference</option>
+                  <option value="online">Online</option>
+                  <option value="onsite">Onsite</option>
+                </select>
               </div>
-              <button id="add-availability-btn" class="btn-primary" type="button">Add availability</button>
+              <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
+              <div class="profile-select-group"><label for="max-back-to-back">Maximum back-to-back tolerance</label><input id="max-back-to-back" data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></div>
+              <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
+                <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_1214">12:00 NN - 2:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label>
+                <label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 MN</label>
+              </div></fieldset>
+              <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
+                <label><input type="checkbox" data-pref-column="PrefMon">Monday</label>
+                <label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label>
+                <label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label>
+                <label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label>
+                <label><input type="checkbox" data-pref-column="PrefFri">Friday</label>
+                <label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
+              </div></fieldset>
+              <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
+                <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label>
+                <label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 MN</label>
+              </div></fieldset>
+              <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
+                <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label>
+                <label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label>
+                <label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label>
+                <label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label>
+                <label><input type="checkbox" data-pref-column="AvoidFri">Friday</label>
+                <label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
+              </div></fieldset>
             </div>
-            <div id="availability-list"></div>
+            <button id="save-preferences-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/></svg>Save Preferences</button>
           </section>
         </div>
       </div>
@@ -95,6 +124,7 @@
   <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js"></script>
   <script src="../frontend/scripts/auth.js"></script>
+  <script src="../frontend/scripts/preferences.js"></script>
   <script src="../frontend/scripts/profile.js"></script>
 </body>
 </html>

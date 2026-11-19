@@ -83,82 +83,171 @@ async function deleteProfile(userId) {
 
 async function getPreferences(userId) {
   const result = await pool.query(
-    `SELECT preferred_time_start, preferred_time_end, preferred_days, buffer_minutes,
-            modality_preference, default_view, notification_settings,
-            time_of_day_preferences, conflict_tolerance
-       FROM preferences WHERE user_id = $1 AND deleted_at IS NULL`,
+    `SELECT pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
+            pref_time_1416, pref_time_1618, pref_time_1820, pref_time_2022, pref_time_2224,
+            "PrefMon", "PrefTue", "PrefWed", "PrefThurs", "PrefFri", "PrefSat",
+            avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
+            avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
+            "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
+            max_back_to_back, commute_time, preferred_modality
+       FROM preferences
+      WHERE user_id = $1`,
     [userId]
   );
-  return result.rows[0] || {};
+
+  if (result.rows.length) return result.rows[0];
+
+  await pool.query(
+    'INSERT INTO preferences (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING',
+    [userId]
+  );
+  const defaults = await pool.query(
+    `SELECT pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
+            pref_time_1416, pref_time_1618, pref_time_1820, pref_time_2022, pref_time_2224,
+            "PrefMon", "PrefTue", "PrefWed", "PrefThurs", "PrefFri", "PrefSat",
+            avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
+            avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
+            "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
+            max_back_to_back, commute_time, preferred_modality
+       FROM preferences
+      WHERE user_id = $1`,
+    [userId]
+  );
+  return defaults.rows[0];
 }
 
 async function updatePreferences(userId, input) {
-  const result = await pool.query(
-    `INSERT INTO preferences (
-       user_id, preferred_time_start, preferred_time_end, preferred_days,
-       buffer_minutes, modality_preference, default_view, notification_settings,
-       time_of_day_preferences, conflict_tolerance
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9::jsonb, $10)
-     ON CONFLICT (user_id) DO UPDATE SET
-       preferred_time_start = EXCLUDED.preferred_time_start,
-       preferred_time_end = EXCLUDED.preferred_time_end,
-       preferred_days = EXCLUDED.preferred_days,
-       buffer_minutes = EXCLUDED.buffer_minutes,
-       modality_preference = EXCLUDED.modality_preference,
-       default_view = EXCLUDED.default_view,
-       notification_settings = EXCLUDED.notification_settings,
-       time_of_day_preferences = EXCLUDED.time_of_day_preferences,
-       conflict_tolerance = EXCLUDED.conflict_tolerance,
-       deleted_at = NULL
-     RETURNING *`,
-    [
-      userId, input.preferred_time_start || null, input.preferred_time_end || null,
-      input.preferred_days || null, input.buffer_minutes ?? null,
-      input.modality_preference || null, input.default_view || null,
-      JSON.stringify(input.notification_settings || {}),
-      JSON.stringify(input.time_of_day_preferences || {}), input.conflict_tolerance || null
-    ]
-  );
-  return result.rows[0];
-}
+  const preferenceKeys = [
+    'pref_time_0708', 'pref_time_0810', 'pref_time_1012', 'pref_time_1214',
+    'pref_time_1416', 'pref_time_1618', 'pref_time_1820', 'pref_time_2022', 'pref_time_2224',
+    'PrefMon', 'PrefTue', 'PrefWed', 'PrefThurs', 'PrefFri', 'PrefSat',
+    'avoid_time_0708', 'avoid_time_0810', 'avoid_time_1012', 'avoid_time_1214',
+    'avoid_time_1416', 'avoid_time_1618', 'avoid_time_1820', 'avoid_time_2022', 'avoid_time_2224',
+    'AvoidMon', 'AvoidTue', 'AvoidWed', 'AvoidThurs', 'AvoidFri', 'AvoidSat'
+  ];
 
-async function listAvailability(userId) {
-  const result = await pool.query(
-    `SELECT id, start_at, end_at, timezone, availability_type, label
-       FROM availability_blocks
-      WHERE user_id = $1 AND deleted_at IS NULL
-      ORDER BY start_at`,
-    [userId]
-  );
-  return result.rows;
-}
+  for (const key of preferenceKeys) {
+    if (typeof input[key] !== 'boolean') {
+      const error = new Error(`${key} must be a boolean`);
+      error.status = 400;
+      throw error;
+    }
+  }
 
-async function createAvailability(userId, input) {
-  if (!input.start_at || !input.end_at || !input.availability_type) {
-    const error = new Error('start_at, end_at, and availability_type are required');
+  for (const key of [
+    'max_back_to_back',
+    'commute_time'
+  ]) {
+    if (!Number.isInteger(input[key]) || input[key] < 0) {
+      const error = new Error(`${key} must be an integer greater than or equal to 0`);
+      error.status = 400;
+      throw error;
+    }
+  }
+
+  if (!['onsite', 'online', 'no preference'].includes(input.preferred_modality)) {
+    const error = new Error("preferred_modality must be 'onsite', 'online', or 'no preference'");
     error.status = 400;
     throw error;
   }
+
+  const timeKeys = [
+    'pref_time_0708', 'pref_time_0810', 'pref_time_1012', 'pref_time_1214',
+    'pref_time_1416', 'pref_time_1618', 'pref_time_1820', 'pref_time_2022', 'pref_time_2224'
+  ];
+  const avoidTimeKeys = [
+    'avoid_time_0708', 'avoid_time_0810', 'avoid_time_1012', 'avoid_time_1214',
+    'avoid_time_1416', 'avoid_time_1618', 'avoid_time_1820', 'avoid_time_2022', 'avoid_time_2224'
+  ];
+  const preferredDayKeys = ['PrefMon', 'PrefTue', 'PrefWed', 'PrefThurs', 'PrefFri', 'PrefSat'];
+  const avoidedDayKeys = ['AvoidMon', 'AvoidTue', 'AvoidWed', 'AvoidThurs', 'AvoidFri', 'AvoidSat'];
+
+  for (let index = 0; index < timeKeys.length; index += 1) {
+    if (input[timeKeys[index]] && input[avoidTimeKeys[index]]) {
+      const error = new Error('The same time range cannot be both preferred and avoided');
+      error.status = 400;
+      throw error;
+    }
+  }
+  for (let index = 0; index < preferredDayKeys.length; index += 1) {
+    if (input[preferredDayKeys[index]] && input[avoidedDayKeys[index]]) {
+      const error = new Error('The same day cannot be both preferred and avoided');
+      error.status = 400;
+      throw error;
+    }
+  }
+
   const result = await pool.query(
-    `INSERT INTO availability_blocks (user_id, start_at, end_at, timezone, availability_type, label)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, start_at, end_at, timezone, availability_type, label`,
-    [userId, input.start_at, input.end_at, input.timezone || 'UTC', input.availability_type, input.label || null]
+    `INSERT INTO preferences (
+       user_id,
+       pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
+       pref_time_1416, pref_time_1618, pref_time_1820, pref_time_2022, pref_time_2224,
+       "PrefMon", "PrefTue", "PrefWed", "PrefThurs", "PrefFri", "PrefSat",
+       avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
+       avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
+       "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
+       max_back_to_back, commute_time, preferred_modality
+     ) VALUES (
+       $1,
+       $2, $3, $4, $5, $6, $7, $8, $9, $10,
+       $11, $12, $13, $14, $15, $16,
+       $17, $18, $19, $20, $21, $22, $23, $24, $25,
+       $26, $27, $28, $29, $30, $31,
+       $32, $33, $34
+     )
+     ON CONFLICT (user_id) DO UPDATE SET
+       pref_time_0708 = EXCLUDED.pref_time_0708,
+       pref_time_0810 = EXCLUDED.pref_time_0810,
+       pref_time_1012 = EXCLUDED.pref_time_1012,
+       pref_time_1214 = EXCLUDED.pref_time_1214,
+       pref_time_1416 = EXCLUDED.pref_time_1416,
+       pref_time_1618 = EXCLUDED.pref_time_1618,
+       pref_time_1820 = EXCLUDED.pref_time_1820,
+       pref_time_2022 = EXCLUDED.pref_time_2022,
+       pref_time_2224 = EXCLUDED.pref_time_2224,
+       "PrefMon" = EXCLUDED."PrefMon",
+       "PrefTue" = EXCLUDED."PrefTue",
+       "PrefWed" = EXCLUDED."PrefWed",
+       "PrefThurs" = EXCLUDED."PrefThurs",
+       "PrefFri" = EXCLUDED."PrefFri",
+       "PrefSat" = EXCLUDED."PrefSat",
+       avoid_time_0708 = EXCLUDED.avoid_time_0708,
+       avoid_time_0810 = EXCLUDED.avoid_time_0810,
+       avoid_time_1012 = EXCLUDED.avoid_time_1012,
+       avoid_time_1214 = EXCLUDED.avoid_time_1214,
+       avoid_time_1416 = EXCLUDED.avoid_time_1416,
+       avoid_time_1618 = EXCLUDED.avoid_time_1618,
+       avoid_time_1820 = EXCLUDED.avoid_time_1820,
+       avoid_time_2022 = EXCLUDED.avoid_time_2022,
+       avoid_time_2224 = EXCLUDED.avoid_time_2224,
+       "AvoidMon" = EXCLUDED."AvoidMon",
+       "AvoidTue" = EXCLUDED."AvoidTue",
+       "AvoidWed" = EXCLUDED."AvoidWed",
+       "AvoidThurs" = EXCLUDED."AvoidThurs",
+       "AvoidFri" = EXCLUDED."AvoidFri",
+       "AvoidSat" = EXCLUDED."AvoidSat",
+       max_back_to_back = EXCLUDED.max_back_to_back,
+       commute_time = EXCLUDED.commute_time,
+       preferred_modality = EXCLUDED.preferred_modality
+     RETURNING pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
+       pref_time_1416, pref_time_1618, pref_time_1820, pref_time_2022, pref_time_2224,
+       "PrefMon", "PrefTue", "PrefWed", "PrefThurs", "PrefFri", "PrefSat",
+       avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
+       avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
+       "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
+       max_back_to_back, commute_time, preferred_modality`,
+    [
+      userId,
+      input.pref_time_0708, input.pref_time_0810, input.pref_time_1012, input.pref_time_1214,
+      input.pref_time_1416, input.pref_time_1618, input.pref_time_1820, input.pref_time_2022, input.pref_time_2224,
+      input.PrefMon, input.PrefTue, input.PrefWed, input.PrefThurs, input.PrefFri, input.PrefSat,
+      input.avoid_time_0708, input.avoid_time_0810, input.avoid_time_1012, input.avoid_time_1214,
+      input.avoid_time_1416, input.avoid_time_1618, input.avoid_time_1820, input.avoid_time_2022, input.avoid_time_2224,
+      input.AvoidMon, input.AvoidTue, input.AvoidWed, input.AvoidThurs, input.AvoidFri, input.AvoidSat,
+      input.max_back_to_back, input.commute_time, input.preferred_modality
+    ]
   );
   return result.rows[0];
-}
-
-async function deleteAvailability(userId, blockId) {
-  const result = await pool.query(
-    `UPDATE availability_blocks SET deleted_at = CURRENT_TIMESTAMP
-      WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL RETURNING id`,
-    [blockId, userId]
-  );
-  if (!result.rows.length) {
-    const error = new Error('Availability block not found');
-    error.status = 404;
-    throw error;
-  }
 }
 
 module.exports = {
@@ -166,8 +255,5 @@ module.exports = {
   updateProfile,
   deleteProfile,
   getPreferences,
-  updatePreferences,
-  listAvailability,
-  createAvailability,
-  deleteAvailability
+  updatePreferences
 };

@@ -44,7 +44,26 @@
      <span>Display Name</span>
      <input id="display-name" type="text" placeholder="e.g. Alex Rivera" required autocomplete="name">
     </label>
+   </div>
 
+   <div class="preferences-form" id="setup-preferences">
+    <div class="profile-select-group"><label for="setup-preference-modality">Preferred modality</label>
+     <select id="setup-preference-modality" data-pref-column="preferred_modality"><option value="no preference">No Preference</option><option value="online">Online</option><option value="onsite">Onsite</option></select>
+    </div>
+    <label class="field"><span>Estimated commute time (minutes)</span><input data-pref-column="commute_time" type="number" min="0" step="1" value="0"></label>
+    <label class="field"><span>Maximum back-to-back tolerance</span><input data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></label>
+    <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
+     <label><input type="checkbox" data-pref-column="pref_time_0708">7-8 AM</label><label><input type="checkbox" data-pref-column="pref_time_0810">8-10 AM</label><label><input type="checkbox" data-pref-column="pref_time_1012">10 AM-12 PM</label><label><input type="checkbox" data-pref-column="pref_time_1214">12-2 PM</label><label><input type="checkbox" data-pref-column="pref_time_1416">2-4 PM</label><label><input type="checkbox" data-pref-column="pref_time_1618">4-6 PM</label><label><input type="checkbox" data-pref-column="pref_time_1820">6-8 PM</label><label><input type="checkbox" data-pref-column="pref_time_2022">8-10 PM</label><label><input type="checkbox" data-pref-column="pref_time_2224">10 PM-12 AM</label>
+    </div></fieldset>
+    <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
+     <label><input type="checkbox" data-pref-column="PrefMon">Mon</label><label><input type="checkbox" data-pref-column="PrefTue">Tue</label><label><input type="checkbox" data-pref-column="PrefWed">Wed</label><label><input type="checkbox" data-pref-column="PrefThurs">Thurs</label><label><input type="checkbox" data-pref-column="PrefFri">Fri</label><label><input type="checkbox" data-pref-column="PrefSat">Sat</label>
+    </div></fieldset>
+    <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
+     <label><input type="checkbox" data-pref-column="avoid_time_0708">7-8 AM</label><label><input type="checkbox" data-pref-column="avoid_time_0810">8-10 AM</label><label><input type="checkbox" data-pref-column="avoid_time_1012">10 AM-12 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1214">12-2 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1416">2-4 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1618">4-6 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1820">6-8 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2022">8-10 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2224">10 PM-12 AM</label>
+    </div></fieldset>
+    <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
+     <label><input type="checkbox" data-pref-column="AvoidMon">Mon</label><label><input type="checkbox" data-pref-column="AvoidTue">Tue</label><label><input type="checkbox" data-pref-column="AvoidWed">Wed</label><label><input type="checkbox" data-pref-column="AvoidThurs">Thurs</label><label><input type="checkbox" data-pref-column="AvoidFri">Fri</label><label><input type="checkbox" data-pref-column="AvoidSat">Sat</label>
+    </div></fieldset>
    </div>
 
    <button id="setup-btn" class="key lav setup-btn" type="button">
@@ -60,6 +79,7 @@
 <script src="../frontend/scripts/background.js"></script>
 <script src="../frontend/scripts/header.js"></script>
 <script src="../frontend/scripts/footer.js"></script>
+<script src="../frontend/scripts/preferences.js"></script>
 <script src="../frontend/scripts/setup.js"></script>
 </body>
 </html>

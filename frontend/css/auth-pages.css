@@ -315,6 +315,52 @@
   display: none;
 }
 
+.auth-page .preferences-form {
+  display: grid;
+  gap: 14px;
+  max-height: 310px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.auth-page .preference-group {
+  border: 1px solid var(--auth-card-edge);
+  border-radius: 12px;
+  background: var(--auth-input);
+  padding: 12px;
+}
+
+.auth-page .preference-group legend {
+  padding: 0 6px;
+  color: var(--auth-heading);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.auth-page .preference-check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.auth-page .preference-check-grid label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  color: var(--auth-heading);
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.auth-page .preference-check-grid input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #62298a;
+}
+
 [data-theme="light"] .auth-page .theme-toggle,
 [data-theme="light"] .auth-page .theme-toggle svg,
 [data-theme="light"] .auth-page .theme-toggle svg * {
