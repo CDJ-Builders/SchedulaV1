@@ -48,12 +48,8 @@
           <div class="profile-info-list-col pf-fields">
             <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name" type="text"></label>
             <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
-            <label class="profile-info-field-wrapper pf-field">New password
-              <span class="password-field-wrapper">
-                <input id="profile-password" type="password" placeholder="Leave blank to keep it" autocomplete="new-password">
-                <button id="toggle-profile-password" class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
-              </span>
-            </label>
+            <div class="profile-password-link-wrapper">
+              <span><a href="forgot-password.html">Change password?</a></span>
           </div>
           <button id="save-profile-btn" class="btn-primary" type="button">Save profile</button>
           <div class="danger-zone-col">
@@ -68,7 +64,7 @@
             <h2 id="prefs-title">Preferences</h2>
             <div class="pf-fields">
               <div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div>
-              <div class="profile-select-group"><label for="preference-buffer">Buffer between events (minutes)</label><input id="preference-buffer" type="number" min="0" value="15"></div>
+              <div class="profile-select-group"><label for="preference-buffer">Preferred Break Time</label><input id="preference-buffer" type="number" min="0" value="15"></div>
               <div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div>
             </div>
             <button id="save-preferences-btn" class="btn-primary" type="button">Save preferences</button>

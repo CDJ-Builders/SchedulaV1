@@ -22,7 +22,24 @@ async function updateProfile(userId, { display_name, timezone, locale, avatar_ur
   try {
     await client.query('BEGIN');
     if (email) {
-      await client.query('UPDATE users SET email = LOWER($1) WHERE id = $2 AND deleted_at IS NULL', [email, userId]);
+      const normalizedEmail = String(email).trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        const error = new Error('Invalid email format. Enter an address like name@example.com.');
+        error.status = 400;
+        throw error;
+      }
+
+      const duplicate = await client.query(
+        'SELECT id FROM users WHERE LOWER(email) = $1 AND id != $2 AND deleted_at IS NULL',
+        [normalizedEmail, userId]
+      );
+      if (duplicate.rows.length) {
+        const error = new Error('This email address already exists on another account.');
+        error.status = 409;
+        throw error;
+      }
+
+      await client.query('UPDATE users SET email = LOWER($1) WHERE id = $2 AND deleted_at IS NULL', [normalizedEmail, userId]);
     }
     if (password && password.trim()) {
       await client.query("UPDATE users SET password_hash = crypt($1, gen_salt('bf')) WHERE id = $2 AND deleted_at IS NULL", [password, userId]);
@@ -44,7 +61,7 @@ async function updateProfile(userId, { display_name, timezone, locale, avatar_ur
     await client.query('ROLLBACK');
     if (error.code === '23505') {
       error.status = 400;
-      error.message = 'Email is already in use';
+      error.message = 'This email address already exists on another account.';
     }
     throw error;
   } finally {

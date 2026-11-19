@@ -1,6 +1,5 @@
 /** Generic profile, preference, and availability controls. */
 
-const getToken = () => localStorage.getItem('token');
 const getElement = id => document.getElementById(id);
 
 function getHeaders() {
@@ -44,6 +43,19 @@ function setAvailabilityMessage(text, isError = false) {
 }
 
 async function loadProfile() {
+  const cachedUser = localStorage.getItem('user');
+  if (cachedUser) {
+    try {
+      const cached = JSON.parse(cachedUser);
+      const displayName = getElement('profile-display-name');
+      const email = getElement('profile-email');
+      if (displayName) displayName.value = cached.name || cached.display_name || '';
+      if (email) email.value = cached.email || '';
+    } catch {
+      // Ignore malformed session cache and continue with the server response.
+    }
+  }
+
   let data = null;
 
   try {
@@ -63,25 +75,21 @@ async function loadProfile() {
 
   const displayName = getElement('profile-display-name');
   const email = getElement('profile-email');
-  const password = getElement('profile-password');
+  if (!displayName || !email) return;
 
-  if (!displayName || !email || !password) return;
-
-  displayName.value = data.name || data.display_name || '';
+  displayName.value = data.name || data.display_name || data.email || '';
   email.value = data.email || '';
-  getElement('profile-password').value = '';
 }
 
-getElement('toggle-profile-password').addEventListener('click', () => {
-  const passwordInput = getElement('profile-password');
-  const toggle = getElement('toggle-profile-password');
-  const shouldShow = passwordInput.type === 'password';
+window.populateProfileFromUser = function (user) {
+  if (!user) return;
 
-  passwordInput.type = shouldShow ? 'text' : 'password';
-  toggle.textContent = shouldShow ? 'Hide' : 'Show';
-  toggle.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
-  toggle.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
-});
+  const displayName = getElement('profile-display-name');
+  const email = getElement('profile-email');
+
+  if (displayName) displayName.value = user.name || user.display_name || user.email || '';
+  if (email) email.value = user.email || '';
+};
 
 async function loadPreferences() {
   const data = await api('/preferences');
@@ -112,25 +120,72 @@ async function loadAvailability() {
 }
 
 getElement('save-profile-btn').addEventListener('click', async () => {
+  const saveButton = getElement('save-profile-btn');
+  const displayName = getElement('profile-display-name').value.trim();
+  const email = getElement('profile-email').value.trim();
+
+  if (!displayName) {
+    if (typeof window.noticePopup === 'function') {
+      window.noticePopup('Please enter a display name.', 'Warning');
+    } else {
+      alert('Please enter a display name.');
+    }
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (typeof window.noticePopup === 'function') {
+      window.noticePopup('Invalid email format. Enter an address like name@example.com.', 'Invalid email');
+    } else {
+      alert('Invalid email format. Enter an address like name@example.com.');
+    }
+    return;
+  }
+
+  saveButton.disabled = true;
+  saveButton.textContent = 'Saving...';
+
   try {
     await api('/user/profile', {
       method: 'PUT',
       body: JSON.stringify({
-        display_name: getElement('profile-display-name').value.trim(),
-        email: getElement('profile-email').value.trim(),
-        password: getElement('profile-password').value
+        display_name: displayName,
+        email
       })
     });
 
     const updatedUser = await api('/user-session').catch(() => null);
-    if (updatedUser) {
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+    const cachedUser = localStorage.getItem('user');
+    let nextUser = updatedUser;
+    if (!nextUser && cachedUser) {
+      try { nextUser = JSON.parse(cachedUser); } catch { nextUser = null; }
+    }
+    if (nextUser) {
+      nextUser.name = getElement('profile-display-name').value.trim();
+      nextUser.email = getElement('profile-email').value.trim();
+      localStorage.setItem('user', JSON.stringify(nextUser));
     }
 
-    getElement('profile-password').value = '';
-    alert('Profile saved.');
+    if (typeof window.successPopup === 'function') {
+      window.successPopup('Profile saved successfully.', 'Profile saved');
+    } else {
+      alert('Profile saved.');
+    }
   } catch (error) {
-    alert(error.message);
+    if (typeof window.noticePopup === 'function') {
+      if (error.message.includes('already exists')) {
+        window.noticePopup('This email address already exists on another account.', 'Email already exists');
+      } else if (error.message.toLowerCase().includes('invalid email')) {
+        window.noticePopup('Invalid email format. Enter an address like name@example.com.', 'Invalid email');
+      } else {
+        window.noticePopup(error.message, 'Unable to save');
+      }
+    } else {
+      alert(error.message);
+    }
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = 'Save profile';
   }
 });
 
@@ -218,14 +273,15 @@ async function initializeProfilePage() {
   }
 
   try {
-    await Promise.all([
-      loadProfile(),
-      loadPreferences(),
-      loadAvailability()
-    ]);
+    await loadProfile();
   } catch (error) {
     setAvailabilityMessage(error.message, true);
   }
+
+  await Promise.allSettled([
+    loadPreferences(),
+    loadAvailability()
+  ]);
 }
 
 if (document.readyState === 'loading') {

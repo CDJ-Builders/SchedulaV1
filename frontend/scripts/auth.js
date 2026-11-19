@@ -200,6 +200,9 @@ async function initAuth() {
       if (response.ok) {
         const freshUser = await response.json();
         localStorage.setItem('user', JSON.stringify(freshUser));
+        if (typeof window.populateProfileFromUser === 'function') {
+          window.populateProfileFromUser(freshUser);
+        }
 
         const pathname = window.location.pathname;
         const isLandingOrAuth = pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html');
