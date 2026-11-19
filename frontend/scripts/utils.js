@@ -23,7 +23,6 @@ window.APP_CONFIG = (() => {
 
   return {
     API_BASE: apiBaseUrl,
-    IS_LOCAL: protocol === 'file:',
   };
 })();
 

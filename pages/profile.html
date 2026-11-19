@@ -1,17 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Schedula Profile</title>
-  <link rel="icon" type="image/png" href="../favicon.png"><link rel="stylesheet" href="../frontend/css/main.css"><link rel="stylesheet" href="../frontend/css/profile.css"><script src="../frontend/scripts/theme.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedula Profile</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="stylesheet" href="../frontend/css/theme.css">
+  <link rel="stylesheet" href="../frontend/css/profile.css">
+  <link rel="stylesheet" href="../frontend/css/background.css">
+  <script src="../frontend/scripts/theme.js"></script>
 </head>
-<body>
-  <header class="app-header"><div class="app-brand"><img src="../assets/logo.png" alt="Schedula" class="brand-icon"><div class="brand-text"><span>Schedula</span></div></div><nav class="app-nav"><button class="nav-button" onclick="window.location.href='home.html'"><img src="../assets/home.png" alt="Home" class="nav-icon"> Home</button><button class="nav-button" onclick="window.location.href='builder.html'"><img src="../assets/builder.png" alt="Builder" class="nav-icon"> Builder</button><button class="nav-button" onclick="window.location.href='plotter.html'"><img src="../assets/plotter.png" alt="Plotter" class="nav-icon"> Plotter</button></nav><div class="header-profile"><img src="../assets/profile.png" alt="Profile" class="header-profile-img"><span class="header-username" id="header-username-display">User</span></div><div class="header-controls"><button class="header-icon-btn theme-toggle" aria-label="Toggle theme"></button><button class="header-icon-btn close-btn" onclick="handleLogout('../index.html')"><img src="../assets/logout.png" alt="Log out" class="header-icon-img"></button></div></header>
-  <main class="page-content"><div class="page-title"><div class="page-title-header"><img src="../assets/profile.png" alt="Profile" class="page-title-icon"><h1 class="page-title-text">Profile</h1></div><p>Manage your account, preferences, and availability.</p></div>
-    <div class="profile-container-two-col">
-      <section class="profile-info-panel-col"><h2>Account</h2><div class="profile-info-list-col"><label class="profile-info-field-wrapper">Display name<input id="profile-display-name" type="text"></label><label class="profile-info-field-wrapper">Email<input id="profile-email" type="email"></label><label class="profile-info-field-wrapper">New password<input id="profile-password" type="password" placeholder="Leave blank to keep it"></label><label class="profile-info-field-wrapper">Timezone<input id="profile-timezone" type="text" value="UTC"></label><label class="profile-info-field-wrapper">Locale<input id="profile-locale" type="text" value="en-US"></label></div><button id="save-profile-btn" class="btn-primary">Save profile</button><div class="danger-zone-col"><h3>Danger zone</h3><p>Permanently delete your account and its schedules.</p><button id="delete-account-btn" class="btn-danger">Delete account</button></div></section>
-      <section class="profile-selection-panel-col"><h2>Preferences</h2><div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div><div class="profile-select-group"><label for="preference-buffer">Buffer between events (minutes)</label><input id="preference-buffer" type="number" min="0" value="15"></div><div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div><button id="save-preferences-btn" class="btn-primary">Save preferences</button><hr><h2>Availability</h2><p>Mark a free or busy time window.</p><div class="event-form-grid"><label class="field"><span>Start</span><input id="availability-start" type="datetime-local"></label><label class="field"><span>End</span><input id="availability-end" type="datetime-local"></label><label class="field"><span>Type</span><select id="availability-type"><option value="busy">Busy</option><option value="free">Free</option></select></label><label class="field"><span>Label</span><input id="availability-label" type="text"></label></div><button id="add-availability-btn" class="btn-primary">Add availability</button><div id="availability-list"></div></section>
-    </div>
-  </main>
-  <script src="../frontend/scripts/utils.js"></script><script src="../frontend/scripts/popup.js"></script><script src="../frontend/scripts/footer.js"></script><script src="../frontend/scripts/auth.js"></script><script src="../frontend/scripts/profile.js"></script>
+<body class="pf schedula-background">
+  <div class="page">
+    <header class="top">
+      <a class="brand" href="home.html" aria-label="Schedula home">
+        <img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">
+        <span>Schedula</span>
+      </a>
+      <div class="tools">
+        <nav class="nav" aria-label="Main navigation">
+          <a class="key sm" href="home.html">Home</a>
+          <a class="key sm" href="builder.html">Builder</a>
+          <a class="key sm" href="plotter.html">Plotter</a>
+        </nav>
+        <div class="acct" role="group" aria-label="Signed-in account">
+          <span class="avatar" id="avatar" aria-hidden="true">U</span>
+          <span class="acct-name header-username" id="header-username-display">User</span>
+        </div>
+        <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
+        <a class="key sm icon" href="profile.html" aria-current="page" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
+        <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-title">
+        <div class="page-title-header">
+          <span class="pf-tile"><img src="../assets/profile.png" alt="Profile" class="page-title-icon"></span>
+          <h1 class="page-title-text">Profile</h1>
+        </div>
+        <p>Manage your account, preferences, and availability.</p>
+      </div>
+
+      <div class="profile-container-two-col pf-grid">
+        <section class="profile-info-panel-col pf-panel" aria-labelledby="account-title">
+          <h2 id="account-title">Account</h2>
+          <div class="profile-info-list-col pf-fields">
+            <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name" type="text"></label>
+            <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
+            <label class="profile-info-field-wrapper pf-field">New password
+              <span class="password-field-wrapper">
+                <input id="profile-password" type="password" placeholder="Leave blank to keep it" autocomplete="new-password">
+                <button id="toggle-profile-password" class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+              </span>
+            </label>
+          </div>
+          <button id="save-profile-btn" class="btn-primary" type="button">Save profile</button>
+          <div class="danger-zone-col">
+            <h3>Danger zone</h3>
+            <p>Permanently delete your account and its schedules.</p>
+            <button id="delete-account-btn" class="btn-danger" type="button">Delete account</button>
+          </div>
+        </section>
+
+        <div class="pf-stack">
+          <section class="profile-selection-panel-col pf-panel" aria-labelledby="prefs-title">
+            <h2 id="prefs-title">Preferences</h2>
+            <div class="pf-fields">
+              <div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality"><option value="">Not specified</option><option value="in_person">In person</option><option value="online">Online</option><option value="hybrid">Hybrid</option></select></div>
+              <div class="profile-select-group"><label for="preference-buffer">Buffer between events (minutes)</label><input id="preference-buffer" type="number" min="0" value="15"></div>
+              <div class="profile-select-group"><label for="preference-view">Default view</label><input id="preference-view" type="text" placeholder="week"></div>
+            </div>
+            <button id="save-preferences-btn" class="btn-primary" type="button">Save preferences</button>
+          </section>
+
+          <section class="pf-panel" aria-labelledby="avail-title">
+            <h2 id="avail-title">Availability</h2>
+            <div class="pf-dock">
+              <p>Mark a free or busy time window.</p>
+              <div class="event-form-grid pf-row">
+                <label class="field pf-field"><span>Start</span><input id="availability-start" type="datetime-local"></label>
+                <label class="field pf-field"><span>End</span><input id="availability-end" type="datetime-local"></label>
+                <label class="field pf-field"><span>Type</span><select id="availability-type"><option value="busy">Busy</option><option value="free">Free</option></select></label>
+                <label class="field pf-field"><span>Label</span><input id="availability-label" type="text"></label>
+              </div>
+              <button id="add-availability-btn" class="btn-primary" type="button">Add availability</button>
+            </div>
+            <div id="availability-list"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../frontend/scripts/utils.js"></script>
+  <script src="../frontend/scripts/popup.js"></script>
+  <script src="../frontend/scripts/background.js"></script>
+  <script src="../frontend/scripts/header.js"></script>
+  <script src="../frontend/scripts/footer.js"></script>
+  <script src="../frontend/scripts/auth.js"></script>
+  <script src="../frontend/scripts/profile.js"></script>
 </body>
 </html>

@@ -2,7 +2,6 @@
 ## Individual Tasks
 ### Jian
 - Feature 1, Feature 2, Feature 3
-- Fix use without User Login
 
 ### Adrian
 - Flowcharts for Feature 1

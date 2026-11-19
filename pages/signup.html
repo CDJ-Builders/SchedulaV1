@@ -1,70 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedula Sign Up</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/main.css">
+  <link rel="stylesheet" href="../frontend/css/background.css">
+  <link rel="stylesheet" href="../frontend/css/header.css">
+  <link rel="stylesheet" href="../frontend/css/auth-pages.css">
   <script src="../frontend/scripts/theme.js"></script>
 </head>
 
-<body>
-
-  <!-- Mini Navbar matching landing page style -->
-  <header class="auth-header">
-    <a class="auth-brand" href="../index.html" aria-label="Schedula home">
-      <img src="../assets/logo.png" alt="Logo" class="auth-logo">
+<body class="schedula-background auth-page">
+  <header class="auth-header app-shell-header">
+    <a class="auth-brand brand" href="../index.html" aria-label="Schedula home">
+      <img src="../assets/logo.png" alt="" class="auth-logo">
       <span class="auth-brand-text">Schedula</span>
     </a>
-    <nav class="auth-nav">
-      <button class="theme-toggle auth-theme-btn" aria-label="Toggle theme"></button>
-      <button class="auth-back-btn" id="close-signup-btn" aria-label="Back to home"
-        onclick="window.location.href='../index.html'">← Back</button>
+    <nav class="auth-nav header-tools" aria-label="Account navigation">
+      <button class="theme-toggle auth-theme-btn" type="button" aria-label="Toggle theme"></button>
+      <button class="auth-back-btn" id="close-signup-btn" type="button" aria-label="Back to home"
+        onclick="window.location.href='../index.html'">Back</button>
     </nav>
   </header>
 
-  <div class="page-shell">
-    <div class="login-card">
-      <button class="close-btn" aria-label="Close form" onclick="window.location.href='../index.html'">×</button>
+  <main class="page-shell">
+    <section class="login-card" aria-labelledby="signup-title">
+      <div class="auth-visual">
+        <div>
+          <h1 id="signup-title"><span>Create</span><span>your week</span></h1>
+          <p class="auth-visual-copy">Add classes, visualize plans, and keep overlapping commitments in view.</p>
+        </div>
+      </div>
+
       <div class="card-content">
-        <h1>Join Us!</h1>
+        <h1>Sign up</h1>
         <p class="subtitle">Create your Schedula account</p>
 
         <div class="form-group">
           <label class="field">
             <span>Email</span>
-            <input type="email" placeholder="Email" aria-label="Email address">
+            <input id="signup-email" type="email" name="email" placeholder="you@example.com" aria-label="Email address" autocomplete="email" required>
           </label>
 
           <label class="field">
             <span>Password</span>
-            <input type="password" placeholder="Password" aria-label="Password">
+            <input id="signup-password" type="password" name="password" placeholder="At least 6 characters" aria-label="Password" autocomplete="new-password" required>
           </label>
 
           <label class="field">
-            <span>Confirm Password</span>
-            <input type="password" placeholder="Confirm Password" aria-label="Confirm password">
+            <span>Confirm password</span>
+            <input id="signup-confirm-password" type="password" name="confirmPassword" placeholder="Repeat your password" aria-label="Confirm password" autocomplete="new-password" required>
           </label>
         </div>
 
         <div class="separator"></div>
-        <button class="button primary signup-btn">Sign Up</button>
+        <button class="button primary signup-btn" type="button">Create account</button>
 
         <div class="separator"></div>
 
         <div class="footer-links">
-          <p>Already have an account? <button class="link-button accent" id="login">Login</button></p>
+          <p>Already have an account? <button class="link-button accent" id="login" type="button">Log in</button></p>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="../frontend/scripts/utils.js"></script>
   <script src="../frontend/scripts/popup.js"></script>
+  <script src="../frontend/scripts/background.js"></script>
+  <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js"></script>
   <script src="../frontend/scripts/auth.js"></script>
 </body>
-
 </html>

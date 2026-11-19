@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedSchedule = null;
 
   async function loadSchedules() {
-    const response = await fetch(`${API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } });
+    const response = await fetch(`${window.APP_CONFIG.API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error('Failed to load schedules');
     schedules = await response.json();
     renderScheduleList();

@@ -1,5 +1,4 @@
 /** Weekly schedule builder backed by the schedules JSONB context. */
-const SCHEDULES_API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : 'http://localhost:3000/api';
 const SCHEDULE_TYPES = Object.freeze({ WEEKLY: 'weekly' });
 const scheduleType = SCHEDULE_TYPES.WEEKLY;
 const eventsList = document.getElementById('scheduledList');
@@ -103,7 +102,7 @@ function renderEvents() {
 async function requestJson(url, options = {}) {
   let response;
   try {
-    response = await fetch(`${SCHEDULES_API_BASE}${url}`, {
+    response = await fetch(`${window.APP_CONFIG.API_BASE}${url}`, {
       ...options,
       headers: { 'Content-Type': 'application/json', ...tokenHeaders(), ...(options.headers || {}) }
     });

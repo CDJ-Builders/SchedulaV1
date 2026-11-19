@@ -1,5 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Schedula Setup</title><link rel="icon" type="image/png" href="../favicon.png"><link rel="stylesheet" href="../frontend/css/main.css"><script src="../frontend/scripts/theme.js"></script></head>
-<body><header class="auth-header"><a class="auth-brand" href="../index.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="Logo" class="auth-logo"><span class="auth-brand-text">Schedula</span></a><nav class="auth-nav"><button class="theme-toggle auth-theme-btn" aria-label="Toggle theme"></button></nav></header><div class="page-shell"><div class="login-card"><div class="card-content"><h1>Set up your profile</h1><p class="subtitle">Add a few details before creating your first schedule.</p><div class="form-group"><label class="field"><span>Display name</span><input id="display-name" type="text" placeholder="Your name" required></label><label class="field"><span>Timezone</span><input id="timezone" type="text" value="UTC" required></label><label class="field"><span>Locale</span><input id="locale" type="text" value="en-US" required></label></div><div class="separator"></div><button id="setup-btn" class="button primary">Continue</button></div></div></div><script src="../frontend/scripts/utils.js"></script><script src="../frontend/scripts/popup.js"></script><script src="../frontend/scripts/setup.js"></script></body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schedula | Profile Setup</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="stylesheet" href="../frontend/css/theme.css">
+<link rel="stylesheet" href="../frontend/css/auth.css">
+<link rel="stylesheet" href="../frontend/css/background.css">
+<script src="../frontend/scripts/theme.js"></script>
+</head>
+<body class="schedula-background">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="m" fill-rule="evenodd" d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z"/></defs></svg>
+<div class="page">
+ <header class="top">
+  <a class="brand" href="../index.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">Schedula</a>
+  <div class="tools">
+   <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
+   <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
+  </div>
+ </header>
+
+ <main class="hero" id="main-content">
+  <div>
+   <h1><span>Set up your</span><span>profile</span></h1>
+   <p class="lede">Add a few details to personalize your scheduling workspace. You can update these anytime in Settings.</p>
+   <div class="well">
+    <div class="lane">
+     <div class="tip-box">
+      <b>Why this matters</b>
+      <p>Your display name personalizes your scheduling workspace.</p>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <section class="card" aria-labelledby="setup-title">
+   <h2 id="setup-title">Your details</h2>
+   <p class="subtitle">Complete these fields to get started.</p>
+
+   <div class="form-fields">
+    <label class="field" for="display-name">
+     <span>Display Name</span>
+     <input id="display-name" type="text" placeholder="e.g. Alex Rivera" required autocomplete="name">
+    </label>
+
+   </div>
+
+   <button id="setup-btn" class="key lav setup-btn" type="button">
+    <span>Continue to workspace</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+   </button>
+  </section>
+ </main>
+</div>
+
+<script src="../frontend/scripts/utils.js"></script>
+<script src="../frontend/scripts/popup.js"></script>
+<script src="../frontend/scripts/background.js"></script>
+<script src="../frontend/scripts/header.js"></script>
+<script src="../frontend/scripts/footer.js"></script>
+<script src="../frontend/scripts/setup.js"></script>
+</body>
 </html>

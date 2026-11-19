@@ -1,10 +1,10 @@
 # Schedula: Build Your Daily Blocks
 
-[![Build Status](https://img.shields.io/badge/Status-v1.1.2-violet.svg)](#sprint-planning--agile-scrum)
+[![Build Status](https://img.shields.io/badge/Status-v1.2-violet.svg)](#sprint-planning--agile-scrum)
 [![Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20PostgreSQL%20%7C%20Vanilla%20JS-blue.svg)](#technology-stack)
 
 **Schedula** is a student-first, collaborative academic scheduling platform that combines smart availability detection, preference-aware conflict resolution, and visual timetable customization. Designed to solve the challenges of traditional ad-hoc scheduling and the University Course Timetabling Problem (UCTP), Schedula empowers individual students and collaborative teams to plan their semesters without spreadsheet friction.
-- Schedula Version 1, Feature 1, Patch 2.
+- Schedula Version 1, Patch 5.
 
 ---
 
@@ -48,16 +48,16 @@ Build a functional Minimum Viable Product (MVP) prototype of Schedula that demon
 | :--- | :--- | :---: |
 | **7: Smart Deadlines & Reminders** | Flexible task deadlines and push/email notifications for upcoming meetings. | **To Do** |
 | **8: Streak Reward System** | Usage streaks to incentivize consistent deadline compliance and attendance. | **To Do** |
-| **9: Enhanced UI/UX** | Skeuomorphic & glassmorphic design system, responsive layouts, and smooth animations. | **In Progress** |
+| **9: Enhanced UI/UX** | Skeuomorphic & glassmorphic design system, responsive layouts, and smooth animations. | **Done** |
 
 ---
 
 ## 💻 Technology Stack
 
 ### Current MVP Implementation
-- **Frontend:** HTML5, Vanilla CSS3 (Custom Glassmorphism Design System), Vanilla JavaScript (ES6 Modules)
+- **Frontend:** HTML5, Vanilla CSS3, Vanilla JavaScript
 - **Backend:** Node.js, Express.js (RESTful API architecture)
-- **Database:** PostgreSQL (Relational schema with `USERS`, `USER_PREFERENCES`, `COURSES`, `SCHEDULES`)\
+- **Database:** PostgreSQL 
 
 ### Planned Rebuild
 - **Frontend Rebuild:** Vite + React + TypeScript + Tailwind CSS (as detailed in [PRD.md](./PRD.md))

@@ -3,9 +3,6 @@
  * @description Manages user authentication, route guards, token extraction, navigation updates, and login/signup flows.
  */
 
-// Detect API base URL from centralized configuration
-const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : 'http://localhost:3000/api';
-
 // Centralized fetch wrapper to intercept and refresh expired tokens
 (function () {
   const originalFetch = window.fetch;
@@ -48,7 +45,7 @@ const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : 'http://localh
         isRefreshing = true;
 
         try {
-          const refreshRes = await originalFetch(`${API_BASE}/refresh`, {
+          const refreshRes = await originalFetch(`${window.APP_CONFIG.API_BASE}/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken })
@@ -182,62 +179,6 @@ function redirectWithToken(targetUrl) {
 window.redirectWithToken = redirectWithToken;
 
 /**
- * Computes the relative file path to the secure admin page.
- * Detects if the current document is inside pages directory or root directory.
- * @returns {string} Relative path to admin.html
- */
-function getAdminPath() {
-  const pathname = window.location.pathname;
-  if (pathname.includes('/pages/')) {
-    return '../admin/admin.html';
-  }
-  return './admin/admin.html';
-}
-
-/**
- * Dynamic Navbar Modifier.
- * Inspects user credentials and injects the 'Admin' navigation panel button if they possess admin access roles.
- */
-function injectAdminNavbarButton() {
-  const userStr = localStorage.getItem('user');
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      if (user.access === 'Admin') {
-        const nav = document.querySelector('.app-nav');
-        if (nav && !document.getElementById('nav-admin-btn')) {
-          const adminBtn = document.createElement('button');
-          adminBtn.id = 'nav-admin-btn';
-          adminBtn.className = 'nav-button';
-          adminBtn.style.backgroundColor = '#00cc66'; // Distinct green theme for Admin Portal
-          adminBtn.style.color = '#fff';
-          adminBtn.innerHTML = '<img src="../assets/admin.png" alt="Admin" class="nav-icon"> Admin';
-          adminBtn.onclick = () => {
-            const isInsidePages = window.location.pathname.includes('/pages/');
-            const isAlreadyAtAdmin = window.location.pathname.includes('/admin/') && window.location.pathname.includes('admin.html');
-            if (isAlreadyAtAdmin) {
-              return;
-            }
-            redirectWithToken(isInsidePages ? '../admin/admin.html' : './admin/admin.html');
-          };
-
-          if (user.email === 'admin@gmail.com') {
-            // Super admin should not have access to standard navbar buttons
-            Array.from(nav.children).forEach(child => {
-              child.style.display = 'none';
-            });
-          }
-
-          nav.appendChild(adminBtn);
-        }
-      }
-    } catch (e) {
-      console.error('Error rendering admin navbar button:', e);
-    }
-  }
-}
-
-/**
  * Core Authentication Guard.
  * Evaluated on page initialization:
  * 1. Synchronizes token status with backend real-time database schema.
@@ -251,7 +192,7 @@ async function initAuth() {
   if (token) {
     try {
       // Keep local session status completely synchronized with real-time backend updates
-      const response = await fetch(`${API_BASE}/user-session`, {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE}/user-session`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -264,11 +205,7 @@ async function initAuth() {
         const isLandingOrAuth = pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html');
 
         if (isLandingOrAuth) {
-          if (freshUser.email === 'admin@gmail.com') {
-            redirectWithToken(getAdminPath());
-          } else {
-            redirectWithToken('./home.html');
-          }
+          redirectWithToken('./home.html');
         }
       } else {
         if (response.status === 401 || response.status === 403) {
@@ -284,9 +221,6 @@ async function initAuth() {
       fallbackAutologinRedirect();
     }
   }
-
-  // Inject panel navigation hooks
-  injectAdminNavbarButton();
 
   // Populate navigation bar metadata
   const currentUserStr = localStorage.getItem('user');
@@ -314,16 +248,6 @@ function populateHeaderUsername(user) {
     display.title = rawName;
   }
 
-  // Hard security: Disable profile edits on the super admin account
-  if (user && user.email === 'admin@gmail.com') {
-    const settingsBtn = document.querySelector('.header-controls .header-icon-btn[onclick*="profile.html"]');
-    if (settingsBtn) {
-      settingsBtn.disabled = true;
-      settingsBtn.style.opacity = '0.5';
-      settingsBtn.style.cursor = 'not-allowed';
-      settingsBtn.removeAttribute('onclick');
-    }
-  }
 }
 
 // Attach lifecycle events
@@ -346,11 +270,7 @@ function fallbackAutologinRedirect() {
       const isLandingOrAuth = pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html');
 
       if (isLandingOrAuth) {
-        if (user.email === 'admin@gmail.com') {
-          redirectWithToken(getAdminPath());
-        } else {
-          redirectWithToken('./home.html');
-        }
+        redirectWithToken('./home.html');
       }
     } catch (e) {
       console.error('Offline fallback redirection parsing error:', e);
@@ -381,7 +301,7 @@ if (loginButton) {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/login`, {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -393,11 +313,7 @@ if (loginButton) {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
         localStorage.setItem('user', JSON.stringify(data.user));
-        if (data.user && data.user.access === 'Admin') {
-          redirectWithToken(getAdminPath());
-        } else {
-          redirectWithToken(`./home.html`);
-        }
+        redirectWithToken('./home.html');
       } else {
         alert(data.error);
       }
@@ -437,7 +353,7 @@ if (signupButton) {
 
     try {
       // Call signup endpoint
-      const signupResponse = await fetch(`${API_BASE}/signup`, {
+      const signupResponse = await fetch(`${window.APP_CONFIG.API_BASE}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -450,7 +366,7 @@ if (signupButton) {
       }
 
       // Automatically trigger backend login routine on successful registration
-      const loginResponse = await fetch(`${API_BASE}/login`, {
+      const loginResponse = await fetch(`${window.APP_CONFIG.API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -524,7 +440,7 @@ if (forgotSubmitBtn) {
       forgotSubmitBtn.disabled = true;
       forgotSubmitBtn.textContent = 'Sending...';
 
-      const response = await fetch(`${API_BASE}/forgot-password`, {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE}/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -610,7 +526,7 @@ if (resetSubmitBtn) {
       resetSubmitBtn.disabled = true;
       resetSubmitBtn.textContent = 'Resetting Password...';
 
-      const response = await fetch(`${API_BASE}/reset-password`, {
+      const response = await fetch(`${window.APP_CONFIG.API_BASE}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, pin, password })

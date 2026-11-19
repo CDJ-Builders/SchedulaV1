@@ -1,66 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedula Login</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/main.css">
+  <link rel="stylesheet" href="../frontend/css/background.css">
+  <link rel="stylesheet" href="../frontend/css/header.css">
+  <link rel="stylesheet" href="../frontend/css/auth-pages.css">
   <script src="../frontend/scripts/theme.js"></script>
 </head>
 
-<body>
-
-  <!-- Mini Navbar matching landing page style -->
-  <header class="auth-header">
-    <a class="auth-brand" href="../index.html" aria-label="Schedula home">
-      <img src="../assets/logo.png" alt="Logo" class="auth-logo">
+<body class="schedula-background auth-page">
+  <header class="auth-header app-shell-header">
+    <a class="auth-brand brand" href="../index.html" aria-label="Schedula home">
+      <img src="../assets/logo.png" alt="" class="auth-logo">
       <span class="auth-brand-text">Schedula</span>
     </a>
-    <nav class="auth-nav">
-      <button class="theme-toggle auth-theme-btn" aria-label="Toggle theme"></button>
-      <button class="auth-back-btn" id="close-login-btn" aria-label="Back to home"
-        onclick="window.location.href='../index.html'">← Back</button>
+    <nav class="auth-nav header-tools" aria-label="Account navigation">
+      <button class="theme-toggle auth-theme-btn" type="button" aria-label="Toggle theme"></button>
+      <button class="auth-back-btn" id="close-login-btn" type="button" aria-label="Back to home"
+        onclick="window.location.href='../index.html'">Back</button>
     </nav>
   </header>
 
-  <div class="page-shell">
-    <div class="login-card">
-      <button class="close-btn" aria-label="Close form" onclick="window.location.href='../index.html'">×</button>
+  <main class="page-shell">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="auth-visual">
+        <div>
+          <h1 id="login-title"><span>Welcome</span><span>back</span></h1>
+          <p class="auth-visual-copy">Continue your schedules and planning tools.</p>
+        </div>
+      </div>
+
       <div class="card-content">
-        <h1>Welcome!</h1>
-        <p class="subtitle">Login to Schedula</p>
+        <h1>Log in</h1>
+        <p class="subtitle">Continue to Schedula</p>
 
         <div class="form-group">
           <label class="field">
             <span>Email</span>
-            <input type="email" placeholder="Email" aria-label="Email address">
+            <input id="login-email" type="email" name="email" placeholder="you@example.com" aria-label="Email address" autocomplete="email" required>
           </label>
 
           <label class="field">
             <span>Password</span>
-            <input type="password" placeholder="Password" aria-label="Password">
+            <input id="login-password" type="password" name="password" placeholder="Enter your password" aria-label="Password" autocomplete="current-password" required>
           </label>
         </div>
 
         <div class="separator"></div>
-        <button class="button primary login-btn">Login </button>
+        <button class="button primary login-btn" type="button">Log in</button>
 
         <div class="separator"></div>
 
         <div class="footer-links">
-          <button class="link-button" id="forgot-password">Forgot your password?</button>
-          <p>Don't have an account? <button class="link-button accent" id="signup">Sign Up</button></p>
+          <button class="link-button" id="forgot-password" type="button">Forgot your password?</button>
+          <p>Don't have an account? <button class="link-button accent" id="signup" type="button">Sign up</button></p>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="../frontend/scripts/utils.js"></script>
   <script src="../frontend/scripts/popup.js"></script>
+  <script src="../frontend/scripts/background.js"></script>
+  <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js"></script>
   <script src="../frontend/scripts/auth.js" defer></script>
 </body>
-
 </html>

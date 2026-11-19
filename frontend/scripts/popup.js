@@ -4,6 +4,17 @@
  */
 
 (function () {
+  const script = document.currentScript;
+  if (script && script.src) {
+    const assetBase = script.src.replace(/frontend\/scripts\/popup\.js.*$/, '');
+    if (!document.querySelector('link[data-schedula-popup]')) {
+      const stylesheet = document.createElement('link');
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = assetBase + 'frontend/css/popup.css';
+      stylesheet.dataset.schedulaPopup = '';
+      document.head.appendChild(stylesheet);
+    }
+  }
 
   /**
    * Overrides the window.alert method.
@@ -65,12 +76,19 @@
     setTimeout(() => overlay.classList.add('active'), 10);
 
     const close = () => {
+      if (overlay.dataset.closing === 'true') return;
+      overlay.dataset.closing = 'true';
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     };
 
     overlay.querySelector('#custom-alert-ok').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function onEscape(event) {
+      if (event.key !== 'Escape') return;
+      close();
+      document.removeEventListener('keydown', onEscape);
+    });
   };
 
   window.successPopup = function (message, title) {
@@ -129,6 +147,8 @@
     setTimeout(() => overlay.classList.add('active'), 10);
 
     const close = (confirmed) => {
+      if (overlay.dataset.closing === 'true') return;
+      overlay.dataset.closing = 'true';
       overlay.classList.remove('active');
       setTimeout(() => {
         overlay.remove();
@@ -140,81 +160,11 @@
     overlay.querySelector('#custom-confirm-ok').addEventListener('click', () => close(true));
     overlay.querySelector('#custom-confirm-cancel').addEventListener('click', () => close(false));
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
-  };
-
-  /**
-   * Spawns a custom prompt confirmation dialog.
-   * Enables the action button only when user types the expectedText precisely.
-   * @param {string} message - Description message
-   * @param {Function} onConfirm - Callback trigger on confirmation
-   * @param {Function} [onCancel] - Callback trigger on cancel
-   * @param {string} [title] - Header title
-   * @param {string} expectedText - The exact text the user has to type
-   */
-  window.promptPopup = function (message, onConfirm, onCancel, title, expectedText) {
-    title = title || 'Action Required';
-    
-    const existing = document.querySelector('.custom-modal-overlay');
-    if (existing) existing.remove();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-modal-overlay';
-    overlay.innerHTML = `
-      <div class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="cmod-title">
-        <div class="custom-modal-icon error"><svg class="modal-svg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width: 24px; height: 24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div>
-        <div class="custom-modal-title error-text" id="cmod-title">${title}</div>
-        <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; text-align: center;">
-          <div style="font-size: 0.95rem; line-height: 1.5; color: var(--text);">${message}</div>
-          <input type="text" id="custom-prompt-input" autocomplete="off" style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--radius-button, 8px); padding: 12px; width: 100%; max-width: 320px; color: var(--text); box-sizing: border-box; text-align: center; font-size: 1.1rem; font-weight: bold; letter-spacing: 0.05em; outline: none; transition: border-color 0.2s;" placeholder="Type '${expectedText}' here...">
-        </div>
-        <div class="custom-modal-actions" style="margin-top: 20px;">
-          <button class="custom-modal-btn secondary" id="custom-confirm-cancel">Cancel</button>
-          <button class="custom-modal-btn error" id="custom-confirm-ok" disabled style="opacity: 0.5; cursor: not-allowed;">Delete Account</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    setTimeout(() => {
-      overlay.classList.add('active');
-      const input = overlay.querySelector('#custom-prompt-input');
-      if (input) input.focus();
-    }, 10);
-
-    const input = overlay.querySelector('#custom-prompt-input');
-    const okBtn = overlay.querySelector('#custom-confirm-ok');
-
-    if (input && okBtn) {
-      input.addEventListener('input', () => {
-        if (input.value === expectedText) {
-          okBtn.disabled = false;
-          okBtn.style.opacity = '1';
-          okBtn.style.cursor = 'pointer';
-          input.style.borderColor = '#ef4444';
-        } else {
-          okBtn.disabled = true;
-          okBtn.style.opacity = '0.5';
-          okBtn.style.cursor = 'not-allowed';
-          input.style.borderColor = 'var(--border)';
-        }
-      });
-    }
-
-    const close = (confirmed) => {
-      overlay.classList.remove('active');
-      setTimeout(() => {
-        overlay.remove();
-        if (confirmed && typeof onConfirm === 'function') onConfirm();
-        if (!confirmed && typeof onCancel === 'function') onCancel();
-      }, 300);
-    };
-
-    overlay.querySelector('#custom-confirm-ok').addEventListener('click', () => {
-      if (input && input.value === expectedText) {
-        close(true);
-      }
+    document.addEventListener('keydown', function onEscape(event) {
+      if (event.key !== 'Escape') return;
+      close(false);
+      document.removeEventListener('keydown', onEscape);
     });
-    overlay.querySelector('#custom-confirm-cancel').addEventListener('click', () => close(false));
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
   };
 
   /**
@@ -230,8 +180,7 @@
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           try {
-            const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : 'http://localhost:3000/api';
-            await fetch(`${API_BASE}/logout`, {
+            await fetch(`${window.APP_CONFIG.API_BASE}/logout`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ refreshToken })

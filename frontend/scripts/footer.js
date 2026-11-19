@@ -107,6 +107,8 @@
     requestAnimationFrame(() => overlay.classList.add('active'));
 
     const close = () => {
+      if (overlay.dataset.closing === 'true') return;
+      overlay.dataset.closing = 'true';
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     };

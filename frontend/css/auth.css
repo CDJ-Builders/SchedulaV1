@@ -1,0 +1,107 @@
+/* ═══════════════════════════════════════════════════════════════
+   auth.css — Authentication, Profile Setup & Password Reset Flow
+   ═══════════════════════════════════════════════════════════════ */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 56px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+h1 {
+  font-weight: 800;
+  font-variation-settings: "wdth" 80;
+  font-size: clamp(3rem, 5.5vw, 5.5rem);
+  line-height: .92;
+  letter-spacing: -.035em;
+}
+
+h1 span {
+  display: block;
+}
+
+.lede {
+  margin: 24px 0 32px;
+  max-width: 32ch;
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+/* ─── Form Container & Inputs ────────────────────────────────── */
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.pin-input {
+  letter-spacing: 8px;
+  text-align: center;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  font-family: monospace !important;
+}
+
+.setup-btn,
+.forgot-btn {
+  width: 100%;
+  padding: 16px 24px 17px;
+  font-size: 17px;
+}
+
+/* ─── Message Banner ─────────────────────────────────────────── */
+#message-banner {
+  display: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+/* ─── Card Footer & Navigation Links ─────────────────────────── */
+.card-footer {
+  margin-top: 24px;
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(42, 18, 69, .1);
+}
+
+.card-footer p {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(42, 18, 69, .75);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0 4px;
+  font: inherit;
+  color: var(--purple);
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  color: var(--plum);
+}
+
+/* ─── Responsive Media Queries ───────────────────────────────── */
+@media (max-width: 1080px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; }
+  .lede { max-width: 36ch; }
+}
+
+@media (max-width: 720px) {
+  .page { padding: 20px 18px 40px; }
+  .card { padding: 22px 20px 24px; }
+}
+
