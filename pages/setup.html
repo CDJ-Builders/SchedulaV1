@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="../frontend/css/theme.css">
 <link rel="stylesheet" href="../frontend/css/auth.css">
 <link rel="stylesheet" href="../frontend/css/background.css">
+<link rel="stylesheet" href="../frontend/css/profile.css">
 <script src="../frontend/scripts/theme.js"></script>
 </head>
-<body class="schedula-background">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="m" fill-rule="evenodd" d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z"/></defs></svg>
+<body class="schedula-background pf setup-page">
 <div class="page">
  <header class="top">
   <a class="brand" href="../index.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">Schedula</a>
@@ -21,55 +21,65 @@
   </div>
  </header>
 
- <main class="hero" id="main-content">
-  <div>
-   <h1><span>Set up your</span><span>profile</span></h1>
-   <p class="lede">Add a few details to personalize your scheduling workspace. You can update these anytime in Settings.</p>
-   <div class="well">
-    <div class="lane">
-     <div class="tip-box">
-      <b>Why this matters</b>
-      <p>Your display name personalizes your scheduling workspace.</p>
+ <main class="setup-carousel" id="main-content">
+  <section class="setup-shell" aria-label="Profile setup">
+   <div class="setup-progress" aria-label="Setup progress">
+    <span class="setup-progress-dot active" data-step-dot="0"></span><span class="setup-progress-dot" data-step-dot="1"></span><span class="setup-progress-dot" data-step-dot="2"></span><span class="setup-progress-dot" data-step-dot="3"></span><span class="setup-progress-dot" data-step-dot="4"></span>
+   </div>
+   <div class="setup-viewport">
+    <article class="setup-slide active" data-setup-slide="0">
+     <p class="setup-kicker">Step 1 of 5</p>
+     <h1>Set up your profile</h1>
+     <p class="setup-lede">Start with the name that will appear across your workspace.</p>
+     <label class="profile-info-field-wrapper pf-field">Display name<input id="display-name" type="text" placeholder="e.g. Alex Rivera" required autocomplete="name"></label>
+    </article>
+
+    <article class="setup-slide" data-setup-slide="1">
+     <p class="setup-kicker">Step 2 of 5</p>
+     <h1>Your schedule rhythm</h1>
+     <p class="setup-lede">Choose how you prefer to attend and travel.</p>
+     <div class="setup-fields" id="setup-preferences">
+      <div class="profile-select-group"><label for="setup-preference-modality">Preferred modality</label><select id="setup-preference-modality" data-pref-column="preferred_modality"><option value="no preference">No Preference</option><option value="online">Online</option><option value="onsite">Onsite</option></select></div>
+      <div class="profile-select-group"><label for="setup-commute-time">Estimated commute time (minutes)</label><input id="setup-commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
+      <div class="profile-select-group"><label for="setup-max-back-to-back">Maximum back-to-back tolerance</label><input id="setup-max-back-to-back" data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></div>
      </div>
-    </div>
-   </div>
-  </div>
+    </article>
 
-  <section class="card" aria-labelledby="setup-title">
-   <h2 id="setup-title">Your details</h2>
-   <p class="subtitle">Complete these fields to get started.</p>
+    <article class="setup-slide" data-setup-slide="2">
+     <p class="setup-kicker">Step 3 of 5</p>
+     <h1>Preferred time ranges</h1>
+     <p class="setup-lede">Select the windows that work best for you.</p>
+     <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
+      <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label><label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label><label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1214">12:00 PM - 2:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 AM</label>
+     </div></fieldset>
+    </article>
 
-   <div class="form-fields">
-    <label class="field" for="display-name">
-     <span>Display Name</span>
-     <input id="display-name" type="text" placeholder="e.g. Alex Rivera" required autocomplete="name">
-    </label>
-   </div>
+    <article class="setup-slide" data-setup-slide="3">
+     <p class="setup-kicker">Step 4 of 5</p>
+     <h1>Preferred days</h1>
+     <p class="setup-lede">Choose the days you prefer to have classes or events.</p>
+     <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
+      <label><input type="checkbox" data-pref-column="PrefMon">Monday</label><label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label><label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label><label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label><label><input type="checkbox" data-pref-column="PrefFri">Friday</label><label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
+     </div></fieldset>
+    </article>
 
-   <div class="preferences-form" id="setup-preferences">
-    <div class="profile-select-group"><label for="setup-preference-modality">Preferred modality</label>
-     <select id="setup-preference-modality" data-pref-column="preferred_modality"><option value="no preference">No Preference</option><option value="online">Online</option><option value="onsite">Onsite</option></select>
-    </div>
-    <label class="field"><span>Estimated commute time (minutes)</span><input data-pref-column="commute_time" type="number" min="0" step="1" value="0"></label>
-    <label class="field"><span>Maximum back-to-back tolerance</span><input data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></label>
-    <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
-     <label><input type="checkbox" data-pref-column="pref_time_0708">7-8 AM</label><label><input type="checkbox" data-pref-column="pref_time_0810">8-10 AM</label><label><input type="checkbox" data-pref-column="pref_time_1012">10 AM-12 PM</label><label><input type="checkbox" data-pref-column="pref_time_1214">12-2 PM</label><label><input type="checkbox" data-pref-column="pref_time_1416">2-4 PM</label><label><input type="checkbox" data-pref-column="pref_time_1618">4-6 PM</label><label><input type="checkbox" data-pref-column="pref_time_1820">6-8 PM</label><label><input type="checkbox" data-pref-column="pref_time_2022">8-10 PM</label><label><input type="checkbox" data-pref-column="pref_time_2224">10 PM-12 AM</label>
-    </div></fieldset>
-    <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
-     <label><input type="checkbox" data-pref-column="PrefMon">Mon</label><label><input type="checkbox" data-pref-column="PrefTue">Tue</label><label><input type="checkbox" data-pref-column="PrefWed">Wed</label><label><input type="checkbox" data-pref-column="PrefThurs">Thurs</label><label><input type="checkbox" data-pref-column="PrefFri">Fri</label><label><input type="checkbox" data-pref-column="PrefSat">Sat</label>
-    </div></fieldset>
-    <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
-     <label><input type="checkbox" data-pref-column="avoid_time_0708">7-8 AM</label><label><input type="checkbox" data-pref-column="avoid_time_0810">8-10 AM</label><label><input type="checkbox" data-pref-column="avoid_time_1012">10 AM-12 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1214">12-2 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1416">2-4 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1618">4-6 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1820">6-8 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2022">8-10 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2224">10 PM-12 AM</label>
-    </div></fieldset>
-    <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
-     <label><input type="checkbox" data-pref-column="AvoidMon">Mon</label><label><input type="checkbox" data-pref-column="AvoidTue">Tue</label><label><input type="checkbox" data-pref-column="AvoidWed">Wed</label><label><input type="checkbox" data-pref-column="AvoidThurs">Thurs</label><label><input type="checkbox" data-pref-column="AvoidFri">Fri</label><label><input type="checkbox" data-pref-column="AvoidSat">Sat</label>
-    </div></fieldset>
+    <article class="setup-slide" data-setup-slide="4">
+     <p class="setup-kicker">Step 5 of 5</p>
+     <h1>Times and days to avoid</h1>
+     <p class="setup-lede">Mark any ranges or days you do not want scheduled.</p>
+     <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
+      <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label><label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label><label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 AM</label>
+     </div></fieldset>
+     <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
+      <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label><label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label><label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label><label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label><label><input type="checkbox" data-pref-column="AvoidFri">Friday</label><label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
+     </div></fieldset>
+    </article>
    </div>
 
-   <button id="setup-btn" class="key lav setup-btn" type="button">
-    <span>Continue to workspace</span>
-    <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-   </button>
+   <div class="setup-carousel-actions">
+    <button id="setup-back-btn" class="setup-nav-btn" type="button">Back</button>
+    <button id="setup-next-btn" class="btn-primary btn-save setup-save-btn setup-next-btn" type="button"><span>Next</span><svg id="setup-next-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+   </div>
   </section>
  </main>
 </div>

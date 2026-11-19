@@ -86,6 +86,8 @@ Browser smoke test setup/profile; verify persisted values and validation popups 
 - 2026-11-20: Stale preferences_updated_at trigger removed; put/upsert persistence passed PUT 200 and reload matched.
 - 2026-11-20: Invalid modality returned 400; invalid integer returned 400; preferred/avoided time overlap returned 400.
 - 2026-11-20: JavaScript syntax checks passed for preferences, setup, profile, routes, and service files.
+- 2026-11-20: Account deletion changed from soft-delete to hard-delete; 004 cascade migration applied and live constraints verified.
+- 2026-11-20: Disposable account deletion test passed: user, profile, and preferences rows all remained 0 after DELETE.
 
 ## Handoff notes
 - Run from the repository root.
@@ -93,6 +95,8 @@ Browser smoke test setup/profile; verify persisted values and validation popups 
 - Database migrations are SQL files under `backend/sql/migrations/`.
 - Migration: `psql "$DATABASE_URL" -f backend/sql/migrations/003_preferences_rebuild.up.sql`
 - Rollback: `psql "$DATABASE_URL" -f backend/sql/migrations/003_preferences_rebuild.down.sql`
+- Account cascade migration: `psql "$DATABASE_URL" -f backend/sql/migrations/004_account_deletion_cascade.up.sql`
+- Account cascade rollback: `psql "$DATABASE_URL" -f backend/sql/migrations/004_account_deletion_cascade.down.sql`
 
 ## API contract
 - GET /api/preferences - authenticated; returns all new preference columns only.
@@ -103,6 +107,8 @@ Browser smoke test setup/profile; verify persisted values and validation popups 
 - Response: the complete new preference row shape, or `{}` defaults if none exists.
 
 ## Log
+- 2026-11-20: setup.html converted to a 5-step carousel with Back/Next/Save & finish controls and shared preference validation.
+- 2026-11-20: setup.html redesigned to match profile.html panel/grid, fields, preference groups, and green save-button aesthetic.
 - 2026-11-20: Profile Save Profile and Save Preferences buttons updated to reuse the builder save SVG, green gradient, dimensions, and keycap hover/press behavior.
 - 2026-11-20: Progress tracking initialized and stack confirmed.
 - 2026-11-20: Live preferences schema inspected: id and user_id retained; old preference and audit columns identified.

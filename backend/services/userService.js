@@ -70,14 +70,24 @@ async function updateProfile(userId, { display_name, timezone, locale, avatar_ur
 }
 
 async function deleteProfile(userId) {
-  const result = await pool.query(
-    'UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id',
-    [userId]
-  );
-  if (!result.rows.length) {
-    const error = new Error('User not found');
-    error.status = 404;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await client.query(
+      'DELETE FROM users WHERE id = $1 AND deleted_at IS NULL RETURNING id',
+      [userId]
+    );
+    if (!result.rows.length) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
     throw error;
+  } finally {
+    client.release();
   }
 }
 

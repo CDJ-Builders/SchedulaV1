@@ -1,23 +1,19 @@
 # Schedula Todo
 ## Individual Tasks
 ### Jian
-- Feature 1, Feature 2, Feature 3
+- Schedule Excel Import
+- Machine Learning Integration
 
 ### Adrian
-- Flowcharts for Feature 1
-- Flowcharts for Feature 2
-- Find 3 Machine Learning Algorithms that Works
+- Dropdowns
+- Team Schedules
 
 ### Samuel
-- Machine Learning Chapter 2
-- Figma Design UI/UX Mockups
-- Logos and other assets
+- Paper
 
 ## Clean Up Code
-- Skeumorphic Buttons
 - Weekly Schedules
 - Better Calendar Inputs
-- Clean Up JS in HTML
 - React / Angular Components
 - Password Reset, confirm email first
 

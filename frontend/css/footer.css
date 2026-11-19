@@ -51,7 +51,7 @@ body.has-site-footer > .page {
 
 .site-footer--static {
   position: relative;
-  margin-top: auto;
+  margin-top: 0;
   margin-bottom: 16px;
   flex-shrink: 0;
   border-radius: var(--radius-container, 16px);

@@ -69,7 +69,7 @@ async function updateUser(userId, { email, password, display_name, platform_role
 
 async function deleteUser(userId) {
   const result = await pool.query(
-    `UPDATE users SET deleted_at = CURRENT_TIMESTAMP
+    `DELETE FROM users
       WHERE id = $1 AND deleted_at IS NULL RETURNING id`,
     [userId]
   );
