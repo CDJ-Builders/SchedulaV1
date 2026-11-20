@@ -19,12 +19,16 @@ function normalizeConfiguration(configuration) {
       : [];
     const startTime = typeof block?.start_time === 'string' ? block.start_time : '';
     const endTime = typeof block?.end_time === 'string' ? block.end_time : '';
+    const modality = typeof block?.modality === 'string' ? block.modality : 'onsite';
     const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
     if (!title || weekdays.length !== 1 || !validTime.test(startTime) || !validTime.test(endTime)) {
       throw configurationError('Each weekly block requires title, weekdays, start_time, and end_time');
     }
+    if (!['onsite', 'online'].includes(modality)) {
+      throw configurationError("modality must be 'onsite' or 'online'");
+    }
     if (endTime <= startTime) throw configurationError('end_time must be later than start_time');
-    return { title, description, weekdays, start_time: startTime, end_time: endTime };
+    return { title, description, weekdays, start_time: startTime, end_time: endTime, modality };
   });
 }
 

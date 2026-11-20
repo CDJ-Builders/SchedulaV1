@@ -59,10 +59,19 @@
          <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option>
          <option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option>
         </select></label>
+        <label class="field"><span>Modality</span><select id="event-modality" required>
+         <option value="">Select a modality</option>
+         <option value="onsite">Onsite</option>
+         <option value="online">Online</option>
+        </select></label>
        </div>
        <div class="builder-form-column">
         <label class="field"><span>Start time</span><input id="event-start" type="time" required></label>
         <label class="field"><span>End time</span><input id="event-end" type="time" required></label>
+        <button id="smart-schedule-btn" class="btn-primary btn-save smart-schedule-btn" type="button">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15 4v16M3 12h18"/></svg>
+         Smart Schedule
+        </button>
        </div>
        <label class="field description-field"><span>Description</span><textarea id="event-description" rows="5"></textarea></label>
       </div>

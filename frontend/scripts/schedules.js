@@ -5,6 +5,7 @@ const eventsList = document.getElementById('scheduledList');
 const scheduleSelector = document.getElementById('schedule-selector');
 const scheduleNameInput = document.getElementById('schedule-name-input');
 const addEventButton = document.getElementById('add-event-btn');
+const smartScheduleButton = document.getElementById('smart-schedule-btn');
 const saveScheduleButton = document.getElementById('save-schedule-btn');
 const deleteScheduleButton = document.getElementById('delete-schedule-btn');
 const builderMessage = document.getElementById('builder-message');
@@ -62,12 +63,14 @@ function eventFromForm() {
     description: value('event-description'),
     weekdays: selectedWeekdays(),
     start_time: value('event-start'),
-    end_time: value('event-end')
+    end_time: value('event-end'),
+    modality: value('event-modality')
   };
 }
 
 function validateBlock(block) {
   if (!block.title || !block.start_time || !block.end_time) return 'Title, start time, and end time are required.';
+  if (!['onsite', 'online'].includes(block.modality)) return 'Choose whether this event is onsite or online.';
   if (block.weekdays.length !== 1) return 'Select one weekday.';
   if (block.end_time <= block.start_time) return 'End time must be later than start time.';
   return null;
@@ -78,10 +81,12 @@ function clearEventForm() {
     document.getElementById(id).value = '';
   });
   document.getElementById('event-weekdays').value = '';
+  document.getElementById('event-modality').value = '';
 }
 
 function formatBlock(block) {
-  return `${block.weekdays.join(', ')} · ${block.start_time}–${block.end_time}`;
+  const modality = block.modality === 'online' ? 'Online' : 'Onsite';
+  return `${block.weekdays.join(', ')} · ${block.start_time}–${block.end_time} · ${modality}`;
 }
 
 function renderEvents() {
@@ -129,7 +134,8 @@ function parseConfiguration(configuration) {
     description: typeof block.description === 'string' ? block.description : '',
     weekdays: Array.isArray(block.weekdays) ? block.weekdays.filter(day => typeof day === 'string') : [],
     start_time: typeof block.start_time === 'string' ? block.start_time : '',
-    end_time: typeof block.end_time === 'string' ? block.end_time : ''
+    end_time: typeof block.end_time === 'string' ? block.end_time : '',
+    modality: block.modality === 'online' ? 'online' : 'onsite'
   })).filter(block => !validateBlock(block));
 }
 
@@ -208,6 +214,10 @@ async function saveSchedule() {
 
 scheduleSelector.addEventListener('change', event => selectSchedule(event.target.value));
 addEventButton.addEventListener('click', addEvent);
+smartScheduleButton.addEventListener('click', () => {
+  const showInfo = window.noticePopup || window.alert;
+  showInfo('Smart Schedule is coming soon.', 'Coming Soon');
+});
 saveScheduleButton.addEventListener('click', saveSchedule);
 eventsList.addEventListener('click', event => {
   const button = event.target.closest('[data-event-key]');
@@ -225,16 +235,22 @@ deleteScheduleButton.addEventListener('click', () => {
     showBuilderNotice('The confirmation dialog is unavailable. Reload the page and try again.', 'Unable to delete schedule');
     return;
   }
-  window.confirmPopup('Delete this schedule and its weekly blocks? This cannot be undone.', async () => {
-    try {
-      await requestJson(`/schedules/${activeScheduleId}`, { method: 'DELETE' });
-      activeScheduleId = 'new';
-      await loadSchedules();
-    } catch (error) {
-      setMessage(error.message, true);
-      showBuilderNotice(error.message, 'Unable to delete schedule');
-    }
-  }, null, 'Delete schedule', 'error');
+  window.confirmPopup(
+    'Warning: This will permanently delete the schedule and all of its weekly blocks. This action cannot be undone.',
+    async () => {
+      try {
+        await requestJson(`/schedules/${activeScheduleId}`, { method: 'DELETE' });
+        activeScheduleId = 'new';
+        await loadSchedules();
+      } catch (error) {
+        setMessage(error.message, true);
+        showBuilderNotice(error.message, 'Unable to delete schedule');
+      }
+    },
+    null,
+    'Delete schedule?',
+    'warning'
+  );
 });
 
 document.addEventListener('DOMContentLoaded', async () => {

@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       description: typeof block.description === 'string' ? block.description : '',
       weekdays: Array.isArray(block.weekdays) ? block.weekdays.filter(day => dayNames.includes(day)) : [],
       start_time: typeof block.start_time === 'string' ? block.start_time : '',
-      end_time: typeof block.end_time === 'string' ? block.end_time : ''
+      end_time: typeof block.end_time === 'string' ? block.end_time : '',
+      modality: block.modality === 'online' ? 'online' : 'onsite'
     })).filter(block => block.title && block.weekdays.length && block.start_time && block.end_time);
   }
 
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return window.APP_UTILS?.timeStringToMinutes(value) ?? null;
   }
 
-  function appendBlock({ day, startTime, endTime, title, description }, bgColor, fontColor) {
+  function appendBlock({ day, startTime, endTime, title, description, modality = 'onsite' }, bgColor, fontColor) {
     const startMinutes = parseTime(startTime);
     const endMinutes = parseTime(endTime);
     const column = dayNames.indexOf(day);
@@ -82,13 +83,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (startMinutes < dayStart) return;
     const block = document.createElement('article');
     block.className = 'event-block';
+    block.dataset.modality = modality;
+    block.setAttribute('aria-label', `${title || 'Untitled event'}, ${modality === 'online' ? 'online' : 'onsite'}, ${startTime} to ${endTime}`);
     block.style.top = `${startMinutes - dayStart}px`;
     block.style.height = `${endMinutes - startMinutes}px`;
     block.style.left = `${column * (100 / dayNames.length)}%`;
     block.style.width = `${100 / dayNames.length}%`;
     block.style.backgroundColor = bgColor;
     block.style.color = fontColor;
-    block.style.border = `2px solid ${fontColor}`;
+    const modalityLabel = document.createElement('span');
+    modalityLabel.className = 'event-modality-label';
+    modalityLabel.textContent = modality === 'online' ? 'ONLINE' : 'ONSITE';
+    block.appendChild(modalityLabel);
     if (!hideTitle.checked) {
       const titleElement = document.createElement('div');
       titleElement.className = 'subject-name';
@@ -119,7 +125,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       startTime: start.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
       endTime: end.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
       title: event.title,
-      description: event.description
+      description: event.description,
+      modality: event.modality === 'online' ? 'online' : 'onsite'
     }, bgColor, fontColor);
   }
 
@@ -131,7 +138,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         startTime: block.start_time,
         endTime: block.end_time,
         title: block.title,
-        description: block.description
+        description: block.description,
+        modality: block.modality
       }, bgColor, fontColor)));
       return configuration.length;
     }
