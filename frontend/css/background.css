@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap');
 
+/* Shared page canvas, decorative grid, theme colors, and background layers. */
 .schedula-background {
   --bg: #09090b;
   --fg: #f4f4f5;
@@ -153,6 +154,7 @@
     box-shadow 220ms ease !important;
 }
 
+/* Shared theme colors and icon treatments */
 [data-theme="light"] {
   --fg: #2a1245;
   --text: #2a1245;

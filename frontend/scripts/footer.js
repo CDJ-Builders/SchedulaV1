@@ -15,7 +15,7 @@
     if (document.querySelector('link[data-site-footer]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = assetBase + 'frontend/css/footer.css';
+    link.href = assetBase + 'frontend/css/chrome.css';
     link.setAttribute('data-site-footer', '');
     document.head.appendChild(link);
   }

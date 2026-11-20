@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap');
-
 /* ═══════════════════════════════════════════════════════════════
    theme.css — Schedula Shared Design System & Skeuomorphic Tokens
    ═══════════════════════════════════════════════════════════════ */
@@ -388,8 +386,3 @@ body {
 @keyframes scheduleSkeletonShimmer {
   to { background-position-x: -220%; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .schedule-skeleton span { animation: none; }
-}
-

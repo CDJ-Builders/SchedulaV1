@@ -1,3 +1,239 @@
+/* Shared site chrome: application header and universal footer. */
+
+/* Application header */
+.app-shell-header {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 72px;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(360px, 1fr);
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 20;
+}
+
+.app-shell-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  color: var(--header-fg, #f4f4f5);
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.app-shell-header .brand .mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: contain;
+}
+
+.app-shell-header .brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 12px;
+  background: #b596c8;
+  color: #2a1245;
+  font-size: 20px;
+  font-weight: 900;
+  box-shadow: inset 0 2px 4px rgba(42,18,69,.22), 0 4px 0 #62298a;
+}
+
+.app-shell-header .header-tools,
+.app-shell-header .tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: nowrap;
+  grid-column: 3;
+  justify-self: end;
+  min-width: 0;
+}
+
+.app-shell-header .nav {
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-shell-header .header-button,
+.app-shell-header .key.icon,
+.app-shell-header .theme-toggle {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(42,18,69,.62);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  color: #2a1245;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98,41,138,.18), 0 4px 0 #62298a, 0 8px 12px rgba(42,18,69,.22);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 180ms ease, color 180ms ease;
+}
+
+.app-shell-header .header-button.lav,
+.app-shell-header .key.lav {
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
+  color: #2a1245;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -3px 0 rgba(42,18,69,.2), 0 4px 0 #4a1d6d, 0 8px 12px rgba(42,18,69,.22);
+}
+
+.app-shell-header .header-button:hover,
+.app-shell-header .key.icon:hover,
+.app-shell-header .theme-toggle:hover { transform: translateY(-1px); }
+
+.app-shell-header .header-button:active,
+.app-shell-header .key.icon:active,
+.app-shell-header .theme-toggle:active {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 5px rgba(42,18,69,.28), 0 1px 0 #62298a, 0 2px 4px rgba(42,18,69,.22);
+}
+
+.app-shell-header .header-button svg,
+.app-shell-header .key svg,
+.app-shell-header .theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  stroke: #2a1245;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.app-shell-header .header-button svg *,
+.app-shell-header .key svg *,
+.app-shell-header .theme-toggle svg * {
+  stroke: #2a1245;
+  fill: none;
+  color: currentColor;
+}
+
+.app-shell-header .nav .key,
+.app-shell-header .nav a {
+  width: auto;
+  height: 42px;
+  min-width: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(42,18,69,.62);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  color: #2a1245;
+  font: 800 14px/1 "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98,41,138,.18), 0 4px 0 #62298a, 0 8px 12px rgba(42,18,69,.22);
+}
+
+.app-shell-header .nav [aria-current="page"] {
+  transform: translateY(3px);
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
+  box-shadow: inset 0 2px 5px rgba(42,18,69,.28), 0 1px 0 #4a1d6d;
+}
+
+.app-shell-header .header-button[aria-current="page"],
+.app-shell-header .key.icon[aria-current="page"] {
+  transform: translateY(3px);
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
+  box-shadow: inset 0 2px 5px rgba(42,18,69,.28), 0 1px 0 #4a1d6d;
+  cursor: default;
+}
+
+.app-shell-header .acct {
+  height: 42px;
+  min-width: 0;
+  max-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 6px;
+  border: 1px solid rgba(42,18,69,.62);
+  border-radius: 999px;
+  background: #fff;
+  color: #2a1245;
+}
+
+.app-shell-header .avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #b596c8;
+  color: #2a1245;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.app-shell-header .acct-name {
+  width: 110px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #2a1245;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .app-shell-header .brand,
+:not([data-theme="light"]) .app-shell-header .brand {
+  --header-fg: #f4f4f5;
+  color: #f4f4f5;
+}
+
+[data-theme="light"] .app-shell-header .brand { color: #2a1245; }
+[data-theme="light"] .app-shell-header .acct,
+[data-theme="light"] .app-shell-header .acct-name { color: #2a1245; }
+
+.app-shell-header svg,
+.app-shell-header svg *,
+.app-shell-header .theme-toggle,
+.app-shell-header .header-button {
+  color: #2a1245;
+  fill: none;
+  stroke: #2a1245;
+}
+
+@media (max-width: 800px) {
+  .app-shell-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .app-shell-header .tools,
+  .app-shell-header .header-tools { gap: 6px; }
+  .app-shell-header .brand-name { display: none; }
+  .app-shell-header .brand { font-size: 0; }
+  .app-shell-header .nav { min-width: 0; }
+  .app-shell-header .acct { max-width: 42px; padding: 6px; border-radius: 12px; }
+  .app-shell-header .acct-name { display: none; }
+  .app-shell-header .nav { gap: 6px; }
+  .app-shell-header .nav .key,
+  .app-shell-header .nav a { padding: 0 10px; }
+}
+
+/* Universal footer and information modal */
 /* ─── Universal Site Footer ─────────────────────────────────────── */
 .site-footer {
   --footer-fg: var(--fg, var(--text, #f4f4f5));

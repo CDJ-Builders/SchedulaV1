@@ -39,16 +39,15 @@ Build a functional Minimum Viable Product (MVP) prototype of Schedula that demon
 | **1: Smart Scheduling** | *Preference & Availability Detection:* Detects unavailable time ranges (`BlockedTimes`) and prevents conflicting course selections. | **In Progress** |
 | **2: Multi-Schedule Management** | *Team & User Based:* Manage personal and group schedules, duplicate templates, and avoid double-booking. | **In Progress** |
 | **3: Schedule Visualization & Customization** | Clean calendar grid, tabular class import, color palette picker, and PNG export capabilities. | **In Progress** |
-| **4: Chat Scheduling Assistant** | AI-driven assistant for natural-language scheduling suggestions and deadline delegation. | **To Do** |
-| **5: Authentication** | Secure user registration, encrypted passwords, JWT session handling, and email PIN password resets. | **Completed** |
-| **6: Authorization** | Role-based access control for personal users, team leaders, and system developers/super admins. | **Completed** |
+| **4: Authentication** | Secure user registration, encrypted passwords, JWT session handling, and email PIN password resets. | **Completed** |
+| **5: Authorization** | Role-based access control for personal users, team leaders, and system developers/super admins. | **Completed** |
 
 ### Secondary Features
 | Feature | Description | Status |
 | :--- | :--- | :---: |
-| **7: Smart Deadlines & Reminders** | Flexible task deadlines and push/email notifications for upcoming meetings. | **To Do** |
-| **8: Streak Reward System** | Usage streaks to incentivize consistent deadline compliance and attendance. | **To Do** |
-| **9: Enhanced UI/UX** | Skeuomorphic & glassmorphic design system, responsive layouts, and smooth animations. | **Done** |
+| **6: Smart Deadlines & Reminders** | Flexible task deadlines and push/email notifications for upcoming meetings. | **To Do** |
+| **7: Streak Reward System** | Usage streaks to incentivize consistent deadline compliance and attendance. | **To Do** |
+| **8: Enhanced UI/UX** | Skeuomorphic & glassmorphic design system, responsive layouts, and smooth animations. | **Done** |
 
 ---
 
@@ -60,7 +59,7 @@ Build a functional Minimum Viable Product (MVP) prototype of Schedula that demon
 - **Database:** PostgreSQL 
 
 ### Planned Rebuild
-- **Frontend Rebuild:** Vite + React + TypeScript + Tailwind CSS (as detailed in [PRD.md](./PRD.md))
+- **Frontend Rebuild:** Vite + React + TypeScript + Tailwind CSS
 
 ---
 
@@ -75,12 +74,10 @@ Build a functional Minimum Viable Product (MVP) prototype of Schedula that demon
 │   ├── css/                  # Modular stylesheets (landing, main, plotter, profile, builder)
 │   └── scripts/              # Frontend interactive logic (subjects, profile, plotter, theme)
 ├── pages/                    # Web pages (index, builder, plotter, profile, login, signup, setup)
-├── docs/                   # Project proposals, Agile documentation, & notes
+├── docs/                     # Project proposals, Agile documentation, & notes
 │   ├── SchedulaProposal.md   # Comprehensive project proposal & academic research foundation
-│   ├── SchedulaSRUM.md # Sprint planning, product backlog, and retrospective
+│   ├── SchedulaSRUM.md       # Sprint planning, product backlog, and retrospective
 │   └── TODO.md               # Task list and feature tracking
-├── PRD.md                    # Updated Product Requirements Document
-├── PROGRESS.md               # Implementation progress tracking
 └── README.md                 # Project README
 ```
 

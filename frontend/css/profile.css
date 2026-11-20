@@ -22,8 +22,6 @@ body.pf {
   --edge: #62298a;
   --hair: rgba(42, 18, 69, .10);
   --well: #b596c8;
-  --dock: #e6d6f1;
-  --dockline: #2a1245;
   --flag: #c2255c;
   --bezel-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .10), 0 6px 0 #62298a, 0 14px 20px rgba(42, 18, 69, .24);
   background: var(--bg);
@@ -49,8 +47,6 @@ html:not([data-theme="light"]) body.pf {
   --bezel: #ffffff;
   --hair: rgba(42, 18, 69, .10);
   --well: #b596c8;
-  --dock: #e6d6f1;
-  --dockline: #2a1245;
   --bezel-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .10), 0 6px 0 #62298a, 0 14px 20px rgba(42, 18, 69, .24);
 }
 
@@ -228,8 +224,7 @@ html:not([data-theme="light"]) body.pf .page-title p {
   color: #c9c9d2;
 }
 
-body.pf .pf-panel > p,
-body.pf .pf-dock p {
+body.pf .pf-panel > p {
   margin: 0;
   color: var(--muted);
   font-size: .98rem;
@@ -285,7 +280,7 @@ body.pf .profile-password-link-wrapper {
   text-transform: uppercase;
 }
 
-body.pf .profile-password-link {
+body.pf .profile-password-link-wrapper a {
   min-height: 46px;
   display: inline-flex;
   align-items: center;
@@ -303,7 +298,7 @@ body.pf .profile-password-link {
   text-transform: none;
 }
 
-body.pf .profile-password-link:hover {
+body.pf .profile-password-link-wrapper a:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -419,7 +414,6 @@ body.pf .preference-check-grid input[type="checkbox"] {
 }
 
 html:not([data-theme="light"]) body.pf .pf-panel,
-html:not([data-theme="light"]) body.pf .pf-dock,
 html:not([data-theme="light"]) body.pf .profile-info-field-wrapper,
 html:not([data-theme="light"]) body.pf .profile-select-group,
 html:not([data-theme="light"]) body.pf .pf-field,
@@ -433,12 +427,6 @@ html:not([data-theme="light"]) body.pf .pf-panel span,
 html:not([data-theme="light"]) body.pf .pf-field,
 html:not([data-theme="light"]) body.pf .profile-select-group {
   color: #2a1245;
-}
-
-body.pf .pf-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
 }
 
 body.pf ::-webkit-calendar-picker-indicator {
@@ -458,18 +446,7 @@ body.pf :is(#save-profile-btn, #save-preferences-btn, #add-availability-btn) {
   align-self: center;
 }
 
-/* ─── Availability Dock & List ───────────────────────────────── */
-body.pf .pf-dock {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-  background: var(--dock);
-  border: 2px solid var(--dockline);
-  border-radius: 18px;
-  min-width: 0;
-}
-
+/* ─── Availability List ──────────────────────────────────────── */
 body.pf #availability-list {
   display: flex;
   flex-direction: column;
@@ -539,7 +516,6 @@ body.pf .danger-zone-col .btn-danger {
 }
 
 @media (max-width: 600px) {
-  body.pf .pf-row { grid-template-columns: minmax(0, 1fr); }
   body.pf .pf-panel { padding: 20px; }
   body.pf .tools { justify-content: flex-start; }
 }
@@ -565,22 +541,6 @@ body.setup-page {
 
 body.setup-page .top {
   margin: 0 auto;
-}
-
-body.setup-page .setup-page-content {
-  width: min(1200px, calc(100% - 48px));
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 0 56px;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-body.setup-page .setup-profile-grid {
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  align-items: start;
 }
 
 body.setup-page .setup-save-btn {
@@ -629,12 +589,6 @@ body.setup-page .setup-save-btn:hover:not(:disabled) {
 body.setup-page .setup-save-btn:active:not(:disabled) {
   transform: translateY(4px) scale(.985);
   box-shadow: inset 0 2px 5px rgba(20,112,72,.35), 0 1px 0 #16724a;
-}
-
-@media (max-width: 1000px) {
-  body.setup-page .setup-profile-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 body.setup-page .setup-carousel {
