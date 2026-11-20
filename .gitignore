@@ -7,7 +7,8 @@ graphify-out/
 .graphify*
 skills-lock.json
 CODEX.md
-PROGRESS.MD
+PROGRESS.md
+PRD.md
 
 # ── Dependencies ──────────────────────────────────────────────
 node_modules/
