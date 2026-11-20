@@ -13,7 +13,7 @@ async function api(url, options = {}) {
       ...(options.headers || {})
     }
   });
-  const data = await response.json();
+  const data = response.status === 204 ? null : await response.json();
   if (!response.ok) throw new Error(data.error || 'Setup failed');
   return data;
 }
@@ -106,6 +106,31 @@ async function finishSetup() {
 
   const session = await api('/user-session');
   localStorage.setItem('user', JSON.stringify(session));
+}
+
+async function importOnboardingSchedule(importedEvents) {
+  const title = 'Imported schedule';
+  const created = await api('/schedules', {
+    method: 'POST',
+    body: JSON.stringify({ title, schedule_type: 'weekly' })
+  });
+
+  try {
+    await api(`/schedules/${created.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ title, schedule_type: 'weekly', configuration: importedEvents })
+    });
+  } catch (error) {
+    try {
+      await api(`/schedules/${created.id}`, { method: 'DELETE' });
+    } catch (cleanupError) {
+      throw new Error(`${error.message} The empty schedule could not be cleaned up: ${cleanupError.message}`);
+    }
+    throw error;
+  }
+}
+
+function continueToHome() {
   window.location.href = './home.html';
 }
 
@@ -130,6 +155,15 @@ getElement('setup-next-btn').addEventListener('click', async () => {
   nextButton.querySelector('span').textContent = 'Saving...';
   try {
     await finishSetup();
+    if (window.SchedulaScheduleExcel) {
+      window.SchedulaScheduleExcel.open({
+        showSkip: true,
+        onImport: importOnboardingSchedule,
+        onClose: continueToHome
+      });
+    } else {
+      continueToHome();
+    }
   } catch (error) {
     if (typeof window.noticePopup === 'function') {
       window.noticePopup(error.message, 'Unable to complete setup');

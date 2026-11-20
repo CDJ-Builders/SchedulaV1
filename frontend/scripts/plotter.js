@@ -12,9 +12,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const hideTime = document.getElementById('hide-time');
   const colorInput = document.getElementById('custom-color');
   const fontColorInput = document.getElementById('custom-font-color');
+  const timeLabels = document.getElementById('plotter-time-labels');
+  const dayGrid = document.querySelector('.day-columns-grid');
   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayStartMinutes = 7 * 60;
   let schedules = [];
   let selectedSchedule = null;
+  let latestEventEnd = null;
 
   async function loadSchedules() {
     const response = await fetch(`${window.APP_CONFIG.API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } });
@@ -79,13 +83,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const endMinutes = parseTime(endTime);
     const column = dayNames.indexOf(day);
     if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes || column < 0) return;
-    const dayStart = 7 * 60;
-    if (startMinutes < dayStart) return;
+    if (startMinutes < dayStartMinutes) return;
+    latestEventEnd = Math.max(latestEventEnd ?? dayStartMinutes, endMinutes);
     const block = document.createElement('article');
     block.className = 'event-block';
     block.dataset.modality = modality;
     block.setAttribute('aria-label', `${title || 'Untitled event'}, ${modality === 'online' ? 'online' : 'onsite'}, ${startTime} to ${endTime}`);
-    block.style.top = `${startMinutes - dayStart}px`;
+    block.style.top = `${startMinutes - dayStartMinutes}px`;
     block.style.height = `${endMinutes - startMinutes}px`;
     block.style.left = `${column * (100 / dayNames.length)}%`;
     block.style.width = `${100 / dayNames.length}%`;
@@ -114,6 +118,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       block.appendChild(timeElement);
     }
     blocks.appendChild(block);
+  }
+
+  function formatHour(minutes) {
+    const hour = Math.floor(minutes / 60) % 24;
+    return `${hour % 12 || 12} ${hour >= 12 ? 'PM' : 'AM'}`;
+  }
+
+  function renderTimeline() {
+    const endMinutes = latestEventEnd === null ? dayStartMinutes + 60 : latestEventEnd + 60;
+    const duration = endMinutes - dayStartMinutes;
+    dayGrid.style.height = `${duration}px`;
+    timeLabels.replaceChildren();
+
+    for (let minute = dayStartMinutes; minute < endMinutes; minute += 60) {
+      const label = document.createElement('div');
+      label.className = 'time-cell';
+      label.style.height = `${Math.min(60, endMinutes - minute)}px`;
+      label.textContent = formatHour(minute);
+      timeLabels.appendChild(label);
+    }
   }
 
   function plotLegacyEvent(event, bgColor, fontColor) {
@@ -150,9 +174,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   generateButton.addEventListener('click', () => {
     if (!selectedSchedule) { alert('Select a schedule first.'); return; }
     blocks.innerHTML = '';
+    latestEventEnd = null;
     document.getElementById('capture-area')?.classList.add('visible');
     saveButton.classList.add('visible');
     const count = plotSchedule(selectedSchedule, colorInput.value || '#ffffff', fontColorInput.value || '#000000');
+    renderTimeline();
     if (!count) alert('This schedule has no weekly blocks.');
   });
 

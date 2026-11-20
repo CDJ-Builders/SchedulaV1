@@ -2,8 +2,10 @@
 const SCHEDULE_TYPES = Object.freeze({ WEEKLY: 'weekly' });
 const scheduleType = SCHEDULE_TYPES.WEEKLY;
 const eventsList = document.getElementById('scheduledList');
+const eventsDayFilter = document.getElementById('events-day-filter');
 const scheduleSelector = document.getElementById('schedule-selector');
 const scheduleNameInput = document.getElementById('schedule-name-input');
+const scheduleExcelButton = document.getElementById('schedule-excel-btn');
 const addEventButton = document.getElementById('add-event-btn');
 const smartScheduleButton = document.getElementById('smart-schedule-btn');
 const saveScheduleButton = document.getElementById('save-schedule-btn');
@@ -76,6 +78,25 @@ function validateBlock(block) {
   return null;
 }
 
+function findBlockConflict(block, otherBlocks) {
+  return otherBlocks.find(existing =>
+    block.weekdays.some(day => existing.weekdays.includes(day))
+    && block.start_time < existing.end_time
+    && block.end_time > existing.start_time
+  ) || null;
+}
+
+function findScheduleConflict(blocks) {
+  for (let index = 0; index < blocks.length; index += 1) {
+    const conflict = findBlockConflict(blocks[index], blocks.slice(0, index));
+    if (conflict) {
+      const weekday = blocks[index].weekdays.find(day => conflict.weekdays.includes(day));
+      return `“${blocks[index].title}” overlaps “${conflict.title}” on ${weekday}.`;
+    }
+  }
+  return null;
+}
+
 function clearEventForm() {
   ['event-title', 'event-start', 'event-end', 'event-description'].forEach(id => {
     document.getElementById(id).value = '';
@@ -93,13 +114,24 @@ function renderEvents() {
   eventsList.setAttribute('aria-busy', 'false');
   eventsList.innerHTML = '';
   if (!events.length) {
-    eventsList.innerHTML = '<p class="text-muted-light">No weekly blocks added yet.</p>';
+    eventsList.innerHTML = '<p class="events-empty-state">No weekly blocks added yet.</p>';
     return;
   }
   const esc = window.APP_UTILS?.escapeHtml || (item => String(item ?? ''));
-  events.forEach((event, index) => {
+  const selectedDay = eventsDayFilter.value;
+  const visibleEvents = events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => selectedDay === 'all' || event.weekdays.includes(selectedDay));
+
+  if (!visibleEvents.length) {
+    eventsList.innerHTML = `<p class="events-empty-state">No events scheduled for ${esc(selectedDay)}.</p>`;
+    return;
+  }
+
+  visibleEvents.forEach(({ event, index }) => {
     const card = document.createElement('article');
     card.className = 'event-card';
+    card.dataset.weekday = event.weekdays[0] || '';
     card.innerHTML = `<div class="event-card-body card-body-flex"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(event))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><button class="btn-remove btn-remove-inline" type="button" data-event-key="new-${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div>`;
     eventsList.appendChild(card);
   });
@@ -170,6 +202,12 @@ function addEvent() {
   const block = eventFromForm();
   const error = validateBlock(block);
   if (error) { showBuilderNotice(error, 'Weekly block details required'); return; }
+  const conflict = findBlockConflict(block, events);
+  if (conflict) {
+    const weekday = block.weekdays.find(day => conflict.weekdays.includes(day));
+    showBuilderNotice(`This block overlaps “${conflict.title}” on ${weekday}.`, 'Schedule conflict');
+    return;
+  }
   events.push(block);
   renderEvents();
   clearEventForm();
@@ -187,19 +225,13 @@ async function saveSchedule() {
     scheduleNameInput.focus();
     return;
   }
+  const conflict = findScheduleConflict(events);
+  if (conflict) {
+    showBuilderNotice(conflict, 'Schedule conflict');
+    return;
+  }
   try {
-    let scheduleId = activeScheduleId;
-    if (scheduleId === 'new') {
-      scheduleId = (await requestJson('/schedules', {
-        method: 'POST',
-        body: JSON.stringify({ title, schedule_type: scheduleType })
-      })).id;
-    }
-    await requestJson(`/schedules/${scheduleId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ title, schedule_type: scheduleType, configuration: events })
-    });
-    activeScheduleId = scheduleId;
+    await persistSchedule(events, title);
     await loadSchedules();
     if (typeof window.successPopup === 'function') {
       window.successPopup('Schedule saved successfully.', 'Schedule saved');
@@ -212,7 +244,76 @@ async function saveSchedule() {
   }
 }
 
+async function persistSchedule(configuration, title) {
+  let scheduleId = activeScheduleId;
+  let createdScheduleId = null;
+  if (scheduleId === 'new') {
+    scheduleId = (await requestJson('/schedules', {
+      method: 'POST',
+      body: JSON.stringify({ title, schedule_type: scheduleType })
+    })).id;
+    createdScheduleId = scheduleId;
+  }
+
+  try {
+    await requestJson(`/schedules/${scheduleId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ title, schedule_type: scheduleType, configuration })
+    });
+  } catch (error) {
+    if (createdScheduleId) {
+      try {
+        await requestJson(`/schedules/${createdScheduleId}`, { method: 'DELETE' });
+      } catch (cleanupError) {
+        throw new Error(`${error.message} The empty schedule could not be cleaned up: ${cleanupError.message}`);
+      }
+    }
+    throw error;
+  }
+
+  activeScheduleId = scheduleId;
+  const cachedSchedule = schedules.find(schedule => schedule.id === scheduleId);
+  if (cachedSchedule) {
+    cachedSchedule.title = title;
+    cachedSchedule.configuration = configuration;
+  } else {
+    schedules.push({ id: scheduleId, title, configuration });
+  }
+  let option = [...scheduleSelector.options].find(item => item.value === scheduleId);
+  if (!option) {
+    option = document.createElement('option');
+    option.value = scheduleId;
+    scheduleSelector.appendChild(option);
+  }
+  option.textContent = title;
+  scheduleSelector.value = scheduleId;
+}
+
+async function importScheduleEvents(importedEvents) {
+  const title = scheduleNameInput.value.trim();
+  if (!title) throw new Error('Enter a schedule title before importing events.');
+
+  const previousEvents = events;
+  const nextEvents = [...events, ...importedEvents];
+  events = nextEvents;
+  renderEvents();
+  try {
+    await persistSchedule(nextEvents, title);
+  } catch (error) {
+    events = previousEvents;
+    renderEvents();
+    throw error;
+  }
+}
+
 scheduleSelector.addEventListener('change', event => selectSchedule(event.target.value));
+eventsDayFilter.addEventListener('change', renderEvents);
+scheduleExcelButton.addEventListener('click', () => {
+  window.SchedulaScheduleExcel.open({
+    getExistingEvents: () => events,
+    onImport: importScheduleEvents
+  });
+});
 addEventButton.addEventListener('click', addEvent);
 smartScheduleButton.addEventListener('click', () => {
   const showInfo = window.noticePopup || window.alert;

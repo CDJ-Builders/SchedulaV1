@@ -319,6 +319,12 @@
   flex-direction: column;
 }
 
+.time-labels {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+}
+
 .time-cell {
   height: var(--row);
   display: flex;
@@ -459,10 +465,10 @@
 }
 
 .event-block .subject-name {
-  max-width: calc(100% - 42px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
+  padding-right: 42px;
+  overflow-wrap: anywhere;
   font-size: .78rem;
   font-weight: 700;
   margin-bottom: 3px;

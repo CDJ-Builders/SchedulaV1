@@ -176,6 +176,10 @@
   cursor: pointer;
 }
 
+#event-description {
+  resize: none;
+}
+
 .event-details {
   margin: 18px 0 20px;
 }
@@ -233,10 +237,80 @@
 }
 
 /* ─── Event Schedule List on Lavender Lane ───────────────────── */
+.events-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.events-filter-label {
+  display: grid;
+  gap: 3px;
+  color: #5b4778;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.events-day-filter {
+  width: 170px;
+  height: 40px;
+  padding: 0 36px 0 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid rgba(98, 41, 138, .38);
+  border-radius: 11px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2362298a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .1), 0 2px 0 rgba(98, 41, 138, .08);
+  color: var(--plum);
+  font: 700 14px/1 "Bricolage Grotesque", system-ui, sans-serif;
+  cursor: pointer;
+}
+
 .events-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 180px;
+  max-height: min(58vh, 560px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #7a4a99 rgba(98, 41, 138, .12);
+}
+
+.events-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.events-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(98, 41, 138, .12);
+}
+
+.events-list::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #b596c8, #62298a) padding-box;
+}
+
+.events-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a77bcf, #4a1d6d) padding-box;
+}
+
+.events-empty-state {
+  margin: auto;
+  color: #5b4778;
+  text-align: center;
 }
 
 .events-list:empty {
@@ -450,6 +524,8 @@ img[src$="/delete.png"] {
 
 @media (max-width: 520px) {
   .event-form-grid { grid-template-columns: 1fr; }
+  .events-panel-heading { align-items: flex-start; }
+  .events-day-filter { width: 145px; }
   .dock .flex-center-gap { flex-wrap: wrap; }
   .form-actions .btn-primary,
   .save-schedule-container .btn-primary { flex: 1 1 100%; }
