@@ -1,10 +1,10 @@
 # Schedula: Build Your Daily Blocks
 
-[![Build Status](https://img.shields.io/badge/Status-v1.2-violet.svg)](#sprint-planning--agile-scrum)
+[![Build Status](https://img.shields.io/badge/Status-v1.5-violet.svg)](#sprint-planning--agile-scrum)
 [![Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20PostgreSQL%20%7C%20Vanilla%20JS-blue.svg)](#technology-stack)
 
 **Schedula** is a student-first, collaborative academic scheduling platform that combines smart availability detection, preference-aware conflict resolution, and visual timetable customization. Designed to solve the challenges of traditional ad-hoc scheduling and the University Course Timetabling Problem (UCTP), Schedula empowers individual students and collaborative teams to plan their semesters without spreadsheet friction.
-- Schedula Version 1, Patch 5.
+- Schedula Version 1, Patch 5: Profile Update.
 
 ---
 
