@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderScheduleList() {
+    list.setAttribute('aria-busy', 'false');
     list.innerHTML = '';
     if (!schedules.length) {
       list.innerHTML = '<div class="plotter-schedule-item"><span>No schedules found.</span></div>';
@@ -157,6 +158,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   try { await loadSchedules(); } catch (error) {
-    list.innerHTML = `<div class="plotter-schedule-item"><span>${error.message}</span></div>`;
+    list.setAttribute('aria-busy', 'false');
+    const item = document.createElement('div');
+    item.className = 'plotter-schedule-item';
+    const message = document.createElement('span');
+    message.textContent = error.message;
+    item.appendChild(message);
+    list.replaceChildren(item);
   }
 });

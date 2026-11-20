@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedula Login</title>
+  <title>Schedula | Login</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/main.css">
   <link rel="stylesheet" href="../frontend/css/background.css">
-  <link rel="stylesheet" href="../frontend/css/header.css">
+  <link rel="stylesheet" href="../frontend/css/header.css" data-schedula-header>
   <link rel="stylesheet" href="../frontend/css/auth-pages.css">
+  <link rel="stylesheet" href="../frontend/css/footer.css" data-site-footer>
+  <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
   <script src="../frontend/scripts/theme.js"></script>
 </head>
 
-<body class="schedula-background auth-page">
+<body class="schedula-background auth-page has-site-footer">
   <header class="auth-header app-shell-header">
     <a class="auth-brand brand" href="../index.html" aria-label="Schedula home">
       <img src="../assets/logo.png" alt="" class="auth-logo">
@@ -63,6 +65,7 @@
     </section>
   </main>
 
+  <footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
   <script src="../frontend/scripts/utils.js"></script>
   <script src="../frontend/scripts/popup.js"></script>
   <script src="../frontend/scripts/background.js"></script>

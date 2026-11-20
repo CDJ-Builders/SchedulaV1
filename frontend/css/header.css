@@ -54,7 +54,8 @@
   flex-wrap: nowrap;
 }
 
-.app-shell-header .header-tools {
+.app-shell-header .header-tools,
+.app-shell-header .tools {
   grid-column: 3;
   justify-self: end;
   min-width: 0;
@@ -64,6 +65,7 @@
   grid-column: 2;
   justify-self: center;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
 }
@@ -186,6 +188,7 @@
 }
 
 .app-shell-header .acct-name {
+  width: 110px;
   max-width: 110px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -219,6 +222,8 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 12px;
   }
+  .app-shell-header .tools,
+  .app-shell-header .header-tools { gap: 6px; }
   .app-shell-header .brand-name { display: none; }
   .app-shell-header .brand { font-size: 0; }
   .app-shell-header .nav { min-width: 0; }

@@ -127,10 +127,10 @@
   }
 
   function injectFooter() {
-    if (document.querySelector('.site-footer')) return;
-
     const isHero = document.body.classList.contains('hero-root');
-    const footer = document.createElement('footer');
+    let footer = document.querySelector('.site-footer');
+    if (footer?.dataset.footerReady === 'true') return;
+    if (!footer) footer = document.createElement('footer');
     footer.className = 'site-footer ' + (isHero ? 'site-footer--hero' : 'site-footer--static');
     footer.setAttribute('role', 'contentinfo');
     footer.innerHTML = `
@@ -161,7 +161,9 @@
     `;
 
     const landingCopy = isHero ? document.querySelector('.landing-copy') : null;
-    (landingCopy || document.body).appendChild(footer);
+    if (!footer.isConnected) (landingCopy || document.body).appendChild(footer);
+    footer.dataset.footerReady = 'true';
+    footer.setAttribute('aria-busy', 'false');
 
     if (!isHero) {
       document.body.classList.add('has-site-footer');
@@ -193,11 +195,9 @@
 
   loadStylesheet();
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectFooter);
-  } else {
-    injectFooter();
-  }
+  // All current pages load this script at the end of body. Inject now so the
+  // footer and its layout class exist before the browser's first full paint.
+  injectFooter();
 
   window.showFooterModal = showFooterModal;
 })();

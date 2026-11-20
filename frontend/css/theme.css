@@ -366,3 +366,30 @@ body {
   }
 }
 
+.schedule-skeleton {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.schedule-skeleton span {
+  display: block;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(100deg, #e8dff0 25%, #f7f3fa 42%, #e8dff0 60%);
+  background-size: 220% 100%;
+  animation: scheduleSkeletonShimmer 1.15s ease-in-out infinite;
+}
+
+.schedule-skeleton span:nth-child(2) { width: 86%; }
+.schedule-skeleton span:nth-child(3) { width: 72%; }
+
+@keyframes scheduleSkeletonShimmer {
+  to { background-position-x: -220%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule-skeleton span { animation: none; }
+}
+

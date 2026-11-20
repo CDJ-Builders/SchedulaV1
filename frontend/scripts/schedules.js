@@ -85,6 +85,7 @@ function formatBlock(block) {
 }
 
 function renderEvents() {
+  eventsList.setAttribute('aria-busy', 'false');
   eventsList.innerHTML = '';
   if (!events.length) {
     eventsList.innerHTML = '<p class="text-muted-light">No weekly blocks added yet.</p>';
@@ -239,6 +240,8 @@ deleteScheduleButton.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
   try { await loadSchedules();   } catch (error) {
+    eventsList.setAttribute('aria-busy', 'false');
+    eventsList.innerHTML = `<p class="text-muted-light">${window.APP_UTILS?.escapeHtml(error.message) || 'Unable to load schedules.'}</p>`;
     setMessage(error.message, true);
     showBuilderNotice(error.message, 'Unable to load schedules');
   }
