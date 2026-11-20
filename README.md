@@ -21,8 +21,8 @@ Time management significantly influences academic and professional performance (
 
 ## 🎯 Agile SCRUM & Sprint Planning
 
-### Sprint 1 Goal
-Build a functional Minimum Viable Product (MVP) prototype of Schedula that demonstrates its primary feature: **Smart Scheduling** (*Preference & Availability Detection*).
+### Sprint 4 Goal
+Implement SchedulaML into Schedula. Create Team and Personal Schedule Management. Finalize Visualization Flowchart.
 
 ### Team Roles & Responsibilities
 - **Product Owner:** Jimenez, Jian Jowel *(Manages backlog prioritization and user alignment)*
