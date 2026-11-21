@@ -220,7 +220,25 @@
       render();
     })();
 
-    const goTo = (path) => { window.location.href = path; };
+    const goTo = (path) => {
+      // Temporary frontend developer access: route straight to home.html with active dev session
+      if (localStorage.getItem('DEV_BYPASS') !== 'false') {
+        if (!localStorage.getItem('token')) {
+          localStorage.setItem('token', 'dev-token-schedula');
+          localStorage.setItem('refreshToken', 'dev-refresh-schedula');
+          localStorage.setItem('user', JSON.stringify({
+            id: 'dev-user-01',
+            username: 'Dev User',
+            name: 'Frontend Developer',
+            email: 'dev@schedula.local',
+            platform_role: 'admin'
+          }));
+        }
+        window.location.href = './pages/home.html';
+        return;
+      }
+      window.location.href = path;
+    };
     document.getElementById('login-btn').addEventListener('click', () => goTo('./pages/login.html'));
     document.getElementById('signup-btn').addEventListener('click', () => goTo('./pages/signup.html'));
     document.getElementById('get-started-btn').addEventListener('click', () => goTo('./pages/signup.html'));

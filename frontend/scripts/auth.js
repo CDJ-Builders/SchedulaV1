@@ -3,6 +3,268 @@
  * @description Manages user authentication, route guards, token extraction, navigation updates, and login/signup flows.
  */
 
+// ============================================================
+// TEMPORARY FRONTEND DEVELOPER ACCESS MODE
+// Allows complete frontend browsing and testing without requiring backend login.
+// Enabled by default (set localStorage.setItem('DEV_BYPASS', 'false') to disable).
+// ============================================================
+const DEV_MODE = localStorage.getItem('DEV_BYPASS') !== 'false';
+const DEV_USER = {
+  id: 'dev-user-01',
+  username: 'Dev User',
+  name: 'Frontend Developer',
+  email: 'dev@schedula.local',
+  platform_role: 'admin'
+};
+const DEV_TOKEN = 'dev-token-schedula';
+
+function ensureDevSession(force = false) {
+  if (!DEV_MODE && !force) return;
+  const currentToken = localStorage.getItem('token');
+  const currentUser = localStorage.getItem('user');
+
+  if (!currentToken || !currentUser || force) {
+    localStorage.setItem('token', DEV_TOKEN);
+    localStorage.setItem('refreshToken', 'dev-refresh-schedula');
+    localStorage.setItem('user', JSON.stringify(DEV_USER));
+  }
+
+  // Pre-seed sample schedules so Builder & Plotter are immediately interactive
+  if (!localStorage.getItem('schedula_dev_schedules')) {
+    const sampleSchedules = [
+      {
+        id: 'dev-sched-1',
+        title: 'Fall 2026 Schedule',
+        configuration: JSON.stringify([
+          {
+            title: 'CS 301 · Algorithms',
+            description: 'Room 402 · Prof. Vance',
+            weekdays: ['Monday'],
+            start_time: '09:00',
+            end_time: '10:30',
+            modality: 'onsite'
+          },
+          {
+            title: 'CS 301 · Algorithms',
+            description: 'Room 402 · Prof. Vance',
+            weekdays: ['Wednesday'],
+            start_time: '09:00',
+            end_time: '10:30',
+            modality: 'onsite'
+          },
+          {
+            title: 'Math 210 · Discrete Math',
+            description: 'Online via Zoom',
+            weekdays: ['Tuesday'],
+            start_time: '11:00',
+            end_time: '12:30',
+            modality: 'online'
+          },
+          {
+            title: 'Math 210 · Discrete Math',
+            description: 'Online via Zoom',
+            weekdays: ['Thursday'],
+            start_time: '11:00',
+            end_time: '12:30',
+            modality: 'online'
+          },
+          {
+            title: 'CS 315 · Database Systems',
+            description: 'Lab 204',
+            weekdays: ['Friday'],
+            start_time: '13:00',
+            end_time: '14:30',
+            modality: 'onsite'
+          }
+        ])
+      }
+    ];
+    localStorage.setItem('schedula_dev_schedules', JSON.stringify(sampleSchedules));
+  }
+}
+
+// Synchronously ensure session exists immediately on script load
+ensureDevSession();
+
+/**
+ * Handles mock API requests for frontend developer access without a backend.
+ */
+function handleMockApi(url, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const urlStr = typeof url === 'string' ? url : (url.url || '');
+  const cleanPath = urlStr.replace(/^https?:\/\/[^\/]+/, '');
+
+  function jsonResponse(data, status = 200) {
+    return new Response(JSON.stringify(data), {
+      status,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  // 1. User session
+  if (cleanPath.includes('/user-session')) {
+    const userStr = localStorage.getItem('user') || JSON.stringify(DEV_USER);
+    return jsonResponse(JSON.parse(userStr));
+  }
+
+  // 2. Schedules
+  if (cleanPath.includes('/schedules')) {
+    let schedules = [];
+    try {
+      schedules = JSON.parse(localStorage.getItem('schedula_dev_schedules') || '[]');
+    } catch (e) {
+      schedules = [];
+    }
+
+    const matchId = cleanPath.match(/\/schedules\/([^\/?#]+)/);
+    const scheduleId = matchId ? matchId[1] : null;
+
+    if (method === 'GET') {
+      if (scheduleId && scheduleId !== 'schedules') {
+        const found = schedules.find(s => s.id === scheduleId);
+        return found ? jsonResponse(found) : jsonResponse({ error: 'Schedule not found' }, 404);
+      }
+      return jsonResponse(schedules);
+    }
+
+    if (method === 'POST') {
+      let body = {};
+      try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+      const newSchedule = {
+        id: 'sched-' + Date.now(),
+        title: body.title || 'My Schedule',
+        configuration: body.configuration || '[]',
+        type: body.schedule_type || 'weekly',
+        created_at: new Date().toISOString()
+      };
+      schedules.push(newSchedule);
+      localStorage.setItem('schedula_dev_schedules', JSON.stringify(schedules));
+      return jsonResponse(newSchedule, 201);
+    }
+
+    if (method === 'PUT' && scheduleId) {
+      let body = {};
+      try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+      const index = schedules.findIndex(s => s.id === scheduleId);
+      if (index !== -1) {
+        schedules[index] = {
+          ...schedules[index],
+          title: body.title !== undefined ? body.title : schedules[index].title,
+          configuration: body.configuration !== undefined ? body.configuration : schedules[index].configuration,
+          updated_at: new Date().toISOString()
+        };
+        localStorage.setItem('schedula_dev_schedules', JSON.stringify(schedules));
+        return jsonResponse(schedules[index]);
+      } else {
+        const newSched = {
+          id: scheduleId,
+          title: body.title || 'My Schedule',
+          configuration: body.configuration || '[]',
+          updated_at: new Date().toISOString()
+        };
+        schedules.push(newSched);
+        localStorage.setItem('schedula_dev_schedules', JSON.stringify(schedules));
+        return jsonResponse(newSched);
+      }
+    }
+
+    if (method === 'DELETE' && scheduleId) {
+      schedules = schedules.filter(s => s.id !== scheduleId);
+      localStorage.setItem('schedula_dev_schedules', JSON.stringify(schedules));
+      return new Response(null, { status: 204 });
+    }
+  }
+
+  // 3. Events conflicts
+  if (cleanPath.includes('/events/conflicts')) {
+    return jsonResponse([]);
+  }
+
+  // 4. Preferences
+  if (cleanPath.includes('/preferences')) {
+    if (method === 'GET') {
+      const defaultPrefs = {
+        buffer_minutes: 15,
+        modality_preference: 'in_person',
+        default_view: 'weekly',
+        max_back_to_back: 3,
+        commute_time: 30,
+        time_of_day_preferences: { morning: true, afternoon: true, evening: false }
+      };
+      const stored = localStorage.getItem('schedula_dev_preferences');
+      return jsonResponse(stored ? JSON.parse(stored) : defaultPrefs);
+    }
+    if (method === 'PUT') {
+      let body = {};
+      try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+      localStorage.setItem('schedula_dev_preferences', JSON.stringify(body));
+      return jsonResponse(body);
+    }
+  }
+
+  // 5. User Profile
+  if (cleanPath.includes('/user/profile')) {
+    if (method === 'GET') {
+      const user = JSON.parse(localStorage.getItem('user') || JSON.stringify(DEV_USER));
+      return jsonResponse({
+        id: user.id,
+        name: user.name || user.username,
+        email: user.email,
+        timezone: user.timezone || 'UTC',
+        locale: user.locale || 'en-US'
+      });
+    }
+    if (method === 'PUT') {
+      let body = {};
+      try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+      const user = JSON.parse(localStorage.getItem('user') || JSON.stringify(DEV_USER));
+      const updated = { ...user, ...body };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return jsonResponse(updated);
+    }
+  }
+
+  // 6. Availability
+  if (cleanPath.includes('/availability')) {
+    if (method === 'GET') {
+      const stored = localStorage.getItem('schedula_dev_availability');
+      return jsonResponse(stored ? JSON.parse(stored) : []);
+    }
+    if (method === 'POST') {
+      let body = {};
+      try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+      localStorage.setItem('schedula_dev_availability', JSON.stringify(body));
+      return jsonResponse({ success: true });
+    }
+  }
+
+  // 7. Login / Signup
+  if (cleanPath.includes('/login') || cleanPath.includes('/signup')) {
+    ensureDevSession(true);
+    return jsonResponse({
+      token: DEV_TOKEN,
+      refreshToken: 'dev-refresh-schedula',
+      user: DEV_USER
+    });
+  }
+
+  // 8. Refresh
+  if (cleanPath.includes('/refresh')) {
+    return jsonResponse({
+      token: DEV_TOKEN,
+      refreshToken: 'dev-refresh-schedula'
+    });
+  }
+
+  // 9. Logout
+  if (cleanPath.includes('/logout')) {
+    return jsonResponse({ success: true });
+  }
+
+  // Fallback
+  return jsonResponse({ success: true, message: 'Developer mock response' });
+}
+
 // Centralized fetch wrapper to intercept and refresh expired tokens
 (function () {
   const originalFetch = window.fetch;
@@ -20,6 +282,11 @@
 
   window.fetch = async function (resource, options = {}) {
     const url = typeof resource === 'string' ? resource : (resource.url || '');
+
+    // Intercept API calls when Developer Access Mode is active
+    if (DEV_MODE && url.includes('/api/')) {
+      return handleMockApi(resource, options);
+    }
 
     // Avoid intercepting login, signup, refresh, or logout calls to prevent recursive infinite loops
     if (url.includes('/api/login') || url.includes('/api/signup') || url.includes('/api/refresh') || url.includes('/api/logout')) {
@@ -158,6 +425,9 @@ function getToken() {
     }
     return urlToken;
   }
+  if (DEV_MODE && !localStorage.getItem('token')) {
+    ensureDevSession();
+  }
   return localStorage.getItem('token');
 }
 
@@ -187,6 +457,20 @@ window.redirectWithToken = redirectWithToken;
  * 4. Limits UI administrative settings access if matching standard super admin accounts.
  */
 async function initAuth() {
+  if (DEV_MODE) {
+    ensureDevSession();
+    const currentUserStr = localStorage.getItem('user');
+    if (currentUserStr) {
+      try {
+        const u = JSON.parse(currentUserStr);
+        populateHeaderUsername(u);
+      } catch (e) {
+        console.error('Error loading current user details for headers:', e);
+      }
+    }
+    return;
+  }
+
   const token = getToken();
 
   if (token) {
@@ -286,19 +570,35 @@ function fallbackAutologinRedirect() {
 // -------------------------------------------------------------
 
 const loginButton = document.querySelector('.login-btn');
+const devBypassButton = document.getElementById('dev-bypass-btn');
 const signupButton = document.querySelector('.signup-btn');
 const forgotButton = document.getElementById('forgot-password');
 const signupLinkButton = document.getElementById('signup');
 const loginLinkButton = document.getElementById('login');
 const closeButton = document.querySelector('.close-btn');
 
+// Developer Bypass Button Trigger
+if (devBypassButton) {
+  devBypassButton.addEventListener('click', () => {
+    ensureDevSession(true);
+    redirectWithToken('./home.html');
+  });
+}
+
 // Login Event Trigger
 if (loginButton) {
   loginButton.addEventListener('click', async () => {
-    const email = document.querySelector('input[type="email"]').value.trim();
-    const password = document.querySelector('input[type="password"]').value.trim();
+    const emailInput = document.querySelector('input[type="email"]');
+    const passwordInput = document.querySelector('input[type="password"]');
+    const email = emailInput ? emailInput.value.trim() : '';
+    const password = passwordInput ? passwordInput.value.trim() : '';
 
     if (!email || !password) {
+      if (DEV_MODE) {
+        ensureDevSession(true);
+        redirectWithToken('./home.html');
+        return;
+      }
       alert('Please enter both email and password.');
       return;
     }
