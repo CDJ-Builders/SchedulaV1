@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
   <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
   <script src="../frontend/scripts/theme.js"></script>
 </head>
+
 <body class="pf schedula-background has-site-footer">
   <div class="page">
     <header class="top app-shell-header">
@@ -30,8 +32,16 @@
           <span class="acct-name header-username" id="header-username-display">User</span>
         </div>
         <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
-        <a class="key sm icon" href="profile.html" aria-current="page" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
-        <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
+        <a class="key sm icon" href="profile.html" aria-current="page" aria-label="Settings" title="Settings"><svg
+            viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+            <circle cx="16" cy="7" r="2" />
+            <circle cx="8" cy="17" r="2" />
+          </svg></a>
+        <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html"
+          aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9" />
+          </svg></button>
       </div>
     </header>
 
@@ -48,17 +58,21 @@
         <section class="profile-info-panel-col pf-panel" aria-labelledby="account-title">
           <h2 id="account-title">Account</h2>
           <div class="profile-info-list-col pf-fields">
-            <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name" type="text"></label>
+            <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name"
+                type="text"></label>
             <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
             <div class="profile-password-link-wrapper">
               <span><a href="forgot-password.html">Change password?</a></span>
-          </div>
-          <button id="save-profile-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/></svg>Save Profile</button>
-          <div class="danger-zone-col">
-            <h3>Danger zone</h3>
-            <p>Permanently delete your account and its schedules.</p>
-            <button id="delete-account-btn" class="btn-danger" type="button">Delete Account</button>
-          </div>
+            </div>
+            <button id="save-profile-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" />
+              </svg>Save Profile</button>
+            <div class="danger-zone-col">
+              <h3>Danger zone</h3>
+              <p>Permanently delete your account and its schedules.</p>
+              <button id="delete-account-btn" class="btn-danger" type="button">Delete Account</button>
+            </div>
         </section>
 
         <div class="pf-stack">
@@ -72,57 +86,83 @@
                   <option value="onsite">Onsite</option>
                 </select>
               </div>
-              <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
-              <fieldset class="profile-select-group preference-radio-group"><legend>Maximum back-to-back tolerance</legend>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="0" checked>0</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="1">1</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="2">2</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="3">3</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="4">4</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="5">5</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="6">6</label>
+              <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input
+                  id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
+              <fieldset class="profile-select-group preference-radio-group">
+                <legend>Maximum back-to-back tolerance</legend>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="0"
+                    checked>0</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="1">1</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="2">2</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="3">3</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="4">4</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="5">5</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
+                    value="6">6</label>
               </fieldset>
-              <div class="profile-select-group"><label for="preferred-break-minutes">Preferred break (minutes)</label><input id="preferred-break-minutes" data-pref-column="preferred_break_minutes" type="number" min="0" max="1440" step="1" value="60"></div>
-              <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
-                <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_1214">12:00 NN - 2:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label>
-                <label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 MN</label>
-              </div></fieldset>
-              <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
-                <label><input type="checkbox" data-pref-column="PrefMon">Monday</label>
-                <label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label>
-                <label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label>
-                <label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label>
-                <label><input type="checkbox" data-pref-column="PrefFri">Friday</label>
-                <label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
-              </div></fieldset>
-              <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
-                <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label>
-                <label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 MN</label>
-              </div></fieldset>
-              <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
-                <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label>
-                <label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label>
-                <label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label>
-                <label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label>
-                <label><input type="checkbox" data-pref-column="AvoidFri">Friday</label>
-                <label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
-              </div></fieldset>
+              <div class="profile-select-group"><label for="preferred-break-minutes">Preferred break
+                  (minutes)</label><input id="preferred-break-minutes" data-pref-column="preferred_break_minutes"
+                  type="number" min="0" max="1440" step="1" value="60"></div>
+              <fieldset class="preference-group">
+                <legend>Preferred time ranges</legend>
+                <div class="preference-check-grid">
+                  <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_1214">12:00 NN - 2:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 MN</label>
+                </div>
+              </fieldset>
+              <fieldset class="preference-group">
+                <legend>Preferred days</legend>
+                <div class="preference-check-grid">
+                  <label><input type="checkbox" data-pref-column="PrefMon">Monday</label>
+                  <label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label>
+                  <label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label>
+                  <label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label>
+                  <label><input type="checkbox" data-pref-column="PrefFri">Friday</label>
+                  <label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
+                </div>
+              </fieldset>
+              <fieldset class="preference-group">
+                <legend>Avoided time ranges</legend>
+                <div class="preference-check-grid">
+                  <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label>
+                  <label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 MN</label>
+                </div>
+              </fieldset>
+              <fieldset class="preference-group">
+                <legend>Avoided days</legend>
+                <div class="preference-check-grid">
+                  <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label>
+                  <label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label>
+                  <label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label>
+                  <label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label>
+                  <label><input type="checkbox" data-pref-column="AvoidFri">Friday</label>
+                  <label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
+                </div>
+              </fieldset>
             </div>
-            <button id="save-preferences-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/></svg>Save Preferences</button>
+            <button id="save-preferences-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" />
+              </svg>Save Preferences</button>
           </section>
         </div>
       </div>
@@ -139,4 +179,5 @@
   <script src="../frontend/scripts/preferences.js"></script>
   <script src="../frontend/scripts/profile.js"></script>
 </body>
+
 </html>

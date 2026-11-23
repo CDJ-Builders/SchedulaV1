@@ -5,8 +5,8 @@
   const STORAGE_KEY = 'schedula-theme';
   const savedTheme = localStorage.getItem(STORAGE_KEY);
 
-  // Set initial theme (default to dark if not set)
-  const initialTheme = savedTheme || 'dark';
+  // Default to light theme while dark mode is under maintenance
+  const initialTheme = 'light';
   document.documentElement.setAttribute('data-theme', initialTheme);
 
   // SVG Definitions for Moon and Sun
@@ -39,9 +39,18 @@
 
   // Toggle Theme Function
   window.toggleTheme = function () {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
 
+    // Temporarily warn that dark mode is under maintenance
+    if (currentTheme === 'light') {
+      const msg = '⚠️ Dark mode is currently under maintenance. Please continue using light mode for the best experience.';
+      if (typeof window.alert === 'function') {
+        window.alert(msg, 'Under Maintenance');
+      }
+      return;
+    }
+
+    const newTheme = 'light';
     document.documentElement.classList.add('theme-transitioning');
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem(STORAGE_KEY, newTheme);

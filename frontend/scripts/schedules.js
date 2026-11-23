@@ -605,7 +605,7 @@ smartScheduleGenerateButton.addEventListener('click', async () => {
     }
     renderRecommendations(data);
   } catch (error) {
-    setSmartScheduleStatus(`${error.message} You can retry Smart Schedule.`, true);
+    setSmartScheduleStatus(`${error.message} Please retry.`, true);
   } finally {
     smartScheduleLoading = false;
     [smartScheduleTitle, smartScheduleModality, smartScheduleDuration, smartScheduleType].forEach(input => { input.disabled = false; });
