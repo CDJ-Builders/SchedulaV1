@@ -99,7 +99,7 @@ async function getPreferences(userId) {
             avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
             avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
             "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
-            max_back_to_back, commute_time, preferred_modality
+            max_back_to_back, commute_time, preferred_break_minutes, preferred_modality
        FROM preferences
       WHERE user_id = $1`,
     [userId]
@@ -118,7 +118,7 @@ async function getPreferences(userId) {
             avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
             avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
             "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
-            max_back_to_back, commute_time, preferred_modality
+            max_back_to_back, commute_time, preferred_break_minutes, preferred_modality
        FROM preferences
       WHERE user_id = $1`,
     [userId]
@@ -153,6 +153,18 @@ async function updatePreferences(userId, input) {
       error.status = 400;
       throw error;
     }
+  }
+  if (input.max_back_to_back > 6) {
+    const error = new Error('max_back_to_back must be between 0 and 6');
+    error.status = 400;
+    throw error;
+  }
+
+  const preferredBreakMinutes = input.preferred_break_minutes === undefined ? 60 : input.preferred_break_minutes;
+  if (!Number.isInteger(preferredBreakMinutes) || preferredBreakMinutes < 0 || preferredBreakMinutes > 1440) {
+    const error = new Error('preferred_break_minutes must be a whole number from 0 to 1440');
+    error.status = 400;
+    throw error;
   }
 
   if (!['onsite', 'online', 'no preference'].includes(input.preferred_modality)) {
@@ -196,14 +208,14 @@ async function updatePreferences(userId, input) {
        avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
        avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
        "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
-       max_back_to_back, commute_time, preferred_modality
+       max_back_to_back, commute_time, preferred_break_minutes, preferred_modality
      ) VALUES (
        $1,
        $2, $3, $4, $5, $6, $7, $8, $9, $10,
        $11, $12, $13, $14, $15, $16,
        $17, $18, $19, $20, $21, $22, $23, $24, $25,
        $26, $27, $28, $29, $30, $31,
-       $32, $33, $34
+       $32, $33, $34, $35
      )
      ON CONFLICT (user_id) DO UPDATE SET
        pref_time_0708 = EXCLUDED.pref_time_0708,
@@ -238,6 +250,7 @@ async function updatePreferences(userId, input) {
        "AvoidSat" = EXCLUDED."AvoidSat",
        max_back_to_back = EXCLUDED.max_back_to_back,
        commute_time = EXCLUDED.commute_time,
+       preferred_break_minutes = EXCLUDED.preferred_break_minutes,
        preferred_modality = EXCLUDED.preferred_modality
      RETURNING pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
        pref_time_1416, pref_time_1618, pref_time_1820, pref_time_2022, pref_time_2224,
@@ -245,7 +258,7 @@ async function updatePreferences(userId, input) {
        avoid_time_0708, avoid_time_0810, avoid_time_1012, avoid_time_1214,
        avoid_time_1416, avoid_time_1618, avoid_time_1820, avoid_time_2022, avoid_time_2224,
        "AvoidMon", "AvoidTue", "AvoidWed", "AvoidThurs", "AvoidFri", "AvoidSat",
-       max_back_to_back, commute_time, preferred_modality`,
+       max_back_to_back, commute_time, preferred_break_minutes, preferred_modality`,
     [
       userId,
       input.pref_time_0708, input.pref_time_0810, input.pref_time_1012, input.pref_time_1214,
@@ -254,7 +267,7 @@ async function updatePreferences(userId, input) {
       input.avoid_time_0708, input.avoid_time_0810, input.avoid_time_1012, input.avoid_time_1214,
       input.avoid_time_1416, input.avoid_time_1618, input.avoid_time_1820, input.avoid_time_2022, input.avoid_time_2224,
       input.AvoidMon, input.AvoidTue, input.AvoidWed, input.AvoidThurs, input.AvoidFri, input.AvoidSat,
-      input.max_back_to_back, input.commute_time, input.preferred_modality
+      input.max_back_to_back, input.commute_time, preferredBreakMinutes, input.preferred_modality
     ]
   );
   return result.rows[0];

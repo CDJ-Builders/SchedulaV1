@@ -43,7 +43,16 @@
      <div class="setup-fields" id="setup-preferences">
       <div class="profile-select-group"><label for="setup-preference-modality">Preferred modality</label><select id="setup-preference-modality" data-pref-column="preferred_modality"><option value="no preference">No Preference</option><option value="online">Online</option><option value="onsite">Onsite</option></select></div>
       <div class="profile-select-group"><label for="setup-commute-time">Estimated commute time (minutes)</label><input id="setup-commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
-      <div class="profile-select-group"><label for="setup-max-back-to-back">Maximum back-to-back tolerance</label><input id="setup-max-back-to-back" data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></div>
+      <fieldset class="profile-select-group preference-radio-group"><legend>Maximum back-to-back tolerance</legend>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="0" checked>0</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="1">1</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="2">2</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="3">3</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="4">4</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="5">5</label>
+        <label><input type="radio" name="setup-max-back-to-back" data-pref-column="max_back_to_back" value="6">6</label>
+      </fieldset>
+      <div class="profile-select-group"><label for="setup-preferred-break-minutes">Preferred break (minutes)</label><input id="setup-preferred-break-minutes" data-pref-column="preferred_break_minutes" type="number" min="0" max="1440" step="1" value="60"></div>
      </div>
     </article>
 

@@ -73,7 +73,16 @@
                 </select>
               </div>
               <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
-              <div class="profile-select-group"><label for="max-back-to-back">Maximum back-to-back tolerance</label><input id="max-back-to-back" data-pref-column="max_back_to_back" type="number" min="0" step="1" value="0"></div>
+              <fieldset class="profile-select-group preference-radio-group"><legend>Maximum back-to-back tolerance</legend>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="0" checked>0</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="1">1</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="2">2</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="3">3</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="4">4</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="5">5</label>
+                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="6">6</label>
+              </fieldset>
+              <div class="profile-select-group"><label for="preferred-break-minutes">Preferred break (minutes)</label><input id="preferred-break-minutes" data-pref-column="preferred_break_minutes" type="number" min="0" max="1440" step="1" value="60"></div>
               <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
                 <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label>
                 <label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label>

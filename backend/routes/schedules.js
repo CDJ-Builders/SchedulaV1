@@ -2,12 +2,26 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const { authenticateToken } = require('../middleware/auth');
 const scheduleService = require('../services/scheduleService');
+const recommendationService = require('../services/recommendationService');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 router.use(authenticateToken);
 
+const recommendationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many recommendation requests. Please try again later.' }
+});
+
 router.get('/schedules', asyncHandler(async (req, res) => {
   res.json(await scheduleService.listSchedules(req.user.user_id));
+}));
+
+router.post('/schedules/:scheduleId/recommendations', recommendationLimiter, asyncHandler(async (req, res) => {
+  res.json(await recommendationService.recommend(req.user.user_id, req.params.scheduleId, req.body));
 }));
 
 router.post('/schedules', asyncHandler(async (req, res) => {

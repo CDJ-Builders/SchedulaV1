@@ -7,16 +7,22 @@ graphify-out/
 .graphify*
 skills-lock.json
 CODEX.md
-PROGRESS.md
 PRD.md
 
 # ── Dependencies ──────────────────────────────────────────────
 node_modules/
+schedulaml/.venv/
+schedulaml/.venv313/
+schedulaml/.uv-cache/
+schedulaml/**/__pycache__/
+schedulaml/.pytest_cache/
+*.py[cod]
 
 # ── Environment & secrets ───────────────────────────────────── 
 .env
 .env.local
 .env.*.local
+.env.example
 
 # ── Logs ──────────────────────────────────────────────────────
 *.log

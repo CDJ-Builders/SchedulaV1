@@ -1,0 +1,11 @@
+# Use Python 3.13.18 to match the environment that serialized the model artifacts.
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+pydantic==2.11.3
+numpy==2.4.6
+pandas==2.2.3
+scikit-learn==1.6.1
+lightgbm==4.6.0
+joblib==1.6.0
+pytest==8.3.5
+httpx==0.28.1

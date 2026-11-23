@@ -81,7 +81,7 @@ The request should not accept authoritative existing events or preferences from 
 
 - Map Schedula schedule data into the training representation: Monday–Saturday hourly occupancy, online/onsite class indicators, preferred and avoided days/time bins, commute, preferred break, back-to-back tolerance, preferred modality, requested duration, and meeting type.
 - Define defaults and missing-value rules for preferences that are absent or unset. The current SQL preference fields do not by themselves guarantee the notebook's complete feature set (for example, preferred break, tolerance semantics, and commute units need confirmation).
-- Decide how Sunday events, events outside the model grid, non-hour durations, recurring blocks, busy availability, daylight-saving/timezone boundaries, and schedule timezones are handled. The initial safe policy is to exclude unsupported candidate periods and never recommend a known conflict.
+- Confirmed scope: only recurring weekly schedule blocks are modeled, all such blocks count as classes, and occupancy is onsite or online. Dated events and active dated busy availability fail closed rather than being projected onto weekly slots. Sunday and out-of-grid weekly periods are excluded; non-hour durations are rejected. Schedule timezone and daylight-saving behavior remain constrained by canonical local-time weekly blocks.
 - Map `onsite` to Schedula's event `in_person` where writing events; normalize modality inside the inference adapter rather than changing persisted values implicitly.
 
 ### 3. Add the backend integration
@@ -120,7 +120,7 @@ The request should not accept authoritative existing events or preferences from 
 1. **Research-to-production gap:** the current inference helper is not an online inference pipeline. Refactoring and parity checks are prerequisites to connecting the button.
 2. **Data mismatch:** survey-trained features and Schedula's stored preferences/events are not yet proven semantically equivalent. Confirm units, day mapping, modality, and missing values before making quality claims.
 3. **Limited evidence:** the notebook describes a small dataset and exploratory grouped cross-validation. Treat scores as initial research evidence, not a guarantee for individual users.
-4. **Scope:** this plan recommends one meeting at a time. Recommending a full course timetable requires a different UX, input contract, and result application flow.
+4. **Scope:** this plan recommends one meeting at a time. The selectable trained type labels are Project, Event, and Meeting. Recommending a full course timetable requires a different UX, input contract, and result application flow.
 5. **Timezone and recurring events:** weekly local-time blocks cannot be naively converted to dated instants without timezone and recurrence rules. Build the model input from the canonical weekly representation and validate any selected slot in that same time basis.
 
 ## Suggested delivery order

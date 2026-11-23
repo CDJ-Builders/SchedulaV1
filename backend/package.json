@@ -4,7 +4,8 @@
   "description": "Database for Schedula",
   "main": "server.js",
   "scripts": {
-    "start": "node db-server.js"
+    "start": "node db-server.js",
+    "test": "node --test"
   },
   "dependencies": {
     "compression": "^1.8.1",

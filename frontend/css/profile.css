@@ -269,6 +269,43 @@ body.pf .profile-select-group :is(input, select) {
   max-width: 100%;
 }
 
+.profile-select-group.preference-radio-group {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px;
+  border: 1px solid var(--border, rgba(42, 18, 69, .2));
+  border-radius: 10px;
+}
+
+.profile-select-group.preference-radio-group legend {
+  grid-column: 1 / -1;
+  padding: 0 5px;
+}
+
+.profile-select-group.preference-radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px;
+  border-radius: 7px;
+  background: var(--input-bg, #fff);
+  color: var(--text, #241334);
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+body.pf .profile-select-group.preference-radio-group input[type="radio"],
+body.setup-page .profile-select-group.preference-radio-group input[type="radio"] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
 body.pf .profile-password-link-wrapper {
   display: flex;
   flex-direction: column;

@@ -97,6 +97,14 @@
                   </select></label>
               </div>
               <div class="builder-form-column">
+                <label class="field"><span>Meeting duration (hours)</span><input id="event-duration-hours" type="number"
+                    min="1" max="15" step="1" value="1" inputmode="numeric"></label>
+                <label class="field"><span>Meeting type</span><select id="event-type">
+                    <option value="">Choose for Smart Schedule</option>
+                    <option value="project">Project</option>
+                    <option value="event">Event</option>
+                    <option value="meeting">Meeting</option>
+                  </select></label>
                 <label class="field"><span>Start time</span><input id="event-start" type="time" required></label>
                 <label class="field"><span>End time</span><input id="event-end" type="time" required></label>
                 <button id="smart-schedule-btn" class="btn-primary btn-save smart-schedule-btn" type="button">
@@ -106,6 +114,7 @@
                   </svg>
                   Smart Schedule
                 </button>
+                <div id="smart-schedule-results" class="smart-schedule-results" role="status" aria-live="polite" aria-atomic="true"></div>
               </div>
               <label class="field description-field"><span>Description</span><textarea id="event-description"
                   rows="5"></textarea></label>

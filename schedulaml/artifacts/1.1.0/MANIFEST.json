@@ -1,0 +1,13 @@
+{
+  "version": "1.1.0",
+  "files": {
+    "config.json": "17476ae594147bb1a0e5af4b48a039ba054aefa009ae1128e6035cc4aef33e2a",
+    "feature_schema.json": "6f76b455b4229c64a156c063184b5537e8d76a6798f8cb550004211570a60742",
+    "features.py": "5f2db6397e461c1137f7131044f1d55d0808a36f80920b1a62300e7833fd003b",
+    "golden_fixtures.json": "078d81e4fa320172df0963b0165b73e762fd8763ceb6bf45f35e7159f101aed3",
+    "l1_models.joblib": "57bdd54f7fe101a679c58021529cf42c30804d0479ae2a8316ba2b5f56ba4898",
+    "l2_models.joblib": "377ebd9d5b8fd860ec37bad951fc1cff043cc65a9235a682eae08dc7f60db13f",
+    "metrics.json": "89bbefe44c8de586d274bffa445d202b7db1e01f5448369bc831de36b1da87e6",
+    "predict_layered.py": "6de7c8a8a09d344b419cc6796ccc15c820f4e4e74a9e76629c04ad39d87183c8"
+  }
+}

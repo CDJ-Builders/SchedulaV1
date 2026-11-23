@@ -54,8 +54,8 @@ function validateCurrentStep() {
 
   if (currentStep === 1) {
     const commute = getElement('setup-commute-time').value.trim();
-    const backToBack = getElement('setup-max-back-to-back').value.trim();
-    if (!/^\d+$/.test(commute) || !/^\d+$/.test(backToBack)) {
+    const preferredBreak = getElement('setup-preferred-break-minutes').value.trim();
+    if (!/^\d+$/.test(commute) || !/^\d+$/.test(preferredBreak) || Number(preferredBreak) > 1440) {
       throw new Error('Please enter a whole number.');
     }
   }

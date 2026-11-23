@@ -1,0 +1,1 @@
+"""Schedula MindLab inference service."""

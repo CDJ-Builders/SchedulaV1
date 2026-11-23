@@ -23,6 +23,7 @@
   const defaults = {
     max_back_to_back: 0,
     commute_time: 0,
+    preferred_break_minutes: 60,
     preferred_modality: 'no preference'
   };
   TIME_RANGES.forEach(range => {
@@ -53,6 +54,14 @@
         return 'Please enter a whole number.';
       }
     }
+    if (Number(values.max_back_to_back) > 6) {
+      return 'Back-to-back tolerance must be between 0 and 6.';
+    }
+
+    const preferredBreak = String(values.preferred_break_minutes ?? '').trim();
+    if (!isWholeNumber(preferredBreak) || !Number.isSafeInteger(Number(preferredBreak)) || Number(preferredBreak) > 1440) {
+      return 'Preferred break must be a whole number from 0 to 1440 minutes.';
+    }
 
     if (!['onsite', 'online', 'no preference'].includes(values.preferred_modality)) {
       return 'Please choose a valid preferred modality.';
@@ -77,6 +86,8 @@
       const key = element.dataset.prefColumn;
       if (element.type === 'checkbox') {
         values[key] = element.checked;
+      } else if (element.type === 'radio') {
+        if (element.checked) values[key] = element.value;
       } else if (element.tagName === 'SELECT') {
         values[key] = element.value;
       } else if (element.type === 'number') {
@@ -89,6 +100,7 @@
     if (convertIntegers) {
       values.max_back_to_back = Number(values.max_back_to_back);
       values.commute_time = Number(values.commute_time);
+      values.preferred_break_minutes = Number(values.preferred_break_minutes);
     }
     return values;
   }
@@ -111,6 +123,8 @@
       const key = element.dataset.prefColumn;
       if (element.type === 'checkbox') {
         element.checked = Boolean(data[key]);
+      } else if (element.type === 'radio') {
+        element.checked = String(data[key] ?? defaults[key]) === element.value;
       } else if (element.type === 'number') {
         element.value = String(data[key] ?? defaults[key]);
       } else {
@@ -132,7 +146,8 @@
     const values = {
       ...rawValues,
       max_back_to_back: Number(rawValues.max_back_to_back),
-      commute_time: Number(rawValues.commute_time)
+      commute_time: Number(rawValues.commute_time),
+      preferred_break_minutes: Number(rawValues.preferred_break_minutes)
     };
 
     const response = await fetch(`${window.APP_CONFIG.API_BASE}/preferences`, {
