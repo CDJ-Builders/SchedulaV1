@@ -37,11 +37,21 @@ Apply the schema and demo data in order:
 ```powershell
 Get-Content .\backend\sql\migrations\001_schedula_schema.up.sql | psql
 Get-Content .\backend\sql\migrations\002_demo_seed.up.sql | psql
+Get-Content .\backend\sql\migrations\003_preferences_rebuild.up.sql | psql
+Get-Content .\backend\sql\migrations\004_account_deletion_cascade.up.sql | psql
 Get-Content .\backend\sql\migrations\005_preferred_break.up.sql | psql
 Get-Content .\backend\sql\migrations\006_back_to_back_tolerance.up.sql | psql
 ```
 
-Apply `005_preferred_break.up.sql` after the base schema has created `preferences`; it adds `preferred_break_minutes` with a 60-minute default. Then apply `006_back_to_back_tolerance.up.sql` to constrain `max_back_to_back` to 0–6. The base schema and demo seed use conflict guards. Verify the resulting tables and preference columns:
+Apply migrations sequentially:
+- `001_schedula_schema.up.sql`: Base tables, extensions (`pgcrypto`, `citext`, `btree_gist`), constraints, GiST indexes, and trigger functions.
+- `002_demo_seed.up.sql`: Demo accounts, team group, preferences, availability, schedules, context, and sample events.
+- `003_preferences_rebuild.up.sql`: Rebuilds preferences table to normalize time-of-day slots, weekday preference/avoidance flags, commute time, and modality.
+- `004_account_deletion_cascade.up.sql`: Updates foreign key constraints on `groups`, `schedules`, `events`, and `invitations` with `ON DELETE CASCADE` for clean user account deletion.
+- `005_preferred_break.up.sql`: Adds `preferred_break_minutes` with a 60-minute default and constraint between 0 and 1440.
+- `006_back_to_back_tolerance.up.sql`: Constrains `max_back_to_back` to values between 0 and 6.
+
+Verify the resulting tables and preference columns:
 
 ```powershell
 psql -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;"
@@ -60,9 +70,9 @@ Remove-Item Env:PGPASSWORD
 
 1. Open pgAdmin and connect to the target PostgreSQL server.
 2. Select the target database, then open **Query Tool**.
-3. Open `backend/sql/migrations/001_schedula_schema.up.sql` and execute it.
-4. Confirm there are no errors, then open and execute `backend/sql/migrations/002_demo_seed.up.sql`.
-5. Open and execute `backend/sql/migrations/005_preferred_break.up.sql` and `backend/sql/migrations/006_back_to_back_tolerance.up.sql`.
+3. Open and execute `backend/sql/migrations/001_schedula_schema.up.sql`.
+4. Confirm there are no errors, then execute `backend/sql/migrations/002_demo_seed.up.sql`.
+5. Sequentially execute `backend/sql/migrations/003_preferences_rebuild.up.sql`, `backend/sql/migrations/004_account_deletion_cascade.up.sql`, `backend/sql/migrations/005_preferred_break.up.sql`, and `backend/sql/migrations/006_back_to_back_tolerance.up.sql`.
 6. Refresh **Schemas > public > Tables**.
 7. Confirm `users`, `profiles`, `preferences`, `schedules`, `events`, `availability_blocks`, `groups`, `memberships`, `schedule_shares`, `consolidated_views`, and `invitations` exist, and confirm `preferences.preferred_break_minutes` defaults to 60 and `max_back_to_back` is constrained to 0–6.
 8. Run the verification queries from the psql section.
@@ -76,6 +86,8 @@ Rollback is intentionally manual and destructive for this starter-template repla
 ```powershell
 Get-Content .\backend\sql\migrations\006_back_to_back_tolerance.down.sql | psql
 Get-Content .\backend\sql\migrations\005_preferred_break.down.sql | psql
+Get-Content .\backend\sql\migrations\004_account_deletion_cascade.down.sql | psql
+Get-Content .\backend\sql\migrations\003_preferences_rebuild.down.sql | psql
 Get-Content .\backend\sql\migrations\002_demo_seed.down.sql | psql
 Get-Content .\backend\sql\migrations\001_schedula_schema.down.sql | psql
 ```

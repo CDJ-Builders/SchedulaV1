@@ -69,7 +69,7 @@ Indexes: unique user FK and active user lookup.
 
 #### `preferences`
 
-`id uuid PK`; `user_id uuid NOT NULL UNIQUE FK users`; nine preferred time booleans (`pref_time_0708` through `pref_time_2224`); six preferred day booleans (`PrefMon` through `PrefSat`); nine avoided time booleans (`avoid_time_0708` through `avoid_time_2224`); six avoided day booleans (`AvoidMon` through `AvoidSat`); `max_back_to_back integer NOT NULL CHECK >= 0`; `commute_time integer NOT NULL CHECK >= 0`; `preferred_modality text NOT NULL CHECK (onsite/online/no preference)`.
+`id uuid PK`; `user_id uuid NOT NULL UNIQUE FK users ON DELETE CASCADE`; nine preferred time booleans (`pref_time_0708` through `pref_time_2224`); six preferred day booleans (`PrefMon` through `PrefSat`); nine avoided time booleans (`avoid_time_0708` through `avoid_time_2224`); six avoided day booleans (`AvoidMon` through `AvoidSat`); `max_back_to_back integer NOT NULL CHECK (max_back_to_back BETWEEN 0 AND 6)`; `commute_time integer NOT NULL CHECK (commute_time >= 0)`; `preferred_break_minutes integer NOT NULL DEFAULT 60 CHECK (preferred_break_minutes BETWEEN 0 AND 1440)`; `preferred_modality text NOT NULL CHECK (preferred_modality IN ('onsite', 'online', 'no preference'))`.
 
 ### Scheduling core
 
@@ -137,10 +137,14 @@ Indexes: GiST on `event_window`; active `(schedule_id, start_at)`; active `(owne
 
 Migration files are ordered and separated from rollback files:
 
-1. `backend/sql/migrations/001_schedula_schema.up.sql` creates extensions, tables, constraints, indexes, and timestamp triggers. It is idempotent through `IF NOT EXISTS` and guarded trigger creation.
-2. `backend/sql/migrations/002_demo_seed.up.sql` inserts only generic demo users, one team, memberships, schedules, context, availability, and events using deterministic email lookups and `ON CONFLICT` guards. No student, institution, course, professor, room, or academic seed data is included.
-3. `001_schedula_schema.down.sql` removes the schema in dependency order for local reset/rollback.
-4. `002_demo_seed.down.sql` removes only the documented demo rows.
+1. `backend/sql/migrations/001_schedula_schema.up.sql`: creates extensions (`pgcrypto`, `citext`, `btree_gist`), base tables, constraints, GiST indexes, and timestamp triggers.
+2. `backend/sql/migrations/002_demo_seed.up.sql`: inserts demo users, one team, memberships, schedules, context, availability, and events.
+3. `backend/sql/migrations/003_preferences_rebuild.up.sql`: normalizes preference fields into explicit time-bin booleans, day booleans, commute time, and modality.
+4. `backend/sql/migrations/004_account_deletion_cascade.up.sql`: adds `ON DELETE CASCADE` to foreign keys on `groups`, `schedules`, `events`, and `invitations` for user lifecycle cleanup.
+5. `backend/sql/migrations/005_preferred_break.up.sql`: adds `preferred_break_minutes` (default 60, range 0-1440).
+6. `backend/sql/migrations/006_back_to_back_tolerance.up.sql`: constrains `max_back_to_back` between 0 and 6.
+
+Paired `.down.sql` files enable rollback in reverse dependency order (006 -> 001).
 
 The SQL container copies only `*.up.sql` files into PostgreSQL's initialization directory. Rollbacks remain available to operators without executing automatically during initialization. Existing databases require an intentional reset or a separately reviewed data migration; the old academic rows are not silently transformed.
 

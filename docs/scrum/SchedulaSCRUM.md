@@ -45,35 +45,3 @@
 | **Secondary Feature 8: Enhanced User Interface and User Experience**  *React-based, Skeuomorphic and Glassmorphic* | As a user, I want to see smooth animations and transitions so that the interface feels responsive. |
 |  | As a user, I want the interface to work on mobile, tablet, and desktop so that I can access my schedule anywhere. |
 
-2. Sprint Backlog (Selected Scope for 3-Hour Lab Target): 
-
-| Task No. | Task Name | Priority | Status |
-| :---: | ----- | :---: | :---: |
-| Task 1: | Prepare timeline for development of all features. | Urgent | In Progress |
-| Task 2:  | Create the UI mockups for the new features. | Mid | To Do |
-| Task 3:  | Create flowchart / architecture for planning Smart Scheduling function. | Urgent | Done |
-| Task 4:  | Create a survey to validate product requirements from potential users. | High | Done |
-| Task 5:  | Finalize data description and database design. | High | To Do |
-| Task 6:  | Create an MVP prototype of Schedula, with a demo of Smart Scheduling. | Urgent | Done |
-| Task 7: | Create a logo and banner for Schedula / CDJ Builders | Low | Done |
-
-**Collaborative Teamwork and Kanban Board***
-
-| To Do (Not Started) | In Progress (Current)  | Done (Completed) |
-| ----- | ----- | :---: |
-| **Task 2:**  Create UI Mockups | **Task 1:**  Timeline for all features | **Task 6:**  Create an MVP prototype |
-| **Task 5:**  Finalize data description |  | **Task 4:**  Create a survey |
-|  |  | **Task 3:**  Create a flowchart for Feature 1 |
-|  |  | **Task 7:** Create Logos |
-
-**Sprint Review (Demo Summary):**  
-The team successfully demonstrated a working prototype of Schedula: Build Your Daily Blocks. The prototype is guided by a flowchart that effectively expresses the system flow. The program successfully adapted to the users’ schedules with the core smart scheduling module to deliver a schedule with common hours between team members. In addition, the team created a User Requirements Survey to assess all proposed features with data from a real user base. The team also finalized logos for both the project and the organization.
-
-In the next sprint, the team will aim to develop UI mockups, design data flow, and start making a flowchart or a system architecture for feature 2, along with additional core documents for our software engineering project.
-
-| What went well | What can be improved |
-| ----- | ----- |
-| Team coordination and planning was sufficient. | Team assigned deadlines need to be more specific. |
-| The division of workloads was the right amount. |  |
-| Team members were assigned tasks according to their strengths. |  |
-
