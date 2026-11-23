@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schedula | Team settings</title>
+<meta name="description" content="Manage a team's details and scheduling preferences.">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="stylesheet" href="../frontend/css/theme.css">
+<link rel="stylesheet" href="../frontend/css/background.css">
+<link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
+<link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
+<link rel="stylesheet" href="../frontend/css/teams-settings.css">
+<link rel="stylesheet" href="../frontend/css/team-preferences.css">
+<script src="../frontend/scripts/theme.js"></script>
+</head>
+<body class="schedula-background has-site-footer">
+<div class="page teams-settings-page">
+ <header class="top app-shell-header">
+  <a class="brand" href="home.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">Schedula</a>
+  <nav class="nav" aria-label="Main navigation">
+   <a class="key" href="home.html">Home</a>
+   <a class="key" href="builder.html">Builder</a>
+   <a class="key" href="plotter.html">Plotter</a>
+   <a class="key" href="teams.html" aria-current="page">Teams</a>
+  </nav>
+  <div class="tools">
+   <div class="acct" role="group" aria-label="Signed-in account">
+    <span class="avatar" id="avatar" aria-hidden="true">U</span>
+    <span class="acct-name" id="header-username-display">User</span>
+   </div>
+   <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
+   <a class="key icon" href="profile.html" aria-label="Profile settings" title="Profile settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
+   <button class="key lav icon" type="button" data-action="logout" data-redirect="../index.html" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
+  </div>
+ </header>
+
+ <main class="teams-settings-main" id="main-content">
+  <section class="settings-toolbar" aria-label="Team controls">
+   <div class="settings-view-controls">
+    <a class="settings-view-button" href="teams.html">Team View</a>
+    <label class="sr" for="settings-member-select">Member</label>
+    <select id="settings-member-select" class="settings-member-select"></select>
+   </div>
+   <div class="settings-team-controls">
+    <label class="sr" for="settings-team-select">Team</label>
+    <select id="settings-team-select" class="settings-team-select">
+     <option value="t1">BSCS 3A · Capstone</option>
+     <option value="t2">Org Officers</option>
+    </select>
+    <button class="settings-preferences-button" type="button" id="show-member-preferences">Preferences</button>
+    <a class="settings-back" href="teams.html" aria-label="Back to Teams" title="Back to Teams">
+     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+   </div>
+  </section>
+
+  <section class="team-settings-content" aria-labelledby="settings-title">
+   <h1 id="settings-title">Settings</h1>
+   <div class="settings-columns">
+    <div class="settings-column">
+     <section class="settings-card" aria-labelledby="group-name-heading">
+      <h2 id="group-name-heading">Group Name</h2>
+      <label class="sr" for="group-name">Group name</label>
+      <input id="group-name" type="text" aria-label="Group name">
+      <button class="settings-action-button" type="button" id="save-team-name">Save name</button>
+      <p class="settings-feedback" id="team-name-feedback" aria-live="polite"></p>
+     </section>
+     <section class="settings-card" aria-labelledby="group-code-heading">
+      <h2 id="group-code-heading">Group Code</h2>
+      <p class="group-code" id="group-code">—</p>
+     </section>
+    </div>
+    <div class="settings-column">
+     <section class="settings-card" aria-labelledby="admins-heading">
+      <h2 id="admins-heading">Admins</h2>
+      <ul class="settings-people-list" id="settings-admins"></ul>
+     </section>
+     <section class="settings-card" aria-labelledby="members-heading">
+      <h2 id="members-heading">Members</h2>
+      <ul class="settings-people-list" id="settings-members"></ul>
+     </section>
+     <p class="role-permission-note" id="role-permission-note" hidden>Only team admins can promote or demote members.</p>
+    </div>
+   </div>
+  </section>
+ </main>
+</div>
+<footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
+<dialog class="preferences-dialog" id="member-preferences-dialog" aria-labelledby="member-preferences-title">
+ <div class="preferences-dialog-heading">
+  <div>
+   <h2 id="member-preferences-title">Member preferences</h2>
+   <p id="member-preferences-caption">Sample preferences</p>
+  </div>
+  <button type="button" class="preferences-close" id="close-member-preferences" aria-label="Close preferences">×</button>
+ </div>
+ <div class="preferences-list" id="member-preferences-list"></div>
+</dialog>
+<script src="../frontend/scripts/utils.js"></script>
+<script src="../frontend/scripts/popup.js"></script>
+<script src="../frontend/scripts/background.js"></script>
+<script src="../frontend/scripts/header.js"></script>
+<script src="../frontend/scripts/footer.js"></script>
+<script src="../frontend/scripts/auth.js"></script>
+<script src="../frontend/scripts/teamPreferences.js"></script>
+<script src="../frontend/scripts/teamOverrides.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+ if (!localStorage.getItem('token') && !/[?&]mock=1/.test(location.search)) {
+  location.href = 'login.html';
+  return;
+ }
+
+ var user = document.getElementById('header-username-display');
+ var avatar = document.getElementById('avatar');
+ function syncUser() {
+  var name = (user.textContent.trim()) || 'User';
+  avatar.textContent = name.charAt(0).toUpperCase();
+ }
+ syncUser();
+ new MutationObserver(syncUser).observe(user, { childList: true, characterData: true, subtree: true });
+
+ var teamId = new URLSearchParams(location.search).get('team') || 't1';
+ var teams = {
+  t1: { name:'BSCS 3A · Capstone', code:'SCH-4F7Q', admins:['You','Mika'], members:['Jun','Ana'] },
+  t2: { name:'Org Officers', code:'', admins:['Paolo'], members:['You','Kaye'] }
+ };
+ var team = teams[teamId] || { name:'Team', code:'', admins:['You'], members:[] };
+ var overrides = window.TEAM_OVERRIDES.get(teamId);
+ var allNames = team.admins.concat(team.members);
+ if (typeof overrides.name === 'string') team.name = overrides.name;
+ if (Array.isArray(overrides.admins)) {
+  team.admins = allNames.filter(function (name) { return overrides.admins.indexOf(name) !== -1; });
+  team.members = allNames.filter(function (name) { return team.admins.indexOf(name) === -1; });
+ }
+ var isAdmin = team.admins.indexOf('You') !== -1;
+ var teamSelect = document.getElementById('settings-team-select');
+ var groupName = document.getElementById('group-name');
+ var saveNameButton = document.getElementById('save-team-name');
+ teamSelect.value = teamId;
+ teamSelect.options[teamSelect.selectedIndex].textContent = team.name;
+ groupName.value = team.name;
+ groupName.readOnly = !isAdmin;
+ saveNameButton.hidden = !isAdmin;
+ document.getElementById('group-code').textContent = team.code || 'No group code';
+ document.getElementById('show-member-preferences').addEventListener('click', function () {
+  window.showTeamPreferences(team.name, team.admins.concat(team.members));
+ });
+ var memberSelect = document.getElementById('settings-member-select');
+ team.admins.concat(team.members).forEach(function (name, index) {
+  var option = document.createElement('option');
+  option.value = name;
+  option.textContent = name;
+  if (name === 'You') option.selected = true;
+  memberSelect.appendChild(option);
+ });
+ function populatePeople(id, people, actionLabel, promote) {
+  var list = document.getElementById(id);
+  list.textContent = '';
+  people.forEach(function (name) {
+   var item = document.createElement('li');
+   var label = document.createElement('span');
+   label.textContent = name;
+   item.appendChild(label);
+   if (isAdmin && (promote || (name !== 'You' && team.admins.length > 1))) {
+    var action = document.createElement('button');
+    action.className = 'settings-role-button';
+    action.type = 'button';
+    action.textContent = actionLabel;
+    action.setAttribute('aria-label', actionLabel + ' ' + name);
+    action.addEventListener('click', function () {
+     var source = promote ? team.members : team.admins;
+     var destination = promote ? team.admins : team.members;
+     source.splice(source.indexOf(name), 1);
+     destination.push(name);
+     window.TEAM_OVERRIDES.save(teamId, { admins: team.admins.slice() });
+     renderPeople();
+    });
+    item.appendChild(action);
+   }
+   list.appendChild(item);
+  });
+ }
+ function renderPeople() {
+  populatePeople('settings-admins', team.admins, 'Demote', false);
+  populatePeople('settings-members', team.members, 'Promote to admin', true);
+  document.getElementById('role-permission-note').hidden = isAdmin;
+ }
+ renderPeople();
+ saveNameButton.addEventListener('click', function () {
+  var newName = groupName.value.trim();
+  if (!newName) {
+   document.getElementById('team-name-feedback').textContent = 'Team name cannot be empty.';
+   return;
+  }
+  team.name = newName;
+  window.TEAM_OVERRIDES.save(teamId, { name: newName });
+  teamSelect.options[teamSelect.selectedIndex].textContent = newName;
+  document.getElementById('team-name-feedback').textContent = 'Team name saved.';
+ });
+ teamSelect.addEventListener('change', function () {
+  location.href = 'teams-settings.html?team=' + encodeURIComponent(this.value);
+ });
+});
+</script>
+</body>
+</html>

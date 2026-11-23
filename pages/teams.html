@@ -117,6 +117,7 @@ dialog h2{font-size:1.4rem;margin-bottom:14px}.dm{min-height:20px;font-size:14px
 <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
 <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
 <link rel="stylesheet" href="../frontend/css/teams.css">
+<link rel="stylesheet" href="../frontend/css/team-preferences.css">
 <script src="../frontend/scripts/theme.js"></script>
 </head>
 <body class="schedula-background teams-page has-site-footer">
@@ -125,10 +126,10 @@ dialog h2{font-size:1.4rem;margin-bottom:14px}.dm{min-height:20px;font-size:14px
  <header class="top app-shell-header">
   <a class="brand" href="home.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">Schedula</a>
   <nav class="nav" aria-label="Main navigation">
-   <a class="key sm" href="home.html">Home</a>
-   <a class="key sm" href="builder.html">Builder</a>
-   <a class="key sm" href="plotter.html">Plotter</a>
-   <a class="key sm" href="teams.html" aria-current="page">Teams</a>
+   <a class="key" href="home.html">Home</a>
+   <a class="key" href="builder.html">Builder</a>
+   <a class="key" href="plotter.html">Plotter</a>
+   <a class="key" href="teams.html" aria-current="page">Teams</a>
   </nav>
   <div class="tools">
    <div class="acct" role="group" aria-label="Signed-in account"><span class="avatar" id="avatar" aria-hidden="true">U</span><span class="acct-name" id="header-username-display">User</span></div>
@@ -139,28 +140,59 @@ dialog h2{font-size:1.4rem;margin-bottom:14px}.dm{min-height:20px;font-size:14px
  </header>
 
  <main class="wrap" id="main-content">
-  <div>
-   <h1><span>Team</span><span>schedules</span></h1>
-   <p class="lede">See everyone’s week side by side and find a time that works for the whole team.</p>
-   <label class="lbl" for="team">Team</label>
-   <select id="team"></select>
-   <div class="cta"><button class="key sm" type="button" data-dlg="create">Create team</button><button class="key sm lav" type="button" data-dlg="join">Join with code</button></div>
-   <section class="panel" aria-labelledby="mh"><h2 id="mh">Members</h2><ul class="mem" id="members"></ul><div id="invite"></div></section>
-  </div>
-
-  <section aria-label="Team availability">
-   <div class="days" id="days" role="group" aria-label="Choose a day"></div>
-   <div class="board" role="img" id="board"></div>
-   <div class="dock">
-    <p id="msg"></p>
-    <div class="acts"><button class="key sm" type="button" id="prop">Propose</button><button class="key sm lav" type="button" id="reset">Reset</button><span class="chip" id="chip"></span></div>
+  <section class="teams-toolbar" aria-label="Team schedule controls">
+   <div class="team-view-control">
+    <button class="team-view-title" type="button" id="view-toggle" aria-pressed="false">Team View</button>
+    <div id="member-slider" class="member-slider" role="group" aria-label="Select team member" hidden></div>
    </div>
+   <div class="team-name-control">
+    <label class="sr" for="team">Team</label>
+    <select id="team" class="team-select"></select>
+    <button class="preferences-button" type="button" id="show-member-preferences">Preferences</button>
+    <a class="team-settings" id="team-settings-link" href="teams-settings.html?team=t1" aria-label="Team settings" title="Team settings">
+     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.6V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L7.6 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 6.4 14H6v-2.6h.4a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L9.4 6.6l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1H21V14h-.2a1.7 1.7 0 0 0-1.4 1z"/></svg>
+    </a>
+   </div>
+  </section>
+
+  <section class="team-content" aria-label="Team availability">
+   <div class="board" role="table" id="board"></div>
+   <div class="dock">
+    <span class="free-count" id="chip">2 free windows</span>
+    <button class="propose-button" type="button" id="prop">Propose</button>
+   </div>
+   <p class="sr" id="msg"></p>
    <p class="sr" id="live" aria-live="polite"></p>
   </section>
  </main>
 </div>
 
 <footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
+
+<dialog class="preferences-dialog" id="member-preferences-dialog" aria-labelledby="member-preferences-title">
+ <div class="preferences-dialog-heading">
+  <div>
+   <h2 id="member-preferences-title">Member preferences</h2>
+   <p id="member-preferences-caption">Sample preferences</p>
+  </div>
+  <button type="button" class="preferences-close" id="close-member-preferences" aria-label="Close preferences">×</button>
+ </div>
+ <div class="preferences-list" id="member-preferences-list"></div>
+</dialog>
+
+<dialog class="no-team-dialog" id="no-team-dialog" aria-labelledby="no-team-title">
+ <div class="no-team-heading">
+  <h1 id="no-team-title">No Team Yet</h1>
+  <button class="no-team-close" type="button" id="close-no-team" aria-label="Close No Team Yet popup">×</button>
+ </div>
+ <div class="no-team-actions">
+  <button class="no-team-action" type="button" id="join-team-from-empty">
+   <span>Join Team</span>
+   <span class="no-team-action-detail">Enter Code</span>
+  </button>
+  <button class="no-team-action" type="button" id="create-team-from-empty">Create Team</button>
+ </div>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="dt"><h2 id="dt"></h2><label class="lbl" for="dv" id="dl"></label><input id="dv" autocomplete="off"><p class="dm" id="dm" aria-live="polite"></p>
  <div class="cta" style="margin:0"><button class="key sm" type="button" id="dok">Continue</button><button class="key sm lav" type="button" id="dno">Cancel</button></div></dialog>
@@ -171,9 +203,11 @@ dialog h2{font-size:1.4rem;margin-bottom:14px}.dm{min-height:20px;font-size:14px
 <script src="../frontend/scripts/header.js"></script>
 <script src="../frontend/scripts/footer.js"></script>
 <script src="../frontend/scripts/auth.js"></script>
+<script src="../frontend/scripts/teamPreferences.js"></script>
+<script src="../frontend/scripts/teamOverrides.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
- // Same authentication gate as the other pages. Add ?mock=1 to preview without signing in.
+ // Add ?mock=1 to preview without signing in, or &no-team=1 to preview team onboarding.
  if (!localStorage.getItem('token') && !/[?&]mock=1/.test(location.search)) { location.href = 'login.html'; return; }
 
  var nameEl = document.getElementById('header-username-display'), av = document.getElementById('avatar');
@@ -185,8 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
     backend and map its fields into this shape; the UI only uses these keys:
     team {id,name,role,code,members[],events{day:[[start,end,title]]}}
     member {name,role,busy{day:[[start,end,title?]]}}  (hours, 24h, halves allowed) */
- var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat'];
- function loadTeams() { return [
+ var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+ function loadTeams() {
+  if (new URLSearchParams(location.search).get('no-team') === '1') return [];
+  return [
   { id:'t1', name:'BSCS 3A · Capstone', role:'admin', code:'SCH-4F7Q', events:{ Tue:[[15,16,'Capstone Sync']] }, members:[
    { name:'You', role:'admin', busy:{ Mon:[[8,9.5,'CS 301'],[13,14.5,'CS 315']], Tue:[[9,10.5,'IT 220'],[14,15,'Study group']], Wed:[[8,9.5,'CS 301'],[11,12.5,'Math 210']], Thu:[[10,11.5,'CS 315']], Fri:[[8,9.5,'CS 301']] } },
    { name:'Mika', role:'admin', busy:{ Mon:[[9,11]], Tue:[[10,12]], Wed:[[8,10],[14,16]], Thu:[[8,9.5],[13,15]], Fri:[[10,12]] } },
@@ -195,9 +231,21 @@ document.addEventListener('DOMContentLoaded', function () {
   { id:'t2', name:'Org Officers', role:'member', code:'', events:{}, members:[
    { name:'You', role:'member', busy:{ Mon:[[8,9.5,'CS 301']], Tue:[[9,10.5,'IT 220']], Wed:[[11,12.5,'Math 210']] } },
    { name:'Paolo', role:'admin', busy:{ Mon:[[10,12]], Tue:[[8,10]], Wed:[[9,11]] } },
-   { name:'Kaye', role:'member', busy:{ Mon:[[13,15]], Tue:[[12,14]], Wed:[[14,16]] } } ] } ]; }
+   { name:'Kaye', role:'member', busy:{ Mon:[[13,15]], Tue:[[12,14]], Wed:[[14,16]] } } ] } ];
+ }
 
- var TEAMS = loadTeams(), team = TEAMS[0], day = 'Mon', props = {}, ROW = 40, H0 = 7, H1 = 19, FROM = 8, TO = 18;
+ var TEAMS = loadTeams(), team = TEAMS[0] || null, day = 'Mon', props = {}, viewMode = 'team', selectedMember = 'You', ROW = 40, H0 = 7, H1 = 19, FROM = 8, TO = 18;
+ TEAMS.forEach(function (item) {
+  var overrides = window.TEAM_OVERRIDES.get(item.id);
+  if (typeof overrides.name === 'string') item.name = overrides.name;
+  if (Array.isArray(overrides.admins)) {
+   item.members.forEach(function (member) {
+    member.role = overrides.admins.indexOf(member.name) !== -1 ? 'admin' : 'member';
+   });
+   var currentMember = item.members.filter(function (member) { return member.name === 'You'; })[0];
+   item.role = currentMember ? currentMember.role : 'member';
+  }
+ });
  var $ = function (id) { return document.getElementById(id); };
  function t(h) { var H = Math.floor(h), p = H >= 12 ? 'PM' : 'AM'; return (H % 12 || 12) + ':' + (h % 1 ? '30' : '00') + ' ' + p; }
  function rng(a, b) { return t(a) + ' – ' + t(b); }
@@ -220,63 +268,185 @@ document.addEventListener('DOMContentLoaded', function () {
   return out.filter(function (w) { return w[1] - w[0] >= 1; });
  }
 
+ function revealMember(button) {
+  if (!button || memberSlider.hidden) return;
+  var sliderRect = memberSlider.getBoundingClientRect();
+  var buttonRect = button.getBoundingClientRect();
+  var visibleLeft = sliderRect.left + memberSlider.clientLeft;
+  var visibleRight = visibleLeft + memberSlider.clientWidth;
+  if (buttonRect.left < visibleLeft) {
+   memberSlider.scrollBy({ left: buttonRect.left - visibleLeft, behavior:'smooth' });
+  } else if (buttonRect.right > visibleRight) {
+   memberSlider.scrollBy({ left: buttonRect.right - visibleRight, behavior:'smooth' });
+  }
+ }
+
  function render() {
-  var n = team.members.length, ws = windows(), best = ws.slice().sort(function (a, b) { return (b[1] - b[0]) - (a[1] - a[0]) || a[0] - b[0]; })[0];
-  // day keys
-  var d = $('days'); d.textContent = '';
-  DAYS.forEach(function (x) { var b = el('button', 'key sm', x); b.type = 'button'; b.setAttribute('aria-pressed', x === day); b.onclick = function () { day = x; render(); }; d.appendChild(b); });
-  // board
-  var bd = $('board'); bd.textContent = ''; bd.setAttribute('aria-label', 'Schedules for ' + team.members.map(function (m) { return m.name; }).join(', ') + ' on ' + day);
-  var cols = el('div', 'cols'), wells = el('div', 'wells'); cols.style.gridTemplateColumns = wells.style.gridTemplateColumns = 'repeat(' + n + ',minmax(0,1fr))';
-  var i = 0;
-  team.members.forEach(function (m) {
-   cols.appendChild(el('h3', '', m.name));
-   var w = el('div', 'well'), l = el('div', 'lane'); w.appendChild(l); wells.appendChild(w);
-   busyOf(m).forEach(function (b) {
-    var e = el('div', 'blk ' + b.kind); e.style.setProperty('--i', i++);
-    e.style.top = 'calc(var(--row)*' + (b.s - H0) + ')'; e.style.height = 'calc(var(--row)*' + (b.e - b.s) + ' - 4px)';
-    e.appendChild(el('b', '', m.name === 'You' || b.kind ? b.title : 'Busy')); e.appendChild(el('small', '', rng(b.s, b.e))); l.appendChild(e);
+  var ws = windows(), best = ws.slice().sort(function (a, b) { return (b[1] - b[0]) - (a[1] - a[0]) || a[0] - b[0]; })[0];
+  var bd = $('board'); bd.textContent = '';
+  bd.classList.toggle('team-view-mode', viewMode === 'team');
+  $('view-toggle').textContent = viewMode === 'team' ? 'Team View' : 'Member View';
+  $('view-toggle').setAttribute('aria-pressed', viewMode === 'member' ? 'true' : 'false');
+  $('view-toggle').setAttribute('aria-label', 'Switch to ' + (viewMode === 'team' ? 'member' : 'team') + ' view');
+  memberSlider.hidden = viewMode !== 'member';
+  if (viewMode === 'member') revealMember(memberSlider.querySelector('[aria-pressed="true"]'));
+
+  if (viewMode === 'team') {
+   bd.setAttribute('aria-label', 'Team schedules for ' + team.members.map(function (m) { return m.name; }).join(', '));
+   var table = el('div', 'team-table');
+   var header = el('div', 'team-table-header');
+   header.appendChild(el('div', 'member-heading', 'Member'));
+   ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(function (label) {
+    header.appendChild(el('div', '', label));
    });
-  });
-  if (best) { var f = el('div', 'free'); f.style.top = 'calc(var(--row)*' + (best[0] - H0) + ')'; f.style.height = 'calc(var(--row)*' + (best[1] - best[0]) + ')'; f.appendChild(el('span', '', 'Everyone free · ' + rng(best[0], best[1]))); wells.appendChild(f); }
-  bd.appendChild(cols); bd.appendChild(wells);
-  // dock
-  var msg = best ? 'Everyone is free on ' + day + ': ' + rng(best[0], best[1]) + '.' + (ws.length > 1 ? ' ' + (ws.length - 1) + ' more window' + (ws.length > 2 ? 's' : '') + ' that day.' : '') : 'No time works for everyone on ' + day + '. Try another day.';
+   table.appendChild(header);
+
+   team.members.forEach(function (m) {
+    var row = el('div', 'team-table-row');
+    var memberCell = el('div', 'team-member-cell');
+    memberCell.appendChild(el('span', 'team-member-name', m.name));
+    memberCell.appendChild(el('span', 'team-member-role', m.name === 'You' ? 'View schedule' : 'View week'));
+    row.appendChild(memberCell);
+
+    DAYS.forEach(function (shortDay) {
+     var fullDay = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'}[shortDay];
+     var cell = el('div', 'team-day-cell');
+     var blocks = (m.busy[shortDay] || []).map(function (b) { return { s:b[0], e:b[1], title:b[2] || 'Busy', kind:'' }; });
+     (team.events[shortDay] || []).forEach(function (b) { blocks.push({ s:b[0], e:b[1], title:b[2], kind:'team' }); });
+     if (!blocks.length) cell.appendChild(el('span', 'team-empty', 'No blocks added'));
+     blocks.forEach(function (b) {
+      var block = el('div', 'team-block ' + b.kind);
+      block.appendChild(el('b', '', b.title));
+      block.appendChild(el('small', '', rng(b.s, b.e)));
+      cell.appendChild(block);
+     });
+     cell.setAttribute('aria-label', fullDay);
+     row.appendChild(cell);
+    });
+    table.appendChild(row);
+   });
+   bd.appendChild(table);
+  } else {
+   var member = team.members.filter(function (m) { return m.name === selectedMember; })[0] || team.members[0];
+   if (member) {
+    selectedMember = member.name;
+    bd.setAttribute('aria-label', member.name + "'s weekly schedule");
+    var week = el('div', 'member-week');
+    var weekHeader = el('div', 'member-week-header');
+    weekHeader.appendChild(el('div', 'member-timezone', 'GMT+8'));
+    ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(function (label) {
+     weekHeader.appendChild(el('div', '', label));
+    });
+    week.appendChild(weekHeader);
+    var weekBody = el('div', 'member-week-body');
+    var timeAxis = el('div', 'member-time-axis');
+    for (var hour = FROM; hour < TO; hour++) {
+     var label = hour < 12 ? hour + ' AM' : (hour === 12 ? '12 PM' : hour - 12 + ' PM');
+     timeAxis.appendChild(el('span', '', label));
+    }
+    weekBody.appendChild(timeAxis);
+    DAYS.forEach(function (shortDay) {
+     var column = el('div', 'member-day-column');
+     column.setAttribute('aria-label', shortDay);
+     var blocks = (member.busy[shortDay] || []).map(function (b) { return { s:b[0], e:b[1], title:b[2] || 'Busy', kind:'' }; });
+     (team.events[shortDay] || []).forEach(function (b) { blocks.push({ s:b[0], e:b[1], title:b[2], kind:'team' }); });
+     (props[team.id + shortDay] || []).forEach(function (b) { blocks.push({ s:b[0], e:b[1], title:'Team meeting', kind:'prop' }); });
+     blocks.forEach(function (b) {
+      if (b.e <= FROM || b.s >= TO) return;
+      var block = el('div', 'team-block member-week-block ' + b.kind);
+      block.style.top = ((Math.max(b.s, FROM) - FROM) / (TO - FROM) * 100) + '%';
+      block.style.height = ((Math.min(b.e, TO) - Math.max(b.s, FROM)) / (TO - FROM) * 100) + '%';
+      block.appendChild(el('b', '', b.title));
+      block.appendChild(el('small', '', rng(b.s, b.e)));
+      column.appendChild(block);
+     });
+     weekBody.appendChild(column);
+    });
+    week.appendChild(weekBody);
+    bd.appendChild(week);
+   }
+  }
+
+  var msg = best ? 'Everyone is free on ' + day + ': ' + rng(best[0], best[1]) + '.' : 'No time works for everyone on ' + day + '. Try another day.';
   if ($('msg').textContent !== msg) { $('msg').textContent = msg; $('live').textContent = msg; }
   $('chip').textContent = ws.length + (ws.length === 1 ? ' free window' : ' free windows');
-  $('prop').disabled = !best; $('reset').disabled = !(props[team.id + day] || []).length;
+  $('prop').disabled = !best;
   $('prop').onclick = function () { var k = team.id + day, text = 'Team meeting proposed for ' + day + ', ' + rng(best[0], best[0] + 1) + '. Members will be asked to confirm.'; (props[k] = props[k] || []).push([best[0], best[0] + 1]); render(); $('msg').textContent = text; $('live').textContent = text; };
-  $('reset').onclick = function () { delete props[team.id + day]; render(); };
-  // members + invite (admin only)
-  var ul = $('members'); ul.textContent = '';
-  team.members.forEach(function (m) {
-   var li = el('li'); li.appendChild(el('span', 'avatar', m.name.charAt(0))); li.appendChild(el('span', 'nm', m.name)); li.appendChild(el('span', 'role ' + m.role, m.role === 'admin' ? 'Admin' : 'Member'));
-   if (team.role === 'admin' && m.name !== 'You') { var r = el('button', 'key xs', 'Remove'); r.type = 'button'; r.setAttribute('aria-label', 'Remove ' + m.name); r.onclick = function () { team.members = team.members.filter(function (x) { return x !== m; }); render(); }; li.appendChild(r); }
-   ul.appendChild(li);
-  });
-  var inv = $('invite'); inv.textContent = ''; inv.className = 'invite';
-  if (team.role === 'admin') { var c = el('span'); c.appendChild(document.createTextNode('Invite code ')); c.appendChild(el('code', '', team.code)); inv.appendChild(c);
-   var cp = el('button', 'key xs lav', 'Copy'); cp.type = 'button'; cp.onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(team.code); cp.textContent = 'Copied'; setTimeout(function () { cp.textContent = 'Copy'; }, 1500); }; inv.appendChild(cp); }
-  else inv.appendChild(el('span', '', 'Only team admins can invite people. Ask an admin for the code.'));
  }
 
  var sel = $('team');
  function fill() { sel.textContent = ''; TEAMS.forEach(function (x) { var o = el('option', '', x.name + (x.role === 'admin' ? ' (admin)' : '')); o.value = x.id; sel.appendChild(o); }); sel.value = team.id; }
- sel.onchange = function () { team = TEAMS.filter(function (x) { return x.id === sel.value; })[0]; render(); };
+ function updateSettingsLink() { $('team-settings-link').href = 'teams-settings.html?team=' + encodeURIComponent(team.id); }
+ sel.onchange = function () { team = TEAMS.filter(function (x) { return x.id === sel.value; })[0]; fillMembers(); updateSettingsLink(); render(); };
+
+ var memberSlider = $('member-slider');
+ function fillMembers() {
+  memberSlider.textContent = '';
+  if (!team.members.some(function (m) { return m.name === selectedMember; })) selectedMember = team.members[0] ? team.members[0].name : '';
+  team.members.forEach(function (m) {
+   var button = el('button', 'member-slide', m.name);
+   button.type = 'button';
+   button.setAttribute('aria-pressed', m.name === selectedMember ? 'true' : 'false');
+   button.onclick = function () {
+    selectedMember = m.name;
+    memberSlider.querySelectorAll('.member-slide').forEach(function (memberButton) {
+     memberButton.setAttribute('aria-pressed', memberButton === button ? 'true' : 'false');
+    });
+    render();
+   };
+   memberSlider.appendChild(button);
+  });
+ }
+ $('view-toggle').onclick = function () { viewMode = viewMode === 'team' ? 'member' : 'team'; render(); };
+ $('show-member-preferences').onclick = function () { window.showTeamPreferences(team.name, team.members); };
 
  // create / join dialog (demo only: wire to the backend)
- var dlg = $('dlg'), mode = 'create';
- document.querySelectorAll('[data-dlg]').forEach(function (b) { b.onclick = function () {
-  mode = b.dataset.dlg; $('dt').textContent = mode === 'create' ? 'Create a team' : 'Join with a code'; $('dl').textContent = mode === 'create' ? 'Team name' : 'Invite code';
-  $('dv').value = ''; $('dm').textContent = ''; dlg.showModal(); $('dv').focus(); }; });
- $('dno').onclick = function () { dlg.close(); };
+ var dlg = $('dlg'), noTeamDialog = $('no-team-dialog'), mode = 'create';
+ function openTeamForm(nextMode) {
+  mode = nextMode;
+  $('dt').textContent = mode === 'create' ? 'Create a team' : 'Join with a code';
+  $('dl').textContent = mode === 'create' ? 'Team name' : 'Invite code';
+  $('dv').value = '';
+  $('dm').textContent = '';
+  noTeamDialog.close();
+  dlg.showModal();
+  $('dv').focus();
+ }
+ document.querySelectorAll('[data-dlg]').forEach(function (b) { b.onclick = function () { openTeamForm(b.dataset.dlg); }; });
+ $('create-team-from-empty').onclick = function () { openTeamForm('create'); };
+ $('join-team-from-empty').onclick = function () { openTeamForm('join'); };
+ function closeNoTeamDialog() {
+  noTeamDialog.close();
+  document.body.classList.remove('no-team-mode');
+ }
+ $('close-no-team').onclick = closeNoTeamDialog;
+ noTeamDialog.addEventListener('cancel', function (event) {
+  event.preventDefault();
+  closeNoTeamDialog();
+ });
+ dlg.addEventListener('cancel', function (event) {
+  if (!TEAMS.length) {
+   event.preventDefault();
+   dlg.close();
+   noTeamDialog.showModal();
+  }
+ });
+ $('dno').onclick = function () {
+  dlg.close();
+  if (!TEAMS.length) noTeamDialog.showModal();
+ };
  $('dok').onclick = function () {
   var v = $('dv').value.trim(); if (!v) { $('dm').textContent = mode === 'create' ? 'Enter a team name.' : 'Enter the invite code.'; return; }
-  if (mode === 'create') { var nt = { id:'t' + (TEAMS.length + 1), name:v, role:'admin', code:'SCH-' + Math.random().toString(36).slice(2, 6).toUpperCase(), events:{}, members:[{ name:'You', role:'admin', busy:{} }] }; TEAMS.push(nt); team = nt; fill(); render(); dlg.close(); }
+  if (mode === 'create') { var nt = { id:'t' + (TEAMS.length + 1), name:v, role:'admin', code:'SCH-' + Math.random().toString(36).slice(2, 6).toUpperCase(), events:{}, members:[{ name:'You', role:'admin', busy:{} }] }; TEAMS.push(nt); team = nt; document.body.classList.remove('no-team-mode'); $('main-content').hidden = false; fill(); fillMembers(); updateSettingsLink(); render(); dlg.close(); noTeamDialog.close(); }
   else $('dm').textContent = 'Joining needs the backend, which is not connected in this preview.';
  };
 
- fill(); render();
+ if (TEAMS.length) {
+  fill(); fillMembers(); updateSettingsLink(); render();
+ } else {
+  document.body.classList.add('no-team-mode');
+  noTeamDialog.showModal();
+ }
 });
 </script>
 </body>
