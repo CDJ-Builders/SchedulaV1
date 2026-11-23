@@ -57,3 +57,4 @@
 - Current density thresholds in feature code: Light <=5 occupied hours; Medium >5 and <=15; Heavy >15. Training validity remains unverified.
 - PostgreSQL migrations 005 and 006 have been applied and verified: preferred break defaults to 60; back-to-back tolerance is constrained to 0–6. No existing preference values were out of range.
 - Test environment note: Python 3.13.18 was not available from the interpreter catalog; Python 3.13.13 successfully loads the artifacts using the exact pinned scikit-learn, LightGBM, NumPy, pandas, and joblib versions.
+- Local rollout enabled: `backend/.env` has the feature flag set and a generated shared key; matching key and scorer settings are in ignored `schedulaml/.env`. Python service is running on loopback and authenticated `/health` reports artifacts loaded with verified manifest. Restart Express to load the updated backend environment.

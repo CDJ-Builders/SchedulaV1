@@ -18,7 +18,7 @@ flowchart LR
   Builder -->|user applies then Add block| API
 ```
 
-The browser never sends schedule context to the recommendation API; Express reads it for the authenticated schedule owner. The recommendation endpoint does not save selected candidates. The user reviews the filled weekday/time inputs and uses the existing **Add block** action. The Python service is bound to loopback and called only by Express.
+The browser never sends schedule context to the recommendation API; Express reads it for the authenticated schedule owner. The Smart Schedule button opens a dialog for meeting duration and type. Express requests up to five ranked candidates; the dialog shows each time, the model name/version, and relative scores when available. Choosing a candidate fills the weekday and time fields in the weekly block form. The user reviews the form and uses the existing **Add block** action to confirm; choosing a suggestion never saves it automatically. The Python service is bound to loopback and called only by Express.
 
 ## Contracts
 
@@ -76,16 +76,16 @@ The setup/profile UI labels `commute_time` in minutes. The feature adapter conve
 2. In a PowerShell window, start SchedulaML:
 
    ```powershell
-   cd schedulaml
-   py -3.13 -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   python -m pip install -r requirements.txt
-   $env:SCHEDULAML_SCORER = 'lgb'
-   python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+   cd C:\Users\Win11\Downloads\schedula\schedulaml
+   .\.venv313\Scripts\Activate.ps1
+   python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --env-file .env
    ```
 
-3. In another window, configure backend `.env`, keeping the feature flag off until mappings are confirmed, and start Express from `backend/` with `npm start`.
-4. Once configured, enable the feature flag and open the builder. Save the current schedule before requesting suggestions.
+3. The private shared key belongs in both ignored env files. Generate a high-entropy key in PowerShell with `$key = node -p "require('crypto').randomBytes(32).toString('base64url')"`, then set `SCHEDULAML_API_KEY=$key` in both `backend/.env` and `schedulaml/.env`. Keep the value server-side; Express sends it in `X-SchedulaML-Key`, and the browser never receives it. A key is optional only when the Python process remains private on loopback.
+4. In `backend/.env`, set `SMART_SCHEDULE_ENABLED=true` and `SCHEDULAML_URL=http://127.0.0.1:8001`. Restart Express from `backend/` with `npm start` so it reloads the feature flag and key.
+5. Open the builder, save the current schedule, and use **Smart Schedule** to request suggestions.
+
+The local project env files are already configured with a generated shared key, the feature flag is enabled, and the Python service is running. Do not copy the key into frontend code, commit it, or paste it into a chat.
 
 The supplied artifacts were serialized under Python 3.13.18, scikit-learn 1.6.1, LightGBM 4.6.0, NumPy 2.4.6, pandas 2.2.3, and joblib 1.6.0. Run under those pinned versions to avoid model-version warnings or incompatibility.
 

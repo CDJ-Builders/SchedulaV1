@@ -97,24 +97,16 @@
                   </select></label>
               </div>
               <div class="builder-form-column">
-                <label class="field"><span>Meeting duration (hours)</span><input id="event-duration-hours" type="number"
-                    min="1" max="15" step="1" value="1" inputmode="numeric"></label>
-                <label class="field"><span>Meeting type</span><select id="event-type">
-                    <option value="">Choose for Smart Schedule</option>
-                    <option value="project">Project</option>
-                    <option value="event">Event</option>
-                    <option value="meeting">Meeting</option>
-                  </select></label>
                 <label class="field"><span>Start time</span><input id="event-start" type="time" required></label>
                 <label class="field"><span>End time</span><input id="event-end" type="time" required></label>
-                <button id="smart-schedule-btn" class="btn-primary btn-save smart-schedule-btn" type="button">
+                <button id="smart-schedule-btn" class="btn-primary btn-save smart-schedule-btn" type="button"
+                  aria-haspopup="dialog" aria-controls="smart-schedule-dialog">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="4" width="18" height="16" rx="3" />
                     <path d="M9 4v16M15 4v16M3 12h18" />
                   </svg>
                   Smart Schedule
                 </button>
-                <div id="smart-schedule-results" class="smart-schedule-results" role="status" aria-live="polite" aria-atomic="true"></div>
               </div>
               <label class="field description-field"><span>Description</span><textarea id="event-description"
                   rows="5"></textarea></label>
@@ -162,6 +154,62 @@
       </section>
     </main>
   </div>
+
+  <dialog id="smart-schedule-dialog" class="smart-schedule-dialog" aria-labelledby="smart-schedule-title"
+    aria-describedby="smart-schedule-description">
+    <div class="smart-schedule-dialog-content">
+      <header class="smart-schedule-dialog-header">
+        <div>
+          <h2 id="smart-schedule-title">Smart Schedule</h2>
+        </div>
+      </header>
+
+      <div class="smart-schedule-controls">
+        <label class="field smart-schedule-title-field" for="smart-schedule-title-input">
+          <span>Meeting title</span>
+          <input id="smart-schedule-title-input" type="text" placeholder="Enter a title" required>
+        </label>
+        <label class="field" for="smart-schedule-modality">
+          <span>Modality</span>
+          <select id="smart-schedule-modality" required>
+            <option value="">Choose</option>
+            <option value="onsite">Onsite</option>
+            <option value="online">Online</option>
+          </select>
+        </label>
+        <label class="field" for="smart-schedule-duration-hours">
+          <span>Meeting Duration</span>
+          <select id="smart-schedule-duration-hours">
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+          </select>
+        </label>
+        <label class="field" for="smart-schedule-type">
+          <span>Meeting Type</span>
+          <select id="smart-schedule-type">
+            <option value="">Choose</option>
+            <option value="project">Project</option>
+            <option value="event">Event</option>
+            <option value="meeting">Meeting</option>
+          </select>
+        </label>
+        <button id="smart-schedule-generate" class="btn-primary" type="button" disabled>Show the Best Slots</button>
+      </div>
+
+      <p id="smart-schedule-status" class="smart-schedule-status" role="status" aria-live="polite" aria-atomic="true">
+        Enter title and select modality to unlock ranked slots.</p>
+      <section class="smart-schedule-results" aria-label="Smart Schedule recommendations">
+        <p id="smart-schedule-model" class="smart-schedule-model" hidden></p>
+        <ol id="smart-schedule-results-list" class="smart-schedule-options"></ol>
+        <p id="smart-schedule-warnings" class="smart-schedule-warnings" hidden></p>
+      </section>
+
+      <footer class="smart-schedule-dialog-footer">
+        <button id="smart-schedule-cancel" class="btn-primary smart-schedule-cancel" type="button">Cancel</button>
+      </footer>
+    </div>
+  </dialog>
 
   <footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
   <script src="../frontend/scripts/utils.js"></script>

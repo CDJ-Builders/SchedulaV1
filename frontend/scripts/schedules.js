@@ -8,7 +8,18 @@ const scheduleNameInput = document.getElementById('schedule-name-input');
 const scheduleExcelButton = document.getElementById('schedule-excel-btn');
 const addEventButton = document.getElementById('add-event-btn');
 const smartScheduleButton = document.getElementById('smart-schedule-btn');
-const smartScheduleResults = document.getElementById('smart-schedule-results');
+const smartScheduleDialog = document.getElementById('smart-schedule-dialog');
+const eventTitleInput = document.getElementById('event-title');
+const eventModalityInput = document.getElementById('event-modality');
+const smartScheduleTitle = document.getElementById('smart-schedule-title-input');
+const smartScheduleModality = document.getElementById('smart-schedule-modality');
+const smartScheduleDuration = document.getElementById('smart-schedule-duration-hours');
+const smartScheduleType = document.getElementById('smart-schedule-type');
+const smartScheduleGenerateButton = document.getElementById('smart-schedule-generate');
+const smartScheduleStatus = document.getElementById('smart-schedule-status');
+const smartScheduleModel = document.getElementById('smart-schedule-model');
+const smartScheduleResults = document.getElementById('smart-schedule-results-list');
+const smartScheduleWarnings = document.getElementById('smart-schedule-warnings');
 const saveScheduleButton = document.getElementById('save-schedule-btn');
 const deleteScheduleButton = document.getElementById('delete-schedule-btn');
 const builderMessage = document.getElementById('builder-message');
@@ -16,6 +27,7 @@ const builderMessage = document.getElementById('builder-message');
 let schedules = [];
 let activeScheduleId = 'new';
 let events = [];
+let smartScheduleLoading = false;
 
 function tokenHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -51,46 +63,131 @@ function showBuilderNotice(message, title) {
   });
 }
 
-function renderSmartScheduleState(message, isError = false) {
-  smartScheduleResults.replaceChildren();
-  smartScheduleResults.textContent = message;
-  smartScheduleResults.classList.toggle('text-error-center', isError);
+function setSmartScheduleStatus(message, isError = false) {
+  smartScheduleStatus.textContent = message;
+  smartScheduleStatus.classList.toggle('is-error', isError);
 }
 
-function chooseRecommendation(item) {
+function resetSmartScheduleResults() {
+  smartScheduleResults.replaceChildren();
+  smartScheduleModel.hidden = true;
+  smartScheduleModel.textContent = '';
+  smartScheduleWarnings.hidden = true;
+  smartScheduleWarnings.textContent = '';
+}
+
+function updateSmartScheduleEligibility(showPrompt = true) {
+  const missingTitle = !smartScheduleTitle.value.trim();
+  const missingModality = !['onsite', 'online'].includes(smartScheduleModality.value);
+  const missing = [];
+  if (missingTitle) missing.push('a meeting title');
+  if (missingModality) missing.push('a modality');
+
+  smartScheduleGenerateButton.disabled = smartScheduleLoading || missing.length > 0;
+  if (showPrompt && !smartScheduleLoading) {
+    if (missing.length) {
+      setSmartScheduleStatus(`Enter ${missing.join(' and ')} to unlock recommendations.`, true);
+    } else {
+      setSmartScheduleStatus('Title and modality are set. Choose a duration and type to show the ranked slots.');
+    }
+  }
+  return missing;
+}
+
+function openSmartScheduleDialog() {
+  resetSmartScheduleResults();
+  smartScheduleTitle.value = eventTitleInput.value;
+  smartScheduleModality.value = eventModalityInput.value;
+  smartScheduleDialog.showModal();
+  if (activeScheduleId === 'new') {
+    setSmartScheduleStatus('Save this schedule before requesting suggestions.', true);
+  } else {
+    const savedSchedule = schedules.find(schedule => schedule.id === activeScheduleId);
+    if (JSON.stringify(events) !== JSON.stringify(parseConfiguration(savedSchedule?.configuration))) {
+      setSmartScheduleStatus('Save your latest weekly blocks before requesting suggestions.', true);
+    } else {
+      setSmartScheduleStatus('Choose a duration and meeting type, then show the top five times.');
+    }
+  }
+  const missing = updateSmartScheduleEligibility(false);
+  if (missing.length) {
+    setSmartScheduleStatus(`Enter ${missing.join(' and ')} here before requesting recommendations.`, true);
+    (missing.includes('a meeting title') ? smartScheduleTitle : smartScheduleModality).focus();
+  } else {
+    smartScheduleDuration.focus();
+  }
+}
+
+smartScheduleTitle.addEventListener('input', () => {
+  eventTitleInput.value = smartScheduleTitle.value;
+  updateSmartScheduleEligibility();
+});
+smartScheduleModality.addEventListener('change', () => {
+  eventModalityInput.value = smartScheduleModality.value;
+  updateSmartScheduleEligibility();
+});
+
+function chooseRecommendation(item, rank) {
   document.getElementById('event-weekdays').value = item.weekday;
   document.getElementById('event-start').value = item.start_time;
   document.getElementById('event-end').value = item.end_time;
-  renderSmartScheduleState(`${item.weekday}, ${item.start_time}–${item.end_time} selected. Review the form, then choose Add block to confirm.`);
+  smartScheduleDialog.close();
+  setMessage(`Recommendation #${rank}: ${item.weekday}, ${item.start_time}–${item.end_time}. Review the block and choose Add block to confirm.`);
   document.getElementById('event-title').focus();
 }
 
 function renderRecommendations(data) {
-  smartScheduleResults.replaceChildren();
-  if (!data.recommendations.length) {
-    renderSmartScheduleState(data.warnings?.[0] || 'No feasible times were found.');
+  resetSmartScheduleResults();
+  const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];
+  if (data.model && typeof data.model.name === 'string' && typeof data.model.version === 'string') {
+    smartScheduleModel.textContent = `Model used · ${data.model.name} · version ${data.model.version}`;
+    smartScheduleModel.hidden = false;
+  }
+
+  if (!recommendations.length) {
+    setSmartScheduleStatus(data.warnings?.[0] || 'No feasible times were found for this schedule.', true);
     return;
   }
-  const heading = document.createElement('p');
-  heading.textContent = 'Suggested times (scores are relative rankings):';
-  smartScheduleResults.appendChild(heading);
-  const list = document.createElement('ul');
-  list.className = 'smart-schedule-options';
-  data.recommendations.forEach(item => {
+
+  setSmartScheduleStatus(`Choose one of the ${recommendations.length} model-ranked times to fill the weekly block form.`);
+  recommendations.forEach((item, index) => {
+    const rank = index + 1;
     const row = document.createElement('li');
     const option = document.createElement('button');
     option.type = 'button';
     option.className = 'smart-schedule-option';
-    option.textContent = `${item.weekday} · ${item.start_time}–${item.end_time}`;
-    option.addEventListener('click', () => chooseRecommendation(item));
+    option.setAttribute('aria-label', `Choose recommendation ${rank}: ${item.weekday}, ${item.start_time} to ${item.end_time}`);
+
+    const rankBadge = document.createElement('span');
+    rankBadge.className = 'smart-schedule-rank';
+    rankBadge.textContent = String(rank).padStart(2, '0');
+    rankBadge.setAttribute('aria-hidden', 'true');
+
+    const slot = document.createElement('span');
+    slot.className = 'smart-schedule-slot';
+    const day = document.createElement('strong');
+    day.textContent = item.weekday;
+    const time = document.createElement('span');
+    time.textContent = `${item.start_time}–${item.end_time}`;
+    slot.append(day, time);
+
+    const score = document.createElement('span');
+    score.className = 'smart-schedule-score';
+    score.textContent = Number.isFinite(item.score) ? `Score ${item.score.toFixed(3)}` : 'Ranked';
+
+    const action = document.createElement('span');
+    action.className = 'smart-schedule-choose';
+    action.textContent = 'Choose';
+
+    option.append(rankBadge, slot, score, action);
+    option.addEventListener('click', () => chooseRecommendation(item, rank));
     row.appendChild(option);
-    list.appendChild(row);
+    smartScheduleResults.appendChild(row);
   });
-  smartScheduleResults.appendChild(list);
+
   if (data.warnings?.length) {
-    const warning = document.createElement('p');
-    warning.textContent = data.warnings.join(' ');
-    smartScheduleResults.appendChild(warning);
+    smartScheduleWarnings.textContent = data.warnings.join(' ');
+    smartScheduleWarnings.hidden = false;
   }
 }
 
@@ -359,48 +456,69 @@ scheduleExcelButton.addEventListener('click', () => {
   });
 });
 addEventButton.addEventListener('click', addEvent);
-smartScheduleButton.addEventListener('click', async () => {
-  if (smartScheduleButton.disabled) return;
+smartScheduleButton.addEventListener('click', openSmartScheduleDialog);
+document.getElementById('smart-schedule-cancel').addEventListener('click', () => smartScheduleDialog.close());
+smartScheduleDialog.addEventListener('click', event => {
+  if (event.target === smartScheduleDialog) smartScheduleDialog.close();
+});
+smartScheduleGenerateButton.addEventListener('click', async () => {
+  if (smartScheduleGenerateButton.disabled) return;
   if (activeScheduleId === 'new') {
-    renderSmartScheduleState('Save this schedule before requesting suggestions.', true);
+    setSmartScheduleStatus('Save this schedule before requesting suggestions.', true);
     return;
   }
   const savedSchedule = schedules.find(schedule => schedule.id === activeScheduleId);
   const currentSnapshot = JSON.stringify(events);
   const savedSnapshot = JSON.stringify(parseConfiguration(savedSchedule?.configuration));
   if (currentSnapshot !== savedSnapshot) {
-    renderSmartScheduleState('Save your latest weekly blocks before requesting suggestions.', true);
+    setSmartScheduleStatus('Save your latest weekly blocks before requesting suggestions.', true);
     return;
   }
-  const durationHours = Number(document.getElementById('event-duration-hours').value);
-  const type = document.getElementById('event-type').value;
-  const modality = document.getElementById('event-modality').value;
-  if (!Number.isInteger(durationHours) || durationHours < 1 || durationHours > 15) {
-    renderSmartScheduleState('Choose a whole-hour duration from 1 to 15.', true);
-    document.getElementById('event-duration-hours').focus();
-    return;
-  }
-  if (!['project', 'event', 'meeting'].includes(type)) {
-    renderSmartScheduleState('Choose Project, Event, or Meeting for Smart Schedule.', true);
-    document.getElementById('event-type').focus();
+  const durationHours = Number(smartScheduleDuration.value);
+  const type = smartScheduleType.value;
+  const title = smartScheduleTitle.value.trim();
+  const modality = smartScheduleModality.value;
+  if (!title) {
+    setSmartScheduleStatus('Enter a title before requesting suggestions.', true);
+    smartScheduleTitle.focus();
+    updateSmartScheduleEligibility(false);
     return;
   }
   if (!['onsite', 'online'].includes(modality)) {
-    renderSmartScheduleState('Choose a meeting modality before requesting suggestions.', true);
-    document.getElementById('event-modality').focus();
+    setSmartScheduleStatus('Choose onsite or online before requesting suggestions.', true);
+    smartScheduleModality.focus();
+    updateSmartScheduleEligibility(false);
+    return;
+  }
+  if (!Number.isInteger(durationHours) || durationHours < 1 || durationHours > 15) {
+    setSmartScheduleStatus('Choose a meeting duration from 1 to 15 hours.', true);
+    smartScheduleDuration.focus();
+    return;
+  }
+  if (!['project', 'event', 'meeting'].includes(type)) {
+    setSmartScheduleStatus('Choose Project, Event, or Meeting.', true);
+    smartScheduleType.focus();
     return;
   }
 
-  smartScheduleButton.disabled = true;
-  smartScheduleButton.setAttribute('aria-busy', 'true');
-  renderSmartScheduleState('Finding available times…');
+  eventTitleInput.value = title;
+  eventModalityInput.value = modality;
+  smartScheduleLoading = true;
+  updateSmartScheduleEligibility(false);
+  smartScheduleGenerateButton.textContent = 'Finding times…';
+  smartScheduleGenerateButton.setAttribute('aria-busy', 'true');
+  [smartScheduleTitle, smartScheduleModality, smartScheduleDuration, smartScheduleType].forEach(input => { input.disabled = true; });
+  smartScheduleModel.hidden = true;
+  smartScheduleResults.replaceChildren();
+  smartScheduleWarnings.hidden = true;
+  setSmartScheduleStatus('Finding the top five available times…');
   try {
     const data = await requestJson(`/schedules/${encodeURIComponent(activeScheduleId)}/recommendations`, {
       method: 'POST',
       body: JSON.stringify({ meeting: { duration_minutes: durationHours * 60, modality, type }, limit: 5 })
     });
     if (JSON.stringify(events) !== currentSnapshot || activeScheduleId !== savedSchedule?.id) {
-      renderSmartScheduleState('Your schedule changed while suggestions were loading. Save it and request fresh suggestions.', true);
+      setSmartScheduleStatus('Your schedule changed while suggestions were loading. Save it and request fresh suggestions.', true);
       return;
     }
     const activeConflict = data.recommendations?.some(item => {
@@ -410,15 +528,18 @@ smartScheduleButton.addEventListener('click', async () => {
       return Boolean(findBlockConflict(candidate, events));
     });
     if (activeConflict) {
-      renderSmartScheduleState('The schedule now conflicts with these suggestions. Save the latest schedule and request fresh suggestions.', true);
+      setSmartScheduleStatus('The schedule now conflicts with these suggestions. Save the latest schedule and request fresh suggestions.', true);
       return;
     }
     renderRecommendations(data);
   } catch (error) {
-    renderSmartScheduleState(`${error.message} You can retry Smart Schedule.`, true);
+    setSmartScheduleStatus(`${error.message} You can retry Smart Schedule.`, true);
   } finally {
-    smartScheduleButton.disabled = false;
-    smartScheduleButton.removeAttribute('aria-busy');
+    smartScheduleLoading = false;
+    [smartScheduleTitle, smartScheduleModality, smartScheduleDuration, smartScheduleType].forEach(input => { input.disabled = false; });
+    smartScheduleGenerateButton.textContent = 'Show the Best 5 Slots';
+    updateSmartScheduleEligibility(false);
+    smartScheduleGenerateButton.removeAttribute('aria-busy');
   }
 });
 saveScheduleButton.addEventListener('click', saveSchedule);
@@ -428,7 +549,7 @@ eventsList.addEventListener('click', event => {
   const index = Number(button.dataset.eventKey.slice(4));
   events.splice(index, 1);
   renderEvents();
-}); 
+});
 deleteScheduleButton.addEventListener('click', () => {
   if (activeScheduleId === 'new') {
     showBuilderNotice('Select an existing schedule before deleting.', 'Schedule selection required');
@@ -458,7 +579,7 @@ deleteScheduleButton.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
-  try { await loadSchedules();   } catch (error) {
+  try { await loadSchedules(); } catch (error) {
     eventsList.setAttribute('aria-busy', 'false');
     eventsList.innerHTML = `<p class="text-muted-light">${window.APP_UTILS?.escapeHtml(error.message) || 'Unable to load schedules.'}</p>`;
     setMessage(error.message, true);

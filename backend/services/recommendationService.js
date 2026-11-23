@@ -50,7 +50,12 @@ function markWeeklyBlock(grid, block, warnings) {
     return;
   }
   if (start % 60 || end % 60) warnings.push('A partial-hour weekly block was conservatively rounded up to occupied hours.');
-  const modality = block.modality;
+  // Match scheduleService.normalizeConfiguration for legacy blocks. Persisted
+  // weekly blocks without a modality have historically defaulted to onsite.
+  const modality = typeof block.modality === 'string' ? block.modality : 'onsite';
+  if (typeof block.modality !== 'string') {
+    warnings.push('A legacy weekly block had no modality and was treated as onsite, matching Schedula’s existing default.');
+  }
   let cell = 'ON';
   if (modality === 'online') cell = 'OL';
   else if (modality === 'onsite' || modality === 'in_person') cell = 'ON';

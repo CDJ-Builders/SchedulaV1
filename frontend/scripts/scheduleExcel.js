@@ -169,7 +169,7 @@
     const url = URL.createObjectURL(new Blob([buffer], { type: XLSX_TYPE }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'schedula-events-template.xlsx';
+    link.download = 'schedula-upload-template.xlsx';
     link.click();
     URL.revokeObjectURL(url);
   }
