@@ -1,22 +1,23 @@
 # Schedula Todo
 ## Individual Tasks
 ### Jian
-- Schedule Excel Import
-- Machine Learning Integration
+- Teams Patch 8
+- Visualization Patch 9
+- Quality of Life Patch 10
 
 ### Adrian
 - Dropdowns
-- Team Schedules
+- UI/UX Cleanup (Dark Mode, Buttons)
 
 ### Samuel
-- Paper
+- NLP Documentation
+- SWE Documentation
 
 ## Clean Up Code
 - Weekly Schedules
 - Better Calendar Inputs
 - React / Angular Components
 - Password Reset, confirm email first
-
 
 ## Features
 ### SCHEDULING

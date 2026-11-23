@@ -114,7 +114,11 @@
             <div class="form-actions">
               <button id="add-event-btn" class="btn-primary" type="button"><svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 5v14M5 12h14" />
-                </svg>Add block</button>
+                </svg>Add</button>
+              <div id="unadded-block-tip" class="smart-schedule-footer-hint unadded-block-tip" role="status" hidden>
+                <span class="smart-schedule-footer-mark unadded-block-mark" aria-hidden="true">!</span>
+                <p>Not added yet</p>
+              </div>
               <p id="builder-message" class="text-muted-light" role="status"></p>
             </div>
           </div>
@@ -122,19 +126,24 @@
           <div class="card events-panel">
             <div class="events-panel-heading">
               <h2>Events</h2>
-              <label class="events-filter-label" for="events-day-filter">
-                <span>Filter by day</span>
-                <select id="events-day-filter" class="events-day-filter">
-                  <option value="all">All days</option>
-                  <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
-                  <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                  <option value="Saturday">Saturday</option>
-                  <option value="Sunday">Sunday</option>
-                </select>
-              </label>
+              <div class="events-filter-group">
+                <p id="unsaved-blocks-tip" class="unsaved-blocks-tip" role="status" hidden>
+                  Unsaved changes!
+                </p>
+                <label class="events-filter-label" for="events-day-filter">
+                  <span>Filter by day</span>
+                  <select id="events-day-filter" class="events-day-filter">
+                    <option value="all">All days</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                </label>
+              </div>
             </div>
             <div class="well">
               <div class="events-list single-column lane" id="scheduledList" aria-busy="true">
@@ -166,7 +175,7 @@
 
       <div class="smart-schedule-controls">
         <label class="field smart-schedule-title-field" for="smart-schedule-title-input">
-          <span>Meeting title</span>
+          <span>Title</span>
           <input id="smart-schedule-title-input" type="text" placeholder="Enter a title" required>
         </label>
         <label class="field" for="smart-schedule-modality">
@@ -178,7 +187,7 @@
           </select>
         </label>
         <label class="field" for="smart-schedule-duration-hours">
-          <span>Meeting Duration</span>
+          <span>Duration</span>
           <select id="smart-schedule-duration-hours">
             <option value="1">1 hour</option>
             <option value="2">2 hours</option>
@@ -186,7 +195,7 @@
           </select>
         </label>
         <label class="field" for="smart-schedule-type">
-          <span>Meeting Type</span>
+          <span>Type</span>
           <select id="smart-schedule-type">
             <option value="">Choose</option>
             <option value="project">Project</option>
@@ -200,12 +209,19 @@
       <p id="smart-schedule-status" class="smart-schedule-status" role="status" aria-live="polite" aria-atomic="true">
         Enter title and select modality to unlock ranked slots.</p>
       <section class="smart-schedule-results" aria-label="Smart Schedule recommendations">
-        <p id="smart-schedule-model" class="smart-schedule-model" hidden></p>
+        <div id="smart-schedule-model" class="smart-schedule-model" hidden>
+          <strong id="smart-schedule-model-name"></strong>
+        </div>
         <ol id="smart-schedule-results-list" class="smart-schedule-options"></ol>
         <p id="smart-schedule-warnings" class="smart-schedule-warnings" hidden></p>
       </section>
 
       <footer class="smart-schedule-dialog-footer">
+        <div id="smart-schedule-footer-hint" class="smart-schedule-footer-hint" hidden>
+          <span class="smart-schedule-footer-mark" aria-hidden="true">i</span>
+          <p><strong>Next:</strong> Choose a slot to fill the weekly block form. Use <b>Add block</b> to confirm it,
+            then save the schedule.</p>
+        </div>
         <button id="smart-schedule-cancel" class="btn-primary smart-schedule-cancel" type="button">Cancel</button>
       </footer>
     </div>

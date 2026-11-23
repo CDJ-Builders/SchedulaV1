@@ -164,8 +164,8 @@
   margin-top: 26px;
 }
 
-.event-form-panel > .event-form-grid > .field:first-child,
-.event-form-panel > .event-form-grid > .field:nth-child(4),
+.event-form-panel>.event-form-grid>.field:first-child,
+.event-form-panel>.event-form-grid>.field:nth-child(4),
 .field:has(textarea) {
   grid-column: 1 / -1;
 }
@@ -221,8 +221,40 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  margin-top: 10px;
   gap: 14px 18px;
   padding-bottom: 6px;
+}
+
+.unadded-block-tip,
+#add-event-btn {
+  width: 132px;
+  height: 46px;
+  box-sizing: border-box;
+}
+
+#add-event-btn {
+  flex: 0 0 132px;
+}
+
+.unadded-block-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 132px;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid rgba(42, 18, 69, .6);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 50%, #a27cb7 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -3px 0 rgba(42, 18, 69, .2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42, 18, 69, .25);
+  color: var(--plum);
+  font: 700 13px/1 "Bricolage Grotesque", system-ui, sans-serif;
+  text-align: center;
+}
+
+.unadded-block-tip[hidden] {
+  display: none;
 }
 
 #builder-message {
@@ -239,10 +271,56 @@
 /* ─── Event Schedule List on Lavender Lane ───────────────────── */
 .events-panel-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 14px;
+}
+
+.events-filter-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.unsaved-blocks-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 170px;
+  width: 170px;
+  height: 40px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid rgba(190, 128, 28, .3);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffaf0 0%, #fff4dc 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 3px 0 rgba(190, 128, 28, .12);
+  color: #fdfdfd;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.unsaved-blocks-tip[hidden] {
+  display: none;
+}
+
+.unsaved-blocks-tip span {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 7px;
+  background: #8a5a0b;
+  box-shadow: 0 2px 0 #684207;
+  color: #fff;
+  font-weight: 900;
 }
 
 .events-filter-label {
@@ -327,7 +405,7 @@
   line-height: 1.4;
 }
 
-.events-list > * {
+.events-list>* {
   padding: 12px 16px;
   border-radius: 14px;
   overflow-wrap: anywhere;
@@ -458,27 +536,27 @@ img[src$="/delete.png"] {
   border: 2px solid #16724a;
   background: linear-gradient(180deg, #75d9ac 0%, #3fc58a 48%, #20a96f 100%);
   color: #fff;
-  text-shadow: 0 -1px 0 rgba(20,112,72,.45);
+  text-shadow: 0 -1px 0 rgba(20, 112, 72, .45);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.72),
-    inset 0 -3px 0 rgba(20,112,72,.18),
+    inset 0 1px 0 rgba(255, 255, 255, .72),
+    inset 0 -3px 0 rgba(20, 112, 72, .18),
     0 5px 0 #16724a,
-    0 10px 18px rgba(20,112,72,.28);
+    0 10px 18px rgba(20, 112, 72, .28);
 }
 
 .btn-save:hover:not(:disabled) {
   background: linear-gradient(180deg, #75d9ac 0%, #3fc58a 48%, #20a96f 100%);
   transform: translateY(-3px) scale(1.015);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.72),
-    inset 0 -3px 0 rgba(20,112,72,.18),
+    inset 0 1px 0 rgba(255, 255, 255, .72),
+    inset 0 -3px 0 rgba(20, 112, 72, .18),
     0 8px 0 #16724a,
-    0 14px 24px rgba(20,112,72,.28);
+    0 14px 24px rgba(20, 112, 72, .28);
 }
 
 .btn-save:active:not(:disabled) {
   transform: translateY(4px) scale(.985);
-  box-shadow: inset 0 2px 5px rgba(20,112,72,.35), 0 1px 0 #16724a;
+  box-shadow: inset 0 2px 5px rgba(20, 112, 72, .35), 0 1px 0 #16724a;
 }
 
 .btn-save img,
@@ -506,7 +584,10 @@ img[src$="/delete.png"] {
 }
 
 @keyframes drop {
-  from { opacity: 0; transform: translateY(-24px) rotate(-1deg); }
+  from {
+    opacity: 0;
+    transform: translateY(-24px) rotate(-1deg);
+  }
 }
 
 /* ─── Smart Schedule dialog ─────────────────────────────────── */
@@ -578,11 +659,15 @@ dialog.smart-schedule-dialog::backdrop {
   gap: 14px;
 }
 
-.smart-schedule-controls .field { min-width: 0; }
+.smart-schedule-controls .field {
+  min-width: 0;
+}
 
-.smart-schedule-title-field { grid-column: 1 / -1; }
+.smart-schedule-title-field {
+  grid-column: 1 / -1;
+}
 
-.smart-schedule-controls > button {
+.smart-schedule-controls>button {
   min-height: 46px;
   grid-column: 1 / -1;
   white-space: nowrap;
@@ -595,7 +680,9 @@ dialog.smart-schedule-dialog::backdrop {
   line-height: 1.45;
 }
 
-.smart-schedule-status.is-error { color: #a1264b; }
+.smart-schedule-status.is-error {
+  color: #a1264b;
+}
 
 .smart-schedule-results {
   display: grid;
@@ -603,28 +690,48 @@ dialog.smart-schedule-dialog::backdrop {
 }
 
 .smart-schedule-model {
-  width: fit-content;
-  margin-bottom: 2px;
-  padding: 7px 11px;
-  border: 1px solid rgba(98, 41, 138, .14);
-  border-radius: 999px;
-  background: #f7f1fb;
-  color: #5b3477;
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(98, 41, 138, .18);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(247, 241, 251, .94));
+  color: var(--plum);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(98, 41, 138, .08), 0 3px 0 rgba(98, 41, 138, .15);
+}
+
+.smart-schedule-model-label {
+  color: #76538e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.smart-schedule-model strong {
+  font-size: 13px;
+}
+
+.smart-schedule-model>span:last-child {
+  color: #655174;
   font-size: 12px;
-  font-weight: 700;
+  line-height: 1.4;
 }
 
 .smart-schedule-options {
   display: grid;
   gap: 8px;
-  max-height: min(42vh, 360px);
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   list-style: none;
   margin: 0;
   padding: 2px;
 }
 
-.smart-schedule-options li { min-width: 0; }
+.smart-schedule-options li {
+  min-width: 0;
+}
 
 .smart-schedule-option {
   display: grid;
@@ -634,22 +741,27 @@ dialog.smart-schedule-dialog::backdrop {
   align-items: center;
   gap: 13px;
   padding: 10px 14px;
-  border: 1px solid rgba(42, 18, 69, .15);
+  border: 1px solid rgba(255, 255, 255, .95);
   border-radius: 13px;
-  background: #fff;
+  background: rgba(255, 255, 255, .88);
   color: var(--plum);
+  font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease-out, background-color 160ms ease-out, transform 160ms ease-out;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), inset 0 -2px 0 rgba(98, 41, 138, .08), 0 3px 0 rgba(98, 41, 138, .14), 0 6px 12px rgba(42, 18, 69, .08);
+  transition: border-color 160ms ease-out, background-color 160ms ease-out, transform 160ms ease-out, box-shadow 160ms ease-out;
 }
 
 .smart-schedule-option:hover {
   transform: translateY(-1px);
-  border-color: rgba(98, 41, 138, .48);
-  background: #fbf8fd;
+  border-color: rgba(98, 41, 138, .34);
+  background: #fff;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 0 rgba(98, 41, 138, .17), 0 9px 16px rgba(42, 18, 69, .12);
 }
 
-.smart-schedule-option:active { transform: scale(.99); }
+.smart-schedule-option:active {
+  transform: scale(.99);
+}
 
 .smart-schedule-option:focus-visible,
 .smart-schedule-cancel:focus-visible {
@@ -663,10 +775,12 @@ dialog.smart-schedule-dialog::backdrop {
   height: 36px;
   place-items: center;
   border-radius: 11px;
-  background: #f1e7f8;
-  color: #60327c;
+  border: 1px solid #201034;
+  background: linear-gradient(180deg, #482568 0%, #2a1245 100%);
+  color: #fff;
   font-size: 12px;
   font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -2px 0 rgba(0, 0, 0, .2), 0 2px 0 #160a24;
 }
 
 .smart-schedule-slot {
@@ -675,56 +789,224 @@ dialog.smart-schedule-dialog::backdrop {
   min-width: 0;
 }
 
-.smart-schedule-slot strong { font-size: 14px; }
-.smart-schedule-slot > span { color: #655174; font-size: 13px; }
-.smart-schedule-score { color: #655174; font-size: 12px; font-variant-numeric: tabular-nums; }
-.smart-schedule-choose { color: #62298a; font-size: 13px; font-weight: 800; }
+.smart-schedule-slot strong {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.smart-schedule-slot>span {
+  color: #655174;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.smart-schedule-score {
+  color: #655174;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.smart-schedule-choose {
+  padding: 7px 12px 8px;
+  border: 1px solid #4a1d6d;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #a875c4 0%, #7e4a9d 55%, #62298a 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-shadow: 0 -1px 0 rgba(42, 18, 69, .4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(42, 18, 69, .24), 0 3px 0 #4a1d6d, 0 5px 8px rgba(42, 18, 69, .16);
+}
 
 .smart-schedule-warnings {
-  padding: 10px 12px;
-  border-left: 3px solid #c28c39;
-  background: #fff9ed;
-  color: #694818;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #d6a23f;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #fff9e9 0%, #fff0c8 100%);
+  color: #68450b;
   font-size: 13px;
   line-height: 1.45;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -2px 0 rgba(183, 125, 20, .12), 0 3px 0 rgba(183, 125, 20, .2);
+}
+
+.smart-schedule-warnings::before {
+  content: "!";
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  place-items: center;
+  border-radius: 7px;
+  background: #8b5b0b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 2px 0 #68450b;
 }
 
 .smart-schedule-dialog-footer {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: stretch;
   gap: 18px;
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid rgba(42, 18, 69, .1);
 }
 
+.smart-schedule-footer-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(98, 41, 138, .17);
+  border-radius: 13px;
+  background: linear-gradient(180deg, #fff 0%, #f6effa 100%);
+  color: #5b4778;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(98, 41, 138, .08), 0 3px 0 rgba(98, 41, 138, .12);
+}
+
+.unadded-block-tip {
+  align-items: center;
+  flex: 0 0 132px;
+  gap: 6px;
+  width: 132px;
+  height: 46px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.unadded-block-tip p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.smart-schedule-footer-mark {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  place-items: center;
+  border-radius: 7px;
+  background: #2a1245;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 2px 0 #160a24;
+}
+
+.unadded-block-mark,
+.unadded-block-mark:visited {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+  forced-color-adjust: none;
+  color-scheme: light;
+}
+
+.smart-schedule-footer-hint p {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.smart-schedule-footer-hint strong {
+  color: #2a1245;
+}
+
 @media (max-width: 600px) {
-  .smart-schedule-controls { grid-template-columns: 1fr; }
-  .smart-schedule-controls > button { width: 100%; }
-  .smart-schedule-option { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; padding: 9px; }
-  .smart-schedule-score { grid-column: 2; grid-row: 2; }
-  .smart-schedule-choose { grid-column: 3; grid-row: 1 / span 2; }
-  .smart-schedule-dialog-footer { align-items: flex-end; }
+  .smart-schedule-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .smart-schedule-controls>button {
+    width: 100%;
+  }
+
+  .smart-schedule-option {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 9px;
+  }
+
+  .smart-schedule-score {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .smart-schedule-choose {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .smart-schedule-dialog-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .smart-schedule-cancel {
+    justify-self: end;
+  }
 }
 
 @media (max-width: 1080px) {
-  .work { grid-template-columns: 1fr; gap: 36px; }
+  .work {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
 }
 
 @media (max-width: 720px) {
-  :root { --row: 48px; }
-  .page { padding: 20px 18px 40px; }
-  .tools { justify-content: flex-start; }
-  .dock .flex-center-gap { justify-content: stretch; max-width: none; }
-  .card { padding: 18px 16px 20px; }
+  :root {
+    --row: 48px;
+  }
+
+  .page {
+    padding: 20px 18px 40px;
+  }
+
+  .tools {
+    justify-content: flex-start;
+  }
+
+  .dock .flex-center-gap {
+    justify-content: stretch;
+    max-width: none;
+  }
+
+  .card {
+    padding: 18px 16px 20px;
+  }
 }
 
 @media (max-width: 520px) {
-  .event-form-grid { grid-template-columns: 1fr; }
-  .events-panel-heading { align-items: flex-start; }
-  .events-day-filter { width: 145px; }
-  .dock .flex-center-gap { flex-wrap: wrap; }
+  .event-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .events-panel-heading {
+    align-items: center;
+  }
+
+  .events-day-filter {
+    width: 145px;
+  }
+
+  .unsaved-blocks-tip {
+    flex-basis: 145px;
+    width: 145px;
+  }
+
+  .dock .flex-center-gap {
+    flex-wrap: wrap;
+  }
+
   .form-actions .btn-primary,
-  .save-schedule-container .btn-primary { flex: 1 1 100%; }
+  .save-schedule-container .btn-primary {
+    flex: 1 1 100%;
+  }
 }

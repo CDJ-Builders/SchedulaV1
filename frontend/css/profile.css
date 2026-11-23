@@ -271,12 +271,21 @@ body.pf .profile-select-group :is(input, select) {
 
 .profile-select-group.preference-radio-group {
   display: grid;
+  flex-direction: row;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   margin: 8px 0 0;
   padding: 10px;
   border: 1px solid var(--border, rgba(42, 18, 69, .2));
   border-radius: 10px;
+}
+
+body.pf fieldset.profile-select-group.preference-radio-group,
+body.setup-page fieldset.profile-select-group.preference-radio-group {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-auto-flow: row;
+  align-items: center;
 }
 
 .profile-select-group.preference-radio-group legend {
@@ -304,6 +313,22 @@ body.setup-page .profile-select-group.preference-radio-group input[type="radio"]
   padding: 0;
   border: 0;
   box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  body.pf fieldset.profile-select-group.preference-radio-group,
+  body.setup-page fieldset.profile-select-group.preference-radio-group {
+    gap: 3px;
+    padding: 8px 6px;
+  }
+
+  body.pf .profile-select-group.preference-radio-group label,
+  body.setup-page .profile-select-group.preference-radio-group label {
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    font-size: 12px;
+  }
 }
 
 body.pf .profile-password-link-wrapper {

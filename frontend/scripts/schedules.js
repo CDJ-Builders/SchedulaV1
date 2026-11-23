@@ -3,6 +3,9 @@ const SCHEDULE_TYPES = Object.freeze({ WEEKLY: 'weekly' });
 const scheduleType = SCHEDULE_TYPES.WEEKLY;
 const eventsList = document.getElementById('scheduledList');
 const eventsDayFilter = document.getElementById('events-day-filter');
+const unsavedBlocksTip = document.getElementById('unsaved-blocks-tip');
+const unaddedBlockTip = document.getElementById('unadded-block-tip');
+const blockFormInputIds = ['event-title', 'event-weekdays', 'event-modality', 'event-start', 'event-end', 'event-description'];
 const scheduleSelector = document.getElementById('schedule-selector');
 const scheduleNameInput = document.getElementById('schedule-name-input');
 const scheduleExcelButton = document.getElementById('schedule-excel-btn');
@@ -18,8 +21,10 @@ const smartScheduleType = document.getElementById('smart-schedule-type');
 const smartScheduleGenerateButton = document.getElementById('smart-schedule-generate');
 const smartScheduleStatus = document.getElementById('smart-schedule-status');
 const smartScheduleModel = document.getElementById('smart-schedule-model');
+const smartScheduleModelName = document.getElementById('smart-schedule-model-name');
 const smartScheduleResults = document.getElementById('smart-schedule-results-list');
 const smartScheduleWarnings = document.getElementById('smart-schedule-warnings');
+const smartScheduleFooterHint = document.getElementById('smart-schedule-footer-hint');
 const saveScheduleButton = document.getElementById('save-schedule-btn');
 const deleteScheduleButton = document.getElementById('delete-schedule-btn');
 const builderMessage = document.getElementById('builder-message');
@@ -71,9 +76,10 @@ function setSmartScheduleStatus(message, isError = false) {
 function resetSmartScheduleResults() {
   smartScheduleResults.replaceChildren();
   smartScheduleModel.hidden = true;
-  smartScheduleModel.textContent = '';
+  smartScheduleModelName.textContent = '';
   smartScheduleWarnings.hidden = true;
   smartScheduleWarnings.textContent = '';
+  smartScheduleFooterHint.hidden = true;
 }
 
 function updateSmartScheduleEligibility(showPrompt = true) {
@@ -124,6 +130,7 @@ smartScheduleTitle.addEventListener('input', () => {
 });
 smartScheduleModality.addEventListener('change', () => {
   eventModalityInput.value = smartScheduleModality.value;
+  updateUnaddedBlockTip();
   updateSmartScheduleEligibility();
 });
 
@@ -131,16 +138,20 @@ function chooseRecommendation(item, rank) {
   document.getElementById('event-weekdays').value = item.weekday;
   document.getElementById('event-start').value = item.start_time;
   document.getElementById('event-end').value = item.end_time;
+  updateUnaddedBlockTip();
   smartScheduleDialog.close();
-  setMessage(`Recommendation #${rank}: ${item.weekday}, ${item.start_time}–${item.end_time}. Review the block and choose Add block to confirm.`);
+  setMessage('');
   document.getElementById('event-title').focus();
+  const message = `Recommendation #${rank} selected: ${item.weekday}, ${item.start_time}–${item.end_time}. Review the block, then choose Add block to confirm.`;
+  if (typeof window.noticePopup === 'function') window.noticePopup(message, 'Time selected');
+  else showBuilderNotice(message, 'Time selected');
 }
 
 function renderRecommendations(data) {
   resetSmartScheduleResults();
   const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];
   if (data.model && typeof data.model.name === 'string' && typeof data.model.version === 'string') {
-    smartScheduleModel.textContent = `Model used · ${data.model.name} · version ${data.model.version}`;
+    smartScheduleModelName.textContent = `${data.model.name} · version ${data.model.version}`;
     smartScheduleModel.hidden = false;
   }
 
@@ -149,7 +160,8 @@ function renderRecommendations(data) {
     return;
   }
 
-  setSmartScheduleStatus(`Choose one of the ${recommendations.length} model-ranked times to fill the weekly block form.`);
+  smartScheduleFooterHint.hidden = false;
+  setSmartScheduleStatus(`Choose one of the top ${recommendations.length} ranked times.`);
   recommendations.forEach((item, index) => {
     const rank = index + 1;
     const row = document.createElement('li');
@@ -166,9 +178,10 @@ function renderRecommendations(data) {
     const slot = document.createElement('span');
     slot.className = 'smart-schedule-slot';
     const day = document.createElement('strong');
-    day.textContent = item.weekday;
+    day.textContent = smartScheduleTitle.value.trim() || item.weekday;
     const time = document.createElement('span');
-    time.textContent = `${item.start_time}–${item.end_time}`;
+    const modalityLabel = smartScheduleModality.value === 'online' ? 'Online' : 'Onsite';
+    time.textContent = `${item.weekday} · ${item.start_time}–${item.end_time} · ${modalityLabel}`;
     slot.append(day, time);
 
     const score = document.createElement('span');
@@ -244,6 +257,13 @@ function clearEventForm() {
   });
   document.getElementById('event-weekdays').value = '';
   document.getElementById('event-modality').value = '';
+  updateUnaddedBlockTip();
+}
+
+function updateUnaddedBlockTip() {
+  if (!unaddedBlockTip) return;
+  const hasFormDetails = blockFormInputIds.some(id => document.getElementById(id)?.value.trim());
+  unaddedBlockTip.hidden = !hasFormDetails;
 }
 
 function formatBlock(block) {
@@ -254,6 +274,7 @@ function formatBlock(block) {
 function renderEvents() {
   eventsList.setAttribute('aria-busy', 'false');
   eventsList.innerHTML = '';
+  updateUnsavedBlocksTip();
   if (!events.length) {
     eventsList.innerHTML = '<p class="events-empty-state">No weekly blocks added yet.</p>';
     return;
@@ -338,6 +359,52 @@ async function loadSchedules() {
   }
   selectSchedule(activeScheduleId);
 }
+
+function hasUnsavedWeeklyBlocks() {
+  if (activeScheduleId === 'new') return events.length > 0;
+  const savedSchedule = schedules.find(schedule => schedule.id === activeScheduleId);
+  const savedBlocks = parseConfiguration(savedSchedule?.configuration);
+  return JSON.stringify(events) !== JSON.stringify(savedBlocks);
+}
+
+function updateUnsavedBlocksTip() {
+  if (unsavedBlocksTip) unsavedBlocksTip.hidden = !hasUnsavedWeeklyBlocks();
+}
+
+let allowUnsavedNavigation = false;
+let unsavedNavigationPromptOpen = false;
+
+document.addEventListener('click', event => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target.closest?.('a[href]');
+  if (!link || link.target && link.target !== '_self' || link.hasAttribute('download')) return;
+  if (!hasUnsavedWeeklyBlocks()) return;
+
+  const destination = new URL(link.href, window.location.href);
+  const current = new URL(window.location.href);
+  if (!['http:', 'https:'].includes(destination.protocol)) return;
+  if (destination.origin === current.origin
+    && destination.pathname === current.pathname
+    && destination.search === current.search) return;
+
+  event.preventDefault();
+  if (unsavedNavigationPromptOpen) return;
+  unsavedNavigationPromptOpen = true;
+
+  const leaveBuilder = () => {
+    allowUnsavedNavigation = true;
+    window.location.assign(destination.href);
+  };
+  const stayInBuilder = () => { unsavedNavigationPromptOpen = false; };
+  const reminder = 'You have unsaved weekly blocks. Save your schedule before leaving. If you leave now, your changes will be lost.';
+  if (typeof window.confirmPopup === 'function') {
+    window.confirmPopup(reminder, leaveBuilder, stayInBuilder, 'Unsaved weekly blocks', 'warning');
+  } else if (window.confirm(reminder)) {
+    leaveBuilder();
+  } else {
+    stayInBuilder();
+  }
+}, true);
 
 function addEvent() {
   const block = eventFromForm();
@@ -449,6 +516,11 @@ async function importScheduleEvents(importedEvents) {
 
 scheduleSelector.addEventListener('change', event => selectSchedule(event.target.value));
 eventsDayFilter.addEventListener('change', renderEvents);
+blockFormInputIds.forEach(id => {
+  const input = document.getElementById(id);
+  input?.addEventListener('input', updateUnaddedBlockTip);
+  input?.addEventListener('change', updateUnaddedBlockTip);
+});
 scheduleExcelButton.addEventListener('click', () => {
   window.SchedulaScheduleExcel.open({
     getExistingEvents: () => events,
@@ -547,8 +619,18 @@ eventsList.addEventListener('click', event => {
   const button = event.target.closest('[data-event-key]');
   if (!button) return;
   const index = Number(button.dataset.eventKey.slice(4));
-  events.splice(index, 1);
-  renderEvents();
+  if (!Number.isInteger(index) || index < 0 || index >= events.length) return;
+
+  const removeBlock = () => {
+    events.splice(index, 1);
+    renderEvents();
+  };
+  const message = 'Remove this weekly block from the schedule? This change will be saved only when you save the schedule.';
+  if (typeof window.confirmPopup === 'function') {
+    window.confirmPopup(message, removeBlock, null, 'Remove weekly block', 'warning');
+  } else if (window.confirm(message)) {
+    removeBlock();
+  }
 });
 deleteScheduleButton.addEventListener('click', () => {
   if (activeScheduleId === 'new') {

@@ -1,9 +1,10 @@
 # Schedula: Build Your Daily Blocks
 
-[![Build Status](https://img.shields.io/badge/Status-v1.6-violet.svg)](#sprint-planning--agile-scrum)
+[![Build Status](https://img.shields.io/badge/Status-v1.7-violet.svg)](#sprint-planning--agile-scrum)
 [![Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20PostgreSQL%20%7C%20Vanilla%20JS-blue.svg)](#technology-stack)
 
 **Schedula** is a student-first, collaborative academic scheduling platform that combines smart availability detection, preference-aware conflict resolution, and visual timetable customization. Designed to solve the challenges of traditional ad-hoc scheduling and the University Course Timetabling Problem (UCTP), Schedula empowers individual students and collaborative teams to plan their semesters without spreadsheet friction.
+
 - Schedula Version 1, Patch 7: Smart Scheduling Update.
 
 ---
@@ -21,8 +22,8 @@ Time management significantly influences academic and professional performance (
 
 ## 🎯 Agile SCRUM & Sprint Planning
 
-### Sprint 4 Goal
-Implement SchedulaML into Schedula. Create Team and Personal Schedule Management. Finalize Visualization Flowchart.
+### Sprint 5 Goal
+Create Team and Personal Schedule Management. Finalize Visualization Flowchart.
 
 ### Team Roles & Responsibilities
 - **Product Owner:** Jimenez, Jian Jowel *(Manages backlog prioritization and user alignment)*
@@ -36,11 +37,11 @@ Implement SchedulaML into Schedula. Create Team and Personal Schedule Management
 ### Core Features
 | Feature | Description & User Story | Status |
 | :--- | :--- | :---: |
-| **1: Smart Scheduling** | *Preference & Availability Detection:* Detects unavailable time ranges (`BlockedTimes`) and prevents conflicting course selections. | **In Progress** |
+| **1: Smart Scheduling** | *Preference & Availability Detection:* Detects unavailable time ranges (`BlockedTimes`) and prevents conflicting course selections. | **Done** |
 | **2: Multi-Schedule Management** | *Team & User Based:* Manage personal and group schedules, duplicate templates, and avoid double-booking. | **In Progress** |
 | **3: Schedule Visualization & Customization** | Clean calendar grid, tabular class import, color palette picker, and PNG export capabilities. | **In Progress** |
-| **4: Authentication** | Secure user registration, encrypted passwords, JWT session handling, and email PIN password resets. | **Completed** |
-| **5: Authorization** | Role-based access control for personal users, team leaders, and system developers/super admins. | **Completed** |
+| **4: Authentication** | Secure user registration, encrypted passwords, JWT session handling, and email PIN password resets. | **Done** |
+| **5: Authorization** | Role-based access control for personal users, team leaders, and system developers/super admins. | **Done** |
 
 ### Secondary Features
 | Feature | Description | Status |
