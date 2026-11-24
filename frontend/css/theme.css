@@ -323,6 +323,23 @@ body {
   border: 2px solid var(--plum);
   background: #fff;
   box-shadow: inset 0 2px 4px rgba(42, 18, 69, .18);
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.field input:hover:not(:disabled),
+.field select:hover:not(:disabled),
+.field textarea:hover:not(:disabled) {
+  border-color: var(--purple);
+  background-color: #fdfbfe;
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .12), 0 2px 8px rgba(98, 41, 138, .1);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .14), 0 0 0 3px rgba(98, 41, 138, .25);
 }
 
 .field input::placeholder,
@@ -341,10 +358,38 @@ body {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  padding-right: 40px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
   background-repeat: no-repeat;
   background-position: right 14px center;
+}
+
+.field select:disabled {
+  background-color: #f3ecf8;
+  cursor: not-allowed;
+  opacity: .75;
+}
+
+/* ─── Universal Dropdown Menu Options ───────────────────────── */
+select option {
+  background-color: #ffffff;
+  color: #2a1245;
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 14px;
+}
+
+select option:checked {
+  background-color: #d9c2ec;
+  color: #2a1245;
+  font-weight: 700;
+}
+
+select option:disabled {
+  color: rgba(42, 18, 69, .45);
+  background-color: #f7f3fa;
+  font-style: italic;
 }
 
 /* ─── Utilities ──────────────────────────────────────────────── */

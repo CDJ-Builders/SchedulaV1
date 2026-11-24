@@ -50,27 +50,67 @@ body.has-site-footer > .teams-settings-page {
 }
 
 .settings-member-select {
-  width: 150px;
-  height: 38px;
-  padding: 0 36px 0 12px;
-  border: 1px solid #e0d8e8;
-  border-radius: 7px;
-  background: #fff;
-  color: #5a2580;
-  font: 800 12px/1 "Bricolage Grotesque", sans-serif;
-  box-shadow: none;
+  width: 160px;
+  height: 40px;
+  padding: 0 38px 0 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid rgba(98, 41, 138, .35);
+  border-radius: 12px;
+  background-color: #fff;
+  color: var(--plum);
+  font: 700 13px/1 "Bricolage Grotesque", sans-serif;
+  cursor: pointer;
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .08);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.settings-member-select:hover {
+  border-color: var(--purple);
+  background-color: #fdfbfe;
+  box-shadow: inset 0 2px 4px rgba(42, 18, 69, .06), 0 2px 6px rgba(98, 41, 138, .1);
+}
+
+.settings-member-select:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+  border-color: var(--purple);
 }
 
 .settings-team-select {
-  width: 210px;
+  width: 220px;
   height: 54px;
-  padding: 0 42px 0 16px;
-  appearance: auto;
+  padding: 0 46px 0 18px;
+  appearance: none;
+  -webkit-appearance: none;
   border: 0;
-  border-radius: 6px;
+  border-radius: 14px;
   background: #5a2580;
   color: #fff;
-  font: 800 15px/1 "Bricolage Grotesque", sans-serif;
+  font: 800 16px/1 "Bricolage Grotesque", sans-serif;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-team-select:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+
+.settings-team-select option,
+.settings-member-select option {
+  background-color: #ffffff;
+  color: #2a1245;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  padding: 10px 14px;
 }
 
 .settings-preferences-button {
@@ -301,7 +341,6 @@ body.has-site-footer > .teams-settings-page {
 
 /* Match the shared Schedula skeuomorphic controls and card surfaces. */
 .settings-view-button,
-.settings-team-select,
 .settings-back {
   border: 1px solid rgba(42, 18, 69, .62);
   background: linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
@@ -310,12 +349,28 @@ body.has-site-footer > .teams-settings-page {
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
+.settings-team-select {
+  border: 1px solid rgba(42, 18, 69, .62);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"),
+    linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 18px center, center;
+  background-size: 16px 16px, 100% 100%;
+  color: #2a1245;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -3px 0 rgba(42,18,69,.2), 0 4px 0 #4a1d6d, 0 8px 12px rgba(42,18,69,.22);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
 .settings-view-button:hover,
+.settings-team-select:hover,
 .settings-back:hover {
   transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -3px 0 rgba(42,18,69,.2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42,18,69,.26);
 }
 
 .settings-view-button:active,
+.settings-team-select:active,
 .settings-back:active {
   transform: translateY(3px);
   box-shadow: inset 0 2px 5px rgba(42,18,69,.28), 0 1px 0 #4a1d6d, 0 2px 4px rgba(42,18,69,.22);

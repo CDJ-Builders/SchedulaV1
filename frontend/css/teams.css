@@ -96,7 +96,7 @@ body.schedula-background.teams-page .team-name-control .team-select {
   display: flex;
   align-items: center;
   border: 0;
-  border-radius: 6px;
+  border-radius: 14px;
   background: #5a2580;
   color: #fff;
   font: 800 18px/1 "Bricolage Grotesque", sans-serif;
@@ -265,17 +265,46 @@ body.schedula-background.teams-page .no-team-action-detail {
 }
 
 body.schedula-background.teams-page .team-name-control .team-select {
-  width: 210px;
-  padding: 0 42px 0 16px;
-  appearance: auto;
+  width: 220px;
+  min-width: 170px;
+  padding: 0 46px 0 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.schedula-background.teams-page .team-name-control .team-select:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+
+body.schedula-background.teams-page .team-name-control .team-select option {
+  background-color: #ffffff;
+  color: #2a1245;
+  font-family: "Bricolage Grotesque", sans-serif;
   font-size: 15px;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+body.schedula-background.teams-page .team-name-control .team-select option:checked {
+  background-color: #d9c2ec;
+  color: #2a1245;
 }
 
 body.schedula-background.teams-page .preferences-button {
   height: 54px;
-  padding: 0 16px;
+  padding: 0 18px;
   border: 1px solid rgba(42, 18, 69, .35);
-  border-radius: 6px;
+  border-radius: 14px;
   background: #fff;
   color: #5a2580;
   font: 800 13px/1 "Bricolage Grotesque", sans-serif;
@@ -288,7 +317,7 @@ body.schedula-background.teams-page .team-settings {
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 6px;
+  border-radius: 14px;
   background: #492064;
   color: #fff;
   text-decoration: none;
@@ -601,14 +630,13 @@ body.schedula-background.teams-page .propose-button:disabled {
     width: auto;
     min-width: 0;
     flex: 1;
+    font-size: 14px;
+    padding-left: 12px;
+    padding-right: 36px;
   }
 
   body.schedula-background.teams-page .team-view-title {
     min-width: 140px;
-  }
-
-  body.schedula-background.teams-page .team-name-control .team-select {
-    width: 150px;
   }
 
   body.schedula-background.teams-page .preferences-button {
@@ -627,7 +655,6 @@ body.schedula-background.teams-page .propose-button:disabled {
 
 /* Match the shared raised Schedula controls and panels. */
 body.schedula-background.teams-page .team-view-title,
-body.schedula-background.teams-page .team-name-control .team-select,
 body.schedula-background.teams-page .team-settings,
 body.schedula-background.teams-page .propose-button {
   border: 1px solid rgba(42, 18, 69, .62);
@@ -637,13 +664,29 @@ body.schedula-background.teams-page .propose-button {
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
+body.schedula-background.teams-page .team-name-control .team-select {
+  border: 1px solid rgba(42, 18, 69, .62);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a1245' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"),
+    linear-gradient(180deg, #d9c2ec 0%, #bb99d2 48%, #a27cb7 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 18px center, center;
+  background-size: 16px 16px, 100% 100%;
+  color: #2a1245;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -3px 0 rgba(42,18,69,.2), 0 4px 0 #4a1d6d, 0 8px 12px rgba(42,18,69,.22);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
 body.schedula-background.teams-page .team-view-title:hover,
+body.schedula-background.teams-page .team-name-control .team-select:hover,
 body.schedula-background.teams-page .team-settings:hover,
 body.schedula-background.teams-page .propose-button:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -3px 0 rgba(42,18,69,.2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42,18,69,.26);
 }
 
 body.schedula-background.teams-page .team-view-title:active,
+body.schedula-background.teams-page .team-name-control .team-select:active,
 body.schedula-background.teams-page .team-settings:active,
 body.schedula-background.teams-page .propose-button:active:not(:disabled) {
   transform: translateY(3px);
