@@ -85,6 +85,10 @@ router.post('/teams/:teamId/leave', asyncHandler(async (req, res) => {
   res.json(await teamsService.leaveTeam(req.params.teamId, req.user.user_id));
 }));
 
+router.delete('/teams/:teamId', asyncHandler(async (req, res) => {
+  res.json(await teamsService.deleteTeam(req.params.teamId, req.user.user_id));
+}));
+
 router.post('/teams/:teamId/proposals', asyncHandler(async (req, res) => {
   res.status(201).json(await teamsService.createProposal(req.params.teamId, req.user.user_id, req.body || {}));
 }));

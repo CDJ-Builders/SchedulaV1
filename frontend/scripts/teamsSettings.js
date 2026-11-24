@@ -82,13 +82,24 @@ document.addEventListener('DOMContentLoaded', function () {
     $('no-teams-message').textContent = message || 'You are not a member of a team yet. Create or join one from the Teams page.';
     $('no-teams-message').classList.toggle('is-error', Boolean(message));
   }
+  async function removeTeamFromSettings(teamId) {
+    teams = teams.filter(function (team) { return team.id !== teamId; });
+    fillTeamSelect();
+    if (!teams.length) {
+      activeTeam = null;
+      showNoTeams();
+      return;
+    }
+    teamSelect.value = teams[0].id;
+    await loadTeam(teams[0].id);
+  }
   function populatePeople(id, role) {
     var list = $(id);
     list.textContent = '';
     (activeTeam.members || []).filter(function (member) { return (member.role === 'admin') === (role === 'admin'); }).forEach(function (member) {
       var item = document.createElement('li');
       item.appendChild(personLabel(member));
-      if (activeTeam.isAdmin && !member.isSelf) {
+      if (activeTeam.isAdmin && !member.isSelf && !member.isCreator) {
         var action = document.createElement('button');
         var actionType = role === 'admin' ? 'demote' : 'promote';
         action.className = 'settings-role-button ' + actionType;
@@ -149,10 +160,11 @@ document.addEventListener('DOMContentLoaded', function () {
     $('group-code').textContent = activeTeam.code || 'No group code';
     $('regenerate-group-code').hidden = !activeTeam.isAdmin;
     $('role-permission-note').hidden = activeTeam.isAdmin;
+    $('delete-team').hidden = !activeTeam.isCreator;
     populatePeople('settings-admins', 'admin');
     populatePeople('settings-members', 'member');
     $('leave-team').hidden = false;
-    $('leave-team').disabled = (activeTeam.members || []).length === 1;
+    $('leave-team').disabled = false;
   }
   async function loadTeam(id) {
     var result = await api('/teams/' + encodeURIComponent(id));
@@ -184,10 +196,12 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       var result = await api('/teams/' + activeTeam.id, { method: 'PUT', body: JSON.stringify({ name: name }) });
       activeTeam = result.team;
+      teams = teams.map(function (team) { return team.id === activeTeam.id ? activeTeam : team; });
       feedback('team-name-feedback', 'Team name saved.');
       renderTeam();
       var selected = teamSelect.querySelector('option[value="' + activeTeam.id + '"]');
       if (selected) selected.textContent = activeTeam.name;
+      await noticePopup('Team name saved', 'The team name was updated successfully.');
     } catch (error) { feedback('team-name-feedback', error.message, true); }
     finally { button.disabled = false; }
   });
@@ -210,24 +224,48 @@ document.addEventListener('DOMContentLoaded', function () {
   $('leave-team').addEventListener('click', async function () {
     if (!activeTeam) return;
     var leavingTeamName = activeTeam.name;
+    var isLastMember = (activeTeam.members || []).length === 1;
     var approved = await confirmPopup({
       title: 'Leave this team?',
-      message: activeTeam.isCreator
-        ? 'Creator access will transfer to the next admin, or to the first member alphabetically.'
-        : 'You will lose access to this team and its shared schedule.',
+      message: isLastMember
+        ? 'You are the last member. Leaving will delete the team and remove it for everyone.'
+        : activeTeam.isCreator
+          ? 'Creator access will transfer to the next admin, or to the first member alphabetically.'
+          : 'You will lose access to this team and its shared schedule.',
       confirmLabel: 'Leave team',
       tone: 'danger'
     });
     if (!approved) return;
-    this.disabled = true;
+    var button = this;
+    button.disabled = true;
     try {
-      await api('/teams/' + activeTeam.id + '/leave', { method: 'POST' });
-      teams = teams.filter(function (team) { return team.id !== activeTeam.id; });
-      fillTeamSelect();
-      if (!teams.length) showNoTeams();
-      else { teamSelect.value = teams[0].id; await loadTeam(teams[0].id); }
-      await noticePopup('You left the team', 'You no longer have access to ' + leavingTeamName + '.');
-    } catch (error) { await noticePopup('Could not leave team', error.message, 'danger'); this.disabled = false; }
+      var result = await api('/teams/' + activeTeam.id + '/leave', { method: 'POST' });
+      await removeTeamFromSettings(activeTeam.id);
+      await noticePopup(result.teamDeleted ? 'Team deleted' : 'You left the team', result.teamDeleted
+        ? leavingTeamName + ' was deleted because you were its last member.'
+        : 'You no longer have access to ' + leavingTeamName + '.');
+    } catch (error) { await noticePopup('Could not leave team', error.message, 'danger'); button.disabled = false; }
+  });
+  $('delete-team').addEventListener('click', async function () {
+    if (!activeTeam || !activeTeam.isCreator) return;
+    var teamId = activeTeam.id;
+    var teamName = activeTeam.name;
+    var approved = await confirmPopup({
+      title: 'Delete this team for everyone?',
+      message: 'Delete ' + teamName + ' for all members? Its team events, meeting proposals, and shared team access will be removed. Members’ personal schedules remain theirs.',
+      confirmLabel: 'Delete team',
+      tone: 'danger'
+    });
+    if (!approved) return;
+    var button = this;
+    button.disabled = true;
+    try {
+      await api('/teams/' + encodeURIComponent(teamId), { method: 'DELETE' });
+      location.href = 'teams.html';
+    } catch (error) {
+      await noticePopup('Could not delete team', error.message, 'danger');
+      button.disabled = false;
+    }
   });
   teamSelect.addEventListener('change', function () {
     if (this.value === '__new_team__') { location.href = 'teams.html?action=choose'; return; }

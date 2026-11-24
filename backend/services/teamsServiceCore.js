@@ -356,10 +356,16 @@ function createTeamsService(db) {
     try {
       await client.query('BEGIN');
       const targetResult = await client.query(
-        'SELECT role FROM memberships WHERE group_id = $1 AND user_id = $2 AND deleted_at IS NULL FOR UPDATE',
+        'SELECT g.owner_user_id, m.role FROM groups g ' +
+        'JOIN memberships m ON m.group_id = g.id ' +
+        'WHERE g.id = $1 AND g.deleted_at IS NULL AND m.user_id = $2 AND m.deleted_at IS NULL ' +
+        'FOR UPDATE OF g, m',
         [teamId, targetId]
       );
       if (!targetResult.rows.length) throw httpError(404, 'Team member not found.');
+      if (targetResult.rows[0].owner_user_id === targetId) {
+        throw httpError(403, 'The team creator cannot be demoted by an admin.');
+      }
       const oldRole = targetResult.rows[0].role;
       if ((oldRole === 'owner' || oldRole === 'admin') && requestedRole === 'member') {
         const admins = await client.query(
@@ -386,9 +392,64 @@ function createTeamsService(db) {
   }
 
   async function removeMember(teamId, actorId, targetId) {
-    await requireAdmin(teamId, actorId);
+    const actor = await requireAdmin(teamId, actorId);
     if (actorId === targetId) throw httpError(400, 'Use Leave team to remove yourself.');
+    if (actor.owner_user_id === targetId) throw httpError(403, 'The team creator cannot be removed by an admin.');
     return removeMembership(teamId, targetId);
+  }
+
+  async function deleteTeamData(client, teamId) {
+    await client.query('DELETE FROM team_proposals WHERE group_id = $1', [teamId]);
+    await client.query('DELETE FROM team_events WHERE group_id = $1', [teamId]);
+    await client.query(
+      'UPDATE invitations SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
+      'WHERE group_id = $1 AND deleted_at IS NULL',
+      [teamId]
+    );
+    await client.query(
+      'UPDATE schedule_shares SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
+      'WHERE shared_with_group_id = $1 AND deleted_at IS NULL',
+      [teamId]
+    );
+    await client.query(
+      'UPDATE schedules SET group_id = NULL, updated_at = CURRENT_TIMESTAMP ' +
+      'WHERE group_id = $1 AND deleted_at IS NULL',
+      [teamId]
+    );
+    await client.query(
+      'UPDATE memberships SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
+      'WHERE group_id = $1 AND deleted_at IS NULL',
+      [teamId]
+    );
+    await client.query(
+      'UPDATE groups SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
+      'WHERE id = $1 AND deleted_at IS NULL',
+      [teamId]
+    );
+  }
+
+  async function deleteTeam(teamId, userId) {
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await client.query(
+        'SELECT g.owner_user_id FROM groups g ' +
+        'JOIN memberships m ON m.group_id = g.id ' +
+        'WHERE g.id = $1 AND g.deleted_at IS NULL AND m.user_id = $2 AND m.deleted_at IS NULL ' +
+        'FOR UPDATE OF g, m',
+        [teamId, userId]
+      );
+      if (!result.rows.length) throw httpError(404, 'Team not found.');
+      if (result.rows[0].owner_user_id !== userId) {
+        throw httpError(403, 'Only the team creator can delete this team.');
+      }
+      await deleteTeamData(client, teamId);
+      await client.query('COMMIT');
+      return { success: true };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
   }
 
   async function removeMembership(teamId, targetId) {
@@ -401,19 +462,19 @@ function createTeamsService(db) {
         'SELECT m.user_id, m.role, COALESCE(p.display_name, u.email) AS member_name ' +
         'FROM memberships m JOIN users u ON u.id = m.user_id ' +
         'LEFT JOIN profiles p ON p.user_id = u.id AND p.deleted_at IS NULL ' +
-        "WHERE m.group_id = $1 AND m.deleted_at IS NULL AND u.deleted_at IS NULL AND m.role IN ('owner','admin','member') " +
+        'WHERE m.group_id = $1 AND m.deleted_at IS NULL AND u.deleted_at IS NULL ' +
         "ORDER BY CASE WHEN m.role IN ('owner','admin') THEN 0 ELSE 1 END, LOWER(COALESCE(p.display_name, u.email)), m.user_id FOR UPDATE OF m",
         [teamId]
       );
       const target = active.rows.find(member => member.user_id === targetId);
       if (!target) throw httpError(404, 'Team member not found.');
+      const lastMemberLeaves = active.rows.length === 1;
       const creatorLeaves = group.rows[0].owner_user_id === targetId || target.role === 'owner';
-      if (creatorLeaves) {
+      if (creatorLeaves && !lastMemberLeaves) {
         const successor = active.rows.find(member => member.user_id !== targetId);
-        if (!successor) throw httpError(409, 'The last team member cannot leave.');
         await client.query('UPDATE groups SET owner_user_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [successor.user_id, teamId]);
         await client.query("UPDATE memberships SET role = 'owner', updated_at = CURRENT_TIMESTAMP WHERE group_id = $1 AND user_id = $2", [teamId, successor.user_id]);
-      } else if (target.role === 'admin') {
+      } else if (target.role === 'admin' && !lastMemberLeaves) {
         const admins = active.rows.filter(member => member.role === 'owner' || member.role === 'admin');
         if (admins.length <= 1) throw httpError(409, 'Promote another admin before removing the last admin.');
       }
@@ -422,8 +483,9 @@ function createTeamsService(db) {
         'WHERE group_id = $1 AND user_id = $2',
         [teamId, targetId]
       );
+      if (lastMemberLeaves) await deleteTeamData(client, teamId);
       await client.query('COMMIT');
-      return { success: true };
+      return { success: true, teamDeleted: lastMemberLeaves };
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;
@@ -550,7 +612,7 @@ function createTeamsService(db) {
 
   return {
     listTeams, getTeam, createTeam, joinTeam, setSharedSchedule, renameTeam, regenerateCode,
-    changeMemberRole, removeMember, leaveTeam, listMemberPreferences,
+    changeMemberRole, removeMember, leaveTeam, deleteTeam, listMemberPreferences,
     createProposal, respondToProposal
   };
 }

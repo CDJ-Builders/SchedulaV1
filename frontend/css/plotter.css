@@ -474,6 +474,32 @@
   margin-bottom: 3px;
 }
 
+.event-block .event-day-label,
+.event-block .event-category,
+.event-block .event-location {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .62rem;
+}
+
+.event-block .event-day-label {
+  margin: 0 0 3px;
+  padding-right: 42px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.event-block .event-category {
+  font-weight: 800;
+}
+
+.event-block .event-location {
+  opacity: .82;
+}
+
 .event-block .prof-name {
   font-style: italic;
   font-size: .66rem;

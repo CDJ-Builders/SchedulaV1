@@ -12,8 +12,8 @@ The backend separates transport, security, and persistence into clear architectu
 flowchart TD
     Client[Browser / Frontend Client] -->|HTTP / JSON| Express[Express API db-server.js]
     Express --> Middleware[Middleware: auth, validation, rate limiting, error handler]
-    Middleware --> Routes[API Routers: auth, user, schedules, admin]
-    Routes --> Services[Services: authService, userService, scheduleService, adminService, recommendationService]
+    Middleware --> Routes[API Routers: auth, user, schedules, teams, admin]
+    Routes --> Services[Services: authService, userService, scheduleService, teamsService, adminService, recommendationService]
     Services --> DB[(PostgreSQL Database)]
     Services -->|Private Loopback HTTP / X-SchedulaML-Key| ML[SchedulaML Python Service /rank]
 ```
@@ -32,6 +32,7 @@ flowchart TD
   - `authService.js`: Registration, credential verification, JWT generation, refresh token rotation, and PIN-based password reset.
   - `userService.js`: User session, profile updates, account deletion cascades, preferences CRUD, and availability block CRUD.
   - `scheduleService.js`: Schedule container CRUD, weekly configuration validation, event CRUD, and GiST-indexed conflict detection.
+  - `teamsService.js` / `teamsServiceCore.js`: Team membership, shared schedules, preferences, proposals, role changes, and team lifecycle operations.
   - `recommendationService.js`: SchedulaML integration orchestrator; loads schedule configuration and preferences, builds 6-day x 15-slot occupancy grids, enforces constraints, queries `schedulaml` inference service, and returns ranked slot suggestions.
   - `adminService.js`: Administrative user management and global schedule deletion.
 
@@ -159,6 +160,15 @@ Requires authentication and platform role `platform_role === 'admin'`.
 | `DELETE` | `/api/admin/users/:id` | Soft deletes user account |
 | `GET` | `/api/admin/schedules` | Lists all schedules across users with event counts |
 | `DELETE` | `/api/admin/schedules/:id` | Soft deletes schedule by administrator |
+
+### 6. Team Lifecycle Routes (`/api/teams`)
+
+Team lifecycle routes require authentication. Only the current team creator (`groups.owner_user_id`) can delete a team. Deletion soft-deletes the group, memberships, invitations, and team share links; team events and proposals are removed. Schedules attached directly to the group are detached and remain with their owners. When a member leaves, creator ownership transfers to an active member if one remains; when the last member leaves, the same team cleanup runs for everyone.
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/teams/:teamId/leave` | Removes the current user's membership; leaving as the last member deletes the team for everyone |
+| `DELETE` | `/api/teams/:teamId` | Deletes the team for everyone; current creator only |
 
 ---
 

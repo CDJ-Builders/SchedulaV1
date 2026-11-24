@@ -4,8 +4,9 @@ document.addEventListener('DOMContentLoaded', async function () {
  var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
  var $ = function (id) { return document.getElementById(id); };
  var TEAMS = [], team = null, viewMode = 'team', selectedMember = null, personalSchedules = [];
- var ROW = 40, H0 = 7, H1 = 19, FROM = 8, TO = 18;
+ var FROM = 8, TO = 18;
  var memberSlider = $('member-slider');
+ var statusTimer = null, statusHideTimer = null;
 
  async function api(path, options) {
   options = options || {};
@@ -39,11 +40,19 @@ document.addEventListener('DOMContentLoaded', async function () {
  }
  function displayName(member) { return member.isSelf ? member.name + ' (You)' : member.name; }
  function showStatus(message, isError) {
-  $('msg').textContent = message || '';
-  $('live').textContent = message || '';
-  $('team-status').textContent = message || '';
-  $('team-status').hidden = !message;
-  $('team-status').classList.toggle('is-error', Boolean(isError));
+  var status = $('team-status');
+  if (statusTimer) window.clearTimeout(statusTimer);
+  if (statusHideTimer) window.clearTimeout(statusHideTimer);
+  status.textContent = message || '';
+  status.classList.toggle('is-error', Boolean(isError));
+  status.classList.toggle('is-visible', Boolean(message));
+  status.hidden = !message;
+  if (message) {
+   statusTimer = window.setTimeout(function () {
+    status.classList.remove('is-visible');
+    statusHideTimer = window.setTimeout(function () { status.hidden = true; }, 180);
+   }, isError ? 5000 : 2800);
+  }
  }
  async function loadTeams() {
   var result = await api('/teams');
@@ -60,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async function () {
  }
  function t(h) { var H = Math.floor(h), p = H >= 12 ? 'PM' : 'AM'; return (H % 12 || 12) + ':' + (h % 1 ? '30' : '00') + ' ' + p; }
  function rng(a, b) { return t(a) + ' – ' + t(b); }
- function asTime(h) { var whole = Math.floor(h), minutes = Math.round((h - whole) * 60); return String(whole).padStart(2, '0') + ':' + String(minutes).padStart(2, '0'); }
  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
  function escapePopup(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]; }); }
  function popupConfirm(message, title, confirmType) {
@@ -313,6 +321,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
  // Create and join use the authenticated Teams API.
  var dlg = $('dlg'), noTeamDialog = $('no-team-dialog'), joinDialog = $('team-join-dialog'), mode = 'create', pendingJoinCode = '';
+ var joinDialogMode = 'join', pendingShareTeamId = null;
  function showNoTeamDialog() {
   noTeamDialog.classList.remove('is-choice');
   $('close-new-team-dialog').hidden = true;
@@ -416,7 +425,68 @@ document.addEventListener('DOMContentLoaded', async function () {
    $('join-schedule-feedback').textContent = error.message;
   } finally { joinButton.disabled = false; }
  }
+ function configureJoinDialog(nextMode) {
+  joinDialogMode = nextMode;
+  var creating = nextMode === 'share';
+  $('team-join-title').textContent = 'Share a schedule?';
+  $('join-schedule-description').textContent = creating
+   ? 'Choose a schedule for the new team, or skip to keep it blank. You can share a schedule later.'
+   : 'Select a schedule to share with this team, or skip to start with a blank shared schedule.';
+  $('confirm-team-join').textContent = creating ? 'Share schedule' : 'Share & join';
+ }
+ async function prepareCreatedTeamShare(teamId) {
+  configureJoinDialog('share');
+  pendingShareTeamId = teamId;
+  var select = $('join-schedule-select');
+  var feedback = $('join-schedule-feedback');
+  var shareButton = $('confirm-team-join');
+  select.textContent = '';
+  select.onchange = function () { shareButton.disabled = !this.value; };
+  feedback.textContent = 'Loading your schedules…';
+  shareButton.disabled = true;
+  try {
+   var result = await api('/schedules');
+   var schedules = (Array.isArray(result) ? result : result.schedules || []).filter(function (schedule) { return !schedule.group_id; });
+   if (!schedules.length) {
+    feedback.textContent = 'No personal schedules available. Skip to start with a blank shared schedule.';
+   } else {
+    var prompt = el('option', '', 'Choose a schedule');
+    prompt.value = '';
+    prompt.disabled = true;
+    prompt.selected = true;
+    select.appendChild(prompt);
+    schedules.forEach(function (schedule) {
+     var option = el('option', '', schedule.title || 'Untitled schedule');
+     option.value = schedule.id;
+     select.appendChild(option);
+    });
+    feedback.textContent = '';
+   }
+  } catch (error) {
+   feedback.textContent = error.message + ' You can skip and share a schedule later.';
+  }
+  dlg.close();
+  joinDialog.showModal();
+ }
+ async function shareScheduleWithCreatedTeam(scheduleId) {
+  var shareButton = $('confirm-team-join');
+  shareButton.disabled = true;
+  $('join-schedule-feedback').textContent = 'Sharing schedule…';
+  try {
+   await api('/teams/' + encodeURIComponent(pendingShareTeamId) + '/shared-schedule', {
+    method:'PUT', body:JSON.stringify({ schedule_id:scheduleId })
+   });
+   joinDialog.close();
+   await refreshTeams(pendingShareTeamId);
+   pendingShareTeamId = null;
+   showStatus('Team created and schedule shared.');
+  } catch (error) {
+   $('join-schedule-feedback').textContent = error.message;
+  } finally { shareButton.disabled = false; }
+ }
  async function prepareJoin(code) {
+  configureJoinDialog('join');
+  pendingShareTeamId = null;
   pendingJoinCode = code.toUpperCase();
   var select = $('join-schedule-select');
   var feedback = $('join-schedule-feedback');
@@ -454,17 +524,30 @@ document.addEventListener('DOMContentLoaded', async function () {
    $('join-schedule-feedback').textContent = 'Choose a schedule or skip sharing.';
    return;
   }
-  submitJoin($('join-schedule-select').value);
+  if (joinDialogMode === 'share') shareScheduleWithCreatedTeam($('join-schedule-select').value);
+  else submitJoin($('join-schedule-select').value);
  };
- $('skip-team-join').onclick = function () { submitJoin(null); };
+ $('skip-team-join').onclick = function () {
+  if (joinDialogMode === 'share') {
+   joinDialog.close();
+   pendingShareTeamId = null;
+   showStatus('Team created.');
+  } else submitJoin(null);
+ };
  $('cancel-team-join').onclick = function () {
   joinDialog.close();
-  if (!TEAMS.length) showNoTeamDialog();
+  if (joinDialogMode === 'share') {
+   pendingShareTeamId = null;
+   showStatus('Team created. You can share a schedule later.');
+  } else if (!TEAMS.length) showNoTeamDialog();
  };
  joinDialog.addEventListener('cancel', function (event) {
   event.preventDefault();
   joinDialog.close();
-  if (!TEAMS.length) showNoTeamDialog();
+  if (joinDialogMode === 'share') {
+   pendingShareTeamId = null;
+   showStatus('Team created. You can share a schedule later.');
+  } else if (!TEAMS.length) showNoTeamDialog();
  });
  $('dok').onclick = async function () {
   var value = $('dv').value.trim();
@@ -478,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async function () {
    dlg.close();
    noTeamDialog.close();
    await refreshTeams(result.team && result.team.id);
-   showStatus('Team created.');
+   await prepareCreatedTeamShare(result.team.id);
   } catch (error) {
    $('dm').textContent = error.message;
   } finally { button.disabled = false; }
