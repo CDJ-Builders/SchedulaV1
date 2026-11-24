@@ -143,8 +143,10 @@ Migration files are ordered and separated from rollback files:
 4. `backend/sql/migrations/004_account_deletion_cascade.up.sql`: adds `ON DELETE CASCADE` to foreign keys on `groups`, `schedules`, `events`, and `invitations` for user lifecycle cleanup.
 5. `backend/sql/migrations/005_preferred_break.up.sql`: adds `preferred_break_minutes` (default 60, range 0-1440).
 6. `backend/sql/migrations/006_back_to_back_tolerance.up.sql`: constrains `max_back_to_back` between 0 and 6.
+7. `backend/sql/migrations/007_teams_features.up.sql`: adds invitation codes to the existing `groups` records and creates weekly team events, proposals, and proposal responses. Existing `memberships` remain the role and membership source.
+8. `backend/sql/migrations/008_teams_demo_seed.up.sql`: adds local demo members/team data, personal weekly contexts, and a sample pending proposal.
 
-Paired `.down.sql` files enable rollback in reverse dependency order (006 -> 001).
+Paired `.down.sql` files enable rollback in reverse dependency order (008 -> 001).
 
 The SQL container copies only `*.up.sql` files into PostgreSQL's initialization directory. Rollbacks remain available to operators without executing automatically during initialization. Existing databases require an intentional reset or a separately reviewed data migration; the old academic rows are not silently transformed.
 

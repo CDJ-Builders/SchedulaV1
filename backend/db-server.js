@@ -43,11 +43,13 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const scheduleRoutes = require('./routes/schedules');
+const teamRoutes = require('./routes/teams');
 const adminRoutes = require('./routes/admin');
 
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', scheduleRoutes);
+app.use('/api', teamRoutes);
 app.use('/api/admin', adminRoutes);
 
 // --- Static Assets Routing ---

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node db-server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "db:reset": "node scripts/db-reset.js"
   },
   "dependencies": {
     "compression": "^1.8.1",

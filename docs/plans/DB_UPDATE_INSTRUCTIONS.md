@@ -41,6 +41,8 @@ Get-Content .\backend\sql\migrations\003_preferences_rebuild.up.sql | psql
 Get-Content .\backend\sql\migrations\004_account_deletion_cascade.up.sql | psql
 Get-Content .\backend\sql\migrations\005_preferred_break.up.sql | psql
 Get-Content .\backend\sql\migrations\006_back_to_back_tolerance.up.sql | psql
+Get-Content .\backend\sql\migrations\007_teams_features.up.sql | psql
+Get-Content .\backend\sql\migrations\008_teams_demo_seed.up.sql | psql
 ```
 
 Apply migrations sequentially:
@@ -50,6 +52,8 @@ Apply migrations sequentially:
 - `004_account_deletion_cascade.up.sql`: Updates foreign key constraints on `groups`, `schedules`, `events`, and `invitations` with `ON DELETE CASCADE` for clean user account deletion.
 - `005_preferred_break.up.sql`: Adds `preferred_break_minutes` with a 60-minute default and constraint between 0 and 1440.
 - `006_back_to_back_tolerance.up.sql`: Constrains `max_back_to_back` to values between 0 and 6.
+- `007_teams_features.up.sql`: Adds group join codes and team event/proposal/response tables while reusing `groups` and `memberships`.
+- `008_teams_demo_seed.up.sql`: Adds local demo team accounts, weekly schedules, and a pending proposal.
 
 Verify the resulting tables and preference columns:
 
@@ -72,9 +76,9 @@ Remove-Item Env:PGPASSWORD
 2. Select the target database, then open **Query Tool**.
 3. Open and execute `backend/sql/migrations/001_schedula_schema.up.sql`.
 4. Confirm there are no errors, then execute `backend/sql/migrations/002_demo_seed.up.sql`.
-5. Sequentially execute `backend/sql/migrations/003_preferences_rebuild.up.sql`, `backend/sql/migrations/004_account_deletion_cascade.up.sql`, `backend/sql/migrations/005_preferred_break.up.sql`, and `backend/sql/migrations/006_back_to_back_tolerance.up.sql`.
+5. Sequentially execute `backend/sql/migrations/003_preferences_rebuild.up.sql` through `008_teams_demo_seed.up.sql`.
 6. Refresh **Schemas > public > Tables**.
-7. Confirm `users`, `profiles`, `preferences`, `schedules`, `events`, `availability_blocks`, `groups`, `memberships`, `schedule_shares`, `consolidated_views`, and `invitations` exist, and confirm `preferences.preferred_break_minutes` defaults to 60 and `max_back_to_back` is constrained to 0–6.
+7. Confirm `users`, `profiles`, `preferences`, `schedules`, `events`, `availability_blocks`, `groups`, `memberships`, `team_events`, `team_proposals`, `proposal_responses`, `schedule_shares`, `consolidated_views`, and `invitations` exist, and confirm `preferences.preferred_break_minutes` defaults to 60 and `max_back_to_back` is constrained to 0–6.
 8. Run the verification queries from the psql section.
 
 Execute the seed only after the schema migration succeeds. If the query tool reports that an extension cannot be created, connect as a database owner/superuser or ask the database administrator to enable `pgcrypto`, `citext`, and `btree_gist`.
@@ -84,6 +88,8 @@ Execute the seed only after the schema migration succeeds. If the query tool rep
 Rollback is intentionally manual and destructive for this starter-template replacement. Run the schema rollback only after taking a backup:
 
 ```powershell
+Get-Content .\backend\sql\migrations\008_teams_demo_seed.down.sql | psql
+Get-Content .\backend\sql\migrations\007_teams_features.down.sql | psql
 Get-Content .\backend\sql\migrations\006_back_to_back_tolerance.down.sql | psql
 Get-Content .\backend\sql\migrations\005_preferred_break.down.sql | psql
 Get-Content .\backend\sql\migrations\004_account_deletion_cascade.down.sql | psql
@@ -94,6 +100,10 @@ Get-Content .\backend\sql\migrations\001_schedula_schema.down.sql | psql
 
 The rollback removes the generic schema. It does not restore the removed academic tables or data. Restore those from a database backup if required.
 
+## Local development reset
+
+For a disposable loopback-only development database, run `npm run db:reset` from `backend/`. The script refuses production mode, non-loopback `DB_HOST` values, and a PostgreSQL server that does not report a loopback address. It drops and recreates the `public` schema and applies migrations 001–008 in one transaction. **This destroys every table and row in that database. Do not point it at a database containing data you need.** This task did not run the reset command.
+
 ## Application Configuration
 
-After the database is updated, configure the backend process with matching `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` values. Phase 2 must update the backend services before the application can use this UUID-based schema; the current legacy service queries intentionally do not match it yet.
+After the database is updated, configure the backend process with matching `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` values. The backend APIs use the UUID-based schema and authenticated user IDs.
