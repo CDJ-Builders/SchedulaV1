@@ -8,8 +8,8 @@ function hashToken(token) {
   return nodeCrypto.createHash('sha256').update(token).digest('hex');
 }
 
-function issueTokens(userId) {
-  const token = jwt.sign({ user_id: userId }, JWT_SECRET, { expiresIn: '15m' });
+function issueTokens(userId, sessionId) {
+  const token = jwt.sign({ user_id: userId, session_id: sessionId }, JWT_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign({ user_id: userId }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
   return { token, refreshToken };
 }
@@ -66,11 +66,12 @@ async function login(email, password) {
   }
 
   const user = result.rows[0];
-  const { token, refreshToken } = issueTokens(user.id);
+  const sessionId = nodeCrypto.randomUUID();
+  const { token, refreshToken } = issueTokens(user.id, sessionId);
   await pool.query(
-    `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-     VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '7 days')`,
-    [user.id, hashToken(refreshToken)]
+    `INSERT INTO refresh_tokens (user_id, session_id, token_hash, expires_at)
+     VALUES ($1, $2, $3, CURRENT_TIMESTAMP + INTERVAL '7 days')`,
+    [user.id, sessionId, hashToken(refreshToken)]
   );
   return {
     token,
@@ -91,9 +92,10 @@ async function refresh(refreshToken) {
   }
 
   const tokenResult = await pool.query(
-    `SELECT user_id FROM refresh_tokens
+    `SELECT user_id, session_id FROM refresh_tokens
       WHERE token_hash = $1 AND user_id = $2 AND revoked_at IS NULL
-        AND expires_at > CURRENT_TIMESTAMP AND deleted_at IS NULL`,
+        AND expires_at > CURRENT_TIMESTAMP AND deleted_at IS NULL
+        AND last_activity_at > CURRENT_TIMESTAMP - INTERVAL '30 minutes'`,
     [hashToken(refreshToken), decoded.user_id]
   );
   if (!tokenResult.rows.length) {
@@ -102,16 +104,23 @@ async function refresh(refreshToken) {
     throw error;
   }
 
-  const { token, refreshToken: newRefreshToken } = issueTokens(decoded.user_id);
+  const { token, refreshToken: newRefreshToken } = issueTokens(decoded.user_id, tokenResult.rows[0].session_id);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query('UPDATE refresh_tokens SET revoked_at = CURRENT_TIMESTAMP WHERE token_hash = $1', [hashToken(refreshToken)]);
-    await client.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-       VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '7 days')`,
-      [decoded.user_id, hashToken(newRefreshToken)]
+    const rotation = await client.query(
+      `UPDATE refresh_tokens SET token_hash = $2, revoked_at = NULL,
+              expires_at = CURRENT_TIMESTAMP + INTERVAL '7 days',
+              last_activity_at = CURRENT_TIMESTAMP
+        WHERE session_id = $1 AND token_hash = $3 AND revoked_at IS NULL
+          AND last_activity_at > CURRENT_TIMESTAMP - INTERVAL '30 minutes'`,
+      [tokenResult.rows[0].session_id, hashToken(newRefreshToken), hashToken(refreshToken)]
     );
+    if (!rotation.rowCount) {
+      const error = new Error('Refresh token already used');
+      error.status = 401;
+      throw error;
+    }
     await client.query('COMMIT');
     return { token, refreshToken: newRefreshToken };
   } catch (error) {

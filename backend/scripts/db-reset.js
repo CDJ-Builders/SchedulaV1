@@ -15,7 +15,8 @@ const MIGRATIONS = [
   '006_back_to_back_tolerance.up.sql',
   '007_teams_features.up.sql',
   '008_teams_demo_seed.up.sql',
-  '009_team_proposal_description.up.sql'
+  '009_team_proposal_description.up.sql',
+  '010_session_idle_timeout.up.sql'
 ];
 
 function assertLocalDevelopmentTarget() {
@@ -74,7 +75,7 @@ async function main() {
       await client.query(withoutTransactionWrapper(sql));
     }
     await client.query('COMMIT');
-    console.log('Local development database reset complete. Applied 9 ordered migrations.');
+    console.log('Local development database reset complete. Applied 10 ordered migrations.');
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch {}
     console.error('Database reset failed: ' + error.message);

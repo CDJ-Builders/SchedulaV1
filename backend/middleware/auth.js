@@ -15,8 +15,23 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(401).json({ error: 'Invalid or expired token' });
-    req.user = user;
-    next();
+    if (!user.session_id) return res.status(401).json({ error: 'Session expired' });
+
+    // Touch the specific login session on every authenticated API request.
+    // The conditional update makes the 30-minute timeout authoritative even
+    // when two requests race at the edge of the inactivity window.
+    pool.query(
+      `UPDATE refresh_tokens
+          SET last_activity_at = CURRENT_TIMESTAMP
+        WHERE session_id = $1 AND user_id = $2 AND revoked_at IS NULL
+          AND deleted_at IS NULL AND expires_at > CURRENT_TIMESTAMP
+          AND last_activity_at > CURRENT_TIMESTAMP - INTERVAL '30 minutes'`,
+      [user.session_id, user.user_id]
+    ).then(result => {
+      if (!result.rowCount) return res.status(401).json({ error: 'Session expired' });
+      req.user = user;
+      next();
+    }).catch(() => res.status(500).json({ error: 'Unable to verify session' }));
   });
 };
 

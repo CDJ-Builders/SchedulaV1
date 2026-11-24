@@ -7,7 +7,8 @@
     "start": "node db-server.js",
     "test": "node --test",
     "db:reset": "node scripts/db-reset.js",
-    "db:migrate:team-proposal-description": "node scripts/apply-team-proposal-description.js"
+    "db:migrate:team-proposal-description": "node scripts/apply-team-proposal-description.js",
+    "db:migrate:session-idle-timeout": "node scripts/apply-session-idle-timeout.js"
   },
   "dependencies": {
     "compression": "^1.8.1",
