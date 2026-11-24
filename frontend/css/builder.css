@@ -425,6 +425,40 @@
   line-height: 1.25;
 }
 
+.events-list .event-day-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  margin: 8px 2px 0;
+  padding: 7px 12px;
+  border: 1px solid rgba(74, 29, 109, .38);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fff 0%, #f2e8f8 46%, #dfcdea 100%);
+  color: #4a1d6d;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255,255,255,.95);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(98,41,138,.14),
+    0 2px 0 #b596c8, 0 4px 0 #7a4a99, 0 7px 10px rgba(42,18,69,.12);
+  overflow: hidden;
+  animation: none;
+}
+
+.events-list .event-day-heading::before {
+  width: 6px;
+  height: 6px;
+  margin-right: 9px;
+  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 50%;
+  background: #62298a;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.35), 0 1px 0 rgba(42,18,69,.28);
+  content: "";
+}
+
 .events-list p,
 .events-list small,
 .events-list span {

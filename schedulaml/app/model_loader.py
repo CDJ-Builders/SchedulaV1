@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+from importlib.metadata import PackageNotFoundError, version as package_version
 import json
 import os
 import sys
@@ -14,6 +15,35 @@ REQUIRED_ARTIFACTS = {
     "config.json", "feature_schema.json", "features.py", "golden_fixtures.json",
     "l1_models.joblib", "l2_models.joblib", "metrics.json", "predict_layered.py",
 }
+SUPPORTED_PYTHON = (3, 13)
+SUPPORTED_MODEL_PACKAGES = {
+    "scikit-learn": "1.6.1",
+    "lightgbm": "4.6.0",
+}
+
+
+def verify_runtime() -> None:
+    current_python = sys.version_info[:2]
+    if current_python != SUPPORTED_PYTHON:
+        expected = ".".join(map(str, SUPPORTED_PYTHON))
+        current = ".".join(map(str, current_python))
+        raise RuntimeError(
+            f"SchedulaML artifact 1.1.0 requires Python {expected}; this service is running Python {current}. "
+            "Create a fresh virtual environment with `py -3.13 -m venv .venv` and reinstall schedulaml/requirements.txt."
+        )
+
+    for package, expected in SUPPORTED_MODEL_PACKAGES.items():
+        try:
+            actual = package_version(package)
+        except PackageNotFoundError as error:
+            raise RuntimeError(
+                f"SchedulaML requires {package}=={expected}; install schedulaml/requirements.txt in the active virtual environment."
+            ) from error
+        if actual != expected:
+            raise RuntimeError(
+                f"SchedulaML artifact 1.1.0 requires {package}=={expected}; found {actual}. "
+                "Reinstall schedulaml/requirements.txt in a fresh Python 3.13 virtual environment."
+            )
 
 
 def artifact_dir() -> Path:
@@ -61,6 +91,7 @@ def _artifact_import_context(directory: Path) -> Iterator[None]:
 
 
 def load_models() -> tuple[ModuleType, ModuleType, dict, dict]:
+    verify_runtime()
     directory = artifact_dir().resolve()
     manifest = verify_manifest(directory)
     config = json.loads((directory / "config.json").read_text(encoding="utf-8"))

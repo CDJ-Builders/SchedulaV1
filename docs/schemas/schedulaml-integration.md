@@ -39,6 +39,8 @@ The browser never sends schedule context to the recommendation API; Express read
 
 The request allows no schedule, preference, identity, title, or description data. Duration must be a whole hour from 60 to 900. Modality is `onsite` or `online`; type is `project`, `event`, or `meeting`; limit is 1–20.
 
+Team proposals use `POST /api/teams/:teamId/recommendations` with the same meeting and limit body. Express verifies active team membership and builds occupancy from weekly schedules explicitly shared with that team plus confirmed team blocks. It loads preferences only for the proposing user. Unshared schedules are excluded and noted in warnings; upcoming dated events in shared schedules stop the weekly recommendation request with a safe `503`.
+
 ### Express to Python
 
 Express sends `context.occupancy`, `context.preferences`, `context.warnings`, `meeting`, and `limit` to `POST /rank`. The six-day grid has 15 hourly `ON`/`OL`/`OF` cells per day, Monday through Saturday. All blocks in the canonical weekly schedule count as classes. Dated events and active dated busy availability cannot be represented by the weekly model and stop the request with a safe `503`. Only onsite and online occupancy are supported; hybrid weekly blocks are rejected. See [schedulaml-feature-contract.md](schedulaml-feature-contract.md) for the source-field mapping.

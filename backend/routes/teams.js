@@ -1,6 +1,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const teamsService = require('../services/teamsService');
+const recommendationService = require('../services/recommendationService');
 const asyncHandler = require('../utils/asyncHandler');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -12,6 +13,13 @@ const joinLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { error: 'Too many team-code attempts. Try again later.' }
+});
+const teamRecommendationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many recommendation requests. Please try again later.' }
 });
 
 router.use(authenticateToken);
@@ -47,6 +55,10 @@ router.get('/teams/:teamId', asyncHandler(async (req, res) => {
 
 router.get('/teams/:teamId/week', asyncHandler(async (req, res) => {
   res.json({ week: await teamsService.getTeam(req.params.teamId, req.user.user_id) });
+}));
+
+router.post('/teams/:teamId/recommendations', teamRecommendationLimiter, asyncHandler(async (req, res) => {
+  res.json(await recommendationService.recommendForTeam(req.user.user_id, req.params.teamId, req.body));
 }));
 
 router.put('/teams/:teamId/shared-schedule', asyncHandler(async (req, res) => {

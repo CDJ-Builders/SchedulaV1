@@ -149,7 +149,7 @@ User-level availability windows for free/busy detection.
 | `groups` | Team containers for shared schedules | `owner_user_id UUID FK users(id) ON DELETE CASCADE`, `name TEXT NOT NULL`, `description TEXT`, `group_code TEXT UNIQUE NOT NULL` (migration 007) |
 | `memberships` | User-to-group role bindings | `group_id UUID FK groups(id) ON DELETE CASCADE`, `user_id UUID FK users(id) ON DELETE CASCADE`, `role TEXT CHECK ('owner','admin','member','viewer')`, UNIQUE `(group_id, user_id)` |
 | `team_events` | Recurring weekly events visible to active team members | `group_id UUID FK groups(id) ON DELETE CASCADE`, `created_by_user_id UUID FK users(id)`, weekday/time range, `modality CHECK ('onsite','online')` |
-| `team_proposals` | Weekly team events awaiting member responses | group/proposer FKs, weekday/time range, online/onsite modality, pending/declined/confirmed status, optional converted-event FK |
+| `team_proposals` | Weekly team events awaiting member responses | group/proposer FKs, title/description, weekday/time range, online/onsite modality, pending/declined/confirmed status, optional converted-event FK |
 | `proposal_responses` | One accept/decline response per member and proposal | proposal/user FKs, `response CHECK ('accept','decline')`, UNIQUE `(proposal_id,user_id)` |
 | `schedule_shares` | Explicit schedule sharing permissions | `schedule_id UUID FK schedules(id) ON DELETE CASCADE`, `shared_with_user_id UUID`, `shared_with_group_id UUID`, `permission TEXT CHECK ('read','write','share')`, CHECK `((shared_with_user_id IS NULL) <> (shared_with_group_id IS NULL))` |
 | `consolidated_views` | Merged calendar view configurations across members | `owner_user_id UUID FK users(id) ON DELETE CASCADE`, `name TEXT`, `configuration JSONB` |
@@ -171,7 +171,8 @@ The database schema is evolved via ordered SQL migration scripts located in `bac
             └── 005_preferred_break.up.sql
                 └── 006_back_to_back_tolerance.up.sql
                     └── 007_teams_features.up.sql
-                        └── 008_teams_demo_seed.up.sql
+                    └── 008_teams_demo_seed.up.sql
+                        └── 009_team_proposal_description.up.sql
 ```
 
 1. **`001_schedula_schema.up.sql`**: Initializes PostgreSQL extensions (`pgcrypto`, `citext`, `btree_gist`), sets up the `set_updated_at()` trigger function, creates all base tables, defines GiST indexes on range columns, and attaches `BEFORE UPDATE` timestamp triggers.
@@ -182,6 +183,7 @@ The database schema is evolved via ordered SQL migration scripts located in `bac
 6. **`006_back_to_back_tolerance.up.sql`**: Replaces the unbounded `max_back_to_back >= 0` check with `CHECK (max_back_to_back BETWEEN 0 AND 6)` to match the SchedulaML 0–6 scale.
 7. **`007_teams_features.up.sql`**: Adds unique team-join codes to existing groups and creates `team_events`, `team_proposals`, and `proposal_responses`. Existing `groups` and `memberships` remain the team and membership records.
 8. **`008_teams_demo_seed.up.sql`**: Adds local demo team members, a second team, personal weekly schedules, and a pending proposal for a clean local reset.
+9. **`009_team_proposal_description.up.sql`**: Adds an optional description to weekly team proposals so the proposal form matches the weekly block form and preserves details when accepted.
 
 ### Rollback Strategy
 Each migration is accompanied by a matching `.down.sql` script that performs targeted teardown in reverse numerical order (`006` -> `001`).

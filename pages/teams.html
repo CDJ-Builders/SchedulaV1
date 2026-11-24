@@ -95,12 +95,15 @@
                                 schedule</button>
                         </div>
                     </div>
-                    <button class="propose-button" type="button" id="prop">Propose</button>
+                    <div class="team-proposal-actions">
+                        <section class="team-proposal-review" id="team-proposal-review" aria-label="Proposal review"
+                            hidden>
+                            <strong id="team-proposal-review-count">0 Proposals to Review</strong>
+                            <button class="key sm lav" type="button" id="team-proposal-review-open">Review</button>
+                        </section>
+                        <button class="propose-button" type="button" id="prop">Propose</button>
+                    </div>
                 </div>
-                <section class="team-proposals" id="team-proposals" aria-labelledby="team-proposals-heading" hidden>
-                    <h2 id="team-proposals-heading">Meeting proposals</h2>
-                    <div id="team-proposals-list"></div>
-                </section>
             </section>
         </main>
     </div>
@@ -119,24 +122,191 @@
         <div class="preferences-list" id="member-preferences-list"></div>
     </dialog>
 
+    <dialog class="team-dialog team-proposal-review-dialog" id="team-proposal-review-dialog"
+        aria-labelledby="team-proposal-review-title">
+        <div class="team-proposal-review-content">
+            <header class="team-proposal-review-header">
+                <div>
+                    <h2 id="team-proposal-review-title">Review Proposals</h2>
+                    <p>Accept a proposal to add it to your shared schedule</p>
+                </div>
+                <button class="preferences-close" type="button" id="team-proposal-review-close"
+                    aria-label="Close proposal review">×</button>
+            </header>
+            <div class="team-proposal-review-list" id="team-proposal-review-list"></div>
+            <p class="team-proposal-review-status" id="team-proposal-review-status" role="status" aria-live="polite"
+                hidden></p>
+        </div>
+    </dialog>
+
     <dialog class="no-team-dialog" id="no-team-dialog" aria-labelledby="no-team-title">
         <div class="no-team-heading">
+            <span class="no-team-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" focusable="false">
+                    <rect x="4" y="5" width="24" height="22" rx="7"></rect>
+                    <circle cx="12" cy="14" r="3"></circle>
+                    <circle cx="21" cy="14" r="3"></circle>
+                    <path d="M8.5 22c.7-2 2-3 3.5-3s2.8 1 3.5 3M17 22c.6-1.7 1.8-2.6 3.5-2.6 1.4 0 2.5.8 3.1 2.6"></path>
+                </svg>
+            </span>
             <h1 id="no-team-title">No Team Yet</h1>
             <button class="preferences-close new-team-choice-close" type="button" id="close-new-team-dialog"
                 aria-label="Close new team choices" hidden>×</button>
         </div>
         <div class="no-team-actions">
             <button class="no-team-action" type="button" id="join-team-from-empty">
+                <svg class="no-team-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="9" cy="8" r="3"></circle>
+                    <path d="M3.5 19c.4-3.2 2.3-5 5.5-5s5.1 1.8 5.5 5M18 8v7M14.5 11.5h7"></path>
+                </svg>
                 <span>Join</span>
             </button>
-            <button class="no-team-action" type="button" id="create-team-from-empty">Create</button>
+            <button class="no-team-action" type="button" id="create-team-from-empty">
+                <svg class="no-team-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M4 20v-1.5c0-3.1 2.5-5.5 5.5-5.5h2M6.5 6.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0Z"></path>
+                    <circle cx="17.5" cy="16.5" r="4.5"></circle>
+                    <path d="M17.5 14.3v4.4M15.3 16.5h4.4"></path>
+                </svg>
+                <span>Create</span>
+            </button>
+        </div>
+    </dialog>
+
+    <dialog class="team-dialog team-proposal-dialog" id="team-proposal-dialog" aria-labelledby="team-proposal-title">
+        <div class="team-proposal-dialog-content">
+            <header class="team-proposal-dialog-header">
+                <div>
+                    <h2 id="team-proposal-title">Propose Weekly Block</h2>
+                    <p>Suggest a recurring block for your team to review.</p>
+                </div>
+                <button class="preferences-close" type="button" id="team-proposal-close"
+                    aria-label="Cancel proposal">×</button>
+            </header>
+            <form id="team-proposal-form" novalidate>
+                <section class="team-proposal-form-panel card" aria-label="Weekly block details">
+                    <div class="team-proposal-form-grid">
+                        <label class="field team-proposal-title-field" for="proposal-title">
+                            <span>Title</span><input id="proposal-title" type="text" maxlength="100" required
+                                placeholder="Enter a title">
+                        </label>
+                        <label class="field" for="proposal-weekday">
+                            <span>Weekday</span>
+                            <select id="proposal-weekday" required>
+                                <option value="">Select a weekday</option>
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                            </select>
+                        </label>
+                        <label class="field" for="proposal-modality">
+                            <span>Modality</span>
+                            <select id="proposal-modality" required>
+                                <option value="">Select a modality</option>
+                                <option value="onsite">Onsite</option>
+                                <option value="online">Online</option>
+                            </select>
+                        </label>
+                        <label class="field" for="proposal-start">
+                            <span>Start time</span><input id="proposal-start" type="time" required>
+                        </label>
+                        <label class="field" for="proposal-end">
+                            <span>End time</span><input id="proposal-end" type="time" required>
+                        </label>
+                        <button id="team-smart-schedule-open" class="key sm success team-smart-schedule-open"
+                            type="button" aria-haspopup="dialog" aria-controls="team-smart-schedule-dialog">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="16" rx="3" />
+                                <path d="M9 4v16M15 4v16M3 12h18" />
+                            </svg>Smart Schedule
+                        </button>
+                        <label class="field team-proposal-description-field" for="proposal-description">
+                            <span>Description</span><textarea id="proposal-description" rows="4"
+                                maxlength="1000"></textarea>
+                        </label>
+                    </div>
+                    <p class="team-proposal-status" id="team-proposal-status" role="status" aria-live="polite" hidden>
+                    </p>
+                    <div class="team-proposal-form-actions">
+                        <button class="key sm" id="team-proposal-cancel" type="button">Cancel</button>
+                        <button class="key sm lav" id="team-proposal-submit" type="submit">Propose</button>
+                    </div>
+                </section>
+            </form>
+        </div>
+    </dialog>
+
+    <dialog class="team-dialog team-smart-schedule-dialog" id="team-smart-schedule-dialog"
+        aria-labelledby="team-smart-schedule-title" aria-describedby="team-smart-schedule-status">
+        <div class="team-smart-schedule-content">
+            <header class="team-smart-schedule-header">
+                <div>
+                    <p class="team-smart-schedule-eyebrow">Team availability</p>
+                    <h2 id="team-smart-schedule-title">Smart Schedule</h2>
+                    <p>Recommendations use schedules shared with this team and your preferences.</p>
+                </div>
+                <button class="preferences-close" type="button" id="team-smart-schedule-back"
+                    aria-label="Back to proposal">×</button>
+            </header>
+            <div class="team-smart-schedule-controls">
+                <label class="field team-smart-schedule-title-field" for="team-smart-title">
+                    <span>Title</span><input id="team-smart-title" type="text" maxlength="100" required>
+                </label>
+                <label class="field" for="team-smart-modality">
+                    <span>Modality</span>
+                    <select id="team-smart-modality" required>
+                        <option value="">Choose</option>
+                        <option value="onsite">Onsite</option>
+                        <option value="online">Online</option>
+                    </select>
+                </label>
+                <label class="field" for="team-smart-duration">
+                    <span>Duration</span>
+                    <select id="team-smart-duration">
+                        <option value="1">1 hour</option>
+                        <option value="2">2 hours</option>
+                        <option value="3">3 hours</option>
+                    </select>
+                </label>
+                <label class="field" for="team-smart-type">
+                    <span>Type</span>
+                    <select id="team-smart-type" required>
+                        <option value="">Choose</option>
+                        <option value="project">Project</option>
+                        <option value="event">Event</option>
+                        <option value="meeting">Meeting</option>
+                    </select>
+                </label>
+                <button class="key sm lav" id="team-smart-schedule-generate" type="button">Show the Best Slots</button>
+            </div>
+            <p class="team-smart-schedule-status" id="team-smart-schedule-status" role="status" aria-live="polite"
+                aria-atomic="true">
+                Enter a title, modality, duration, and type to find ranked times.
+            </p>
+            <section class="team-smart-schedule-results" aria-label="Smart Schedule recommendations">
+                <div class="team-smart-schedule-model" id="team-smart-schedule-model" hidden>
+                    <strong id="team-smart-schedule-model-name"></strong>
+                </div>
+                <ol class="team-smart-schedule-options" id="team-smart-schedule-options"></ol>
+                <p class="team-smart-schedule-warnings" id="team-smart-schedule-warnings" hidden></p>
+            </section>
+            <footer class="team-smart-schedule-footer">
+                <div>
+                    <button class="key sm" type="button" id="team-smart-schedule-cancel">Cancel Proposal</button>
+                    <button class="key sm lav" type="button" id="team-smart-schedule-back-footer">Return</button>
+                </div>
+            </footer>
         </div>
     </dialog>
 
 
     <dialog class="team-dialog team-join-dialog" id="team-join-dialog" aria-labelledby="team-join-title">
         <h2 id="team-join-title">Share a schedule?</h2>
-        <p id="join-schedule-description">Select a schedule to share with this team, or skip to start with a blank shared schedule.</p>
+        <p id="join-schedule-description">Select a schedule to share with this team, or skip to start with a blank
+            shared schedule.</p>
         <label class="team-dialog-label" for="join-schedule-select">Schedule</label>
         <select id="join-schedule-select"></select>
         <p class="team-dialog-feedback" id="join-schedule-feedback" aria-live="polite"></p>
@@ -162,6 +332,7 @@
     <script src="../frontend/scripts/auth.js"></script>
     <script src="../frontend/scripts/teamPreferences.js"></script>
     <script src="../frontend/scripts/teams.js"></script>
+    <script src="../frontend/scripts/teamProposals.js"></script>
 </body>
 
 </html>

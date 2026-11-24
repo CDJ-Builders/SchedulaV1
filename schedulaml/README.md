@@ -18,6 +18,8 @@ $env:SCHEDULAML_SCORER = 'lgb'
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
+Do not create this environment with the unqualified `python -m venv` command if `python` resolves to Python 3.14. The model pickle references scikit-learn's private `_loss` classes; Python 3.14 or a different scikit-learn build can fail during startup with `ModuleNotFoundError: No module named '_loss'`. Recreate the environment explicitly with `py -3.13 -m venv .venv`, then reinstall the pinned requirements. The service checks the Python, scikit-learn, and LightGBM versions before loading model files and reports a setup error if they do not match.
+
 This service binds only to loopback. Run Express separately and set its private service URL to `http://127.0.0.1:8001`.
 
 ## Endpoints

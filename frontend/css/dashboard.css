@@ -43,56 +43,44 @@ h1 span {
 /* ─── Tool Panel ─────────────────────────────────────────────── */
 .days {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  padding: 12px;
-  border-radius: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+  border-radius: 22px;
   background: #fff;
   border: 2px solid #fff;
-  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .1), 0 6px 0 var(--purple), 0 14px 20px rgba(42, 18, 69, .26);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(42, 18, 69, .1), 0 5px 0 var(--purple), 0 12px 20px rgba(42, 18, 69, .18);
 }
 
 .day h2 {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: .84rem;
+  font-weight: 800;
   margin: 0;
-  padding: 2px 10px 10px;
+  padding: 2px 8px 11px;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: .1em;
+  letter-spacing: .08em;
 }
+.home-schedule-table .day { min-width:0; }
 
 .day .well {
   height: calc(var(--row) * var(--rows));
-  background: #b596c8;
-  border: 1px solid #fff;
+  background: #f7f4fa;
+  border: 1px solid rgba(42,18,69,.12);
 }
 
-.day:first-child .well {
-  border-radius: 16px 0 0 16px;
-  border-right: 0;
-}
-
-.day:last-child .well {
-  border-radius: 0 16px 16px 0;
-  border-left: 2px solid #fff;
+.home-schedule-table .day .well {
+  border-radius:14px;
+  overflow:hidden;
 }
 
 .day .lane {
   position: relative;
   height: 100%;
-  border-radius: inherit;
-  padding: 0;
-}
-
-.day:first-child .lane {
-  border-radius: 16px 0 0 16px;
-  border-right: 0;
-}
-
-.day:last-child .lane {
-  border-radius: 0 16px 16px 0;
-  box-shadow: inset 0 3px 7px rgba(42, 18, 69, .5), inset 0 -1px 0 rgba(255, 255, 255, .45), inset 2px 0 0 rgba(255, 255, 255, .35);
+  border-radius:inherit;
+  padding:0;
+  background:linear-gradient(to bottom,rgba(98,41,138,.09) 1px,transparent 1px) 0 0/100% var(--row);
+  box-shadow:inset 0 1px 3px rgba(42,18,69,.07);
 }
 
 /* ─── Glass Tool Cards ───────────────────────────────────────── */
@@ -120,6 +108,46 @@ h1 span {
   animation: drop .6s cubic-bezier(.2, .9, .3, 1.15) backwards;
   animation-delay: calc(var(--i) * 90ms + 150ms);
 }
+
+.home-tool-panel {
+  top:calc(var(--row) * var(--panel-top));
+  cursor: default;
+  user-select: none;
+  touch-action: pan-x;
+  height:calc(var(--row) * var(--panel-hours) - 4px);
+  padding:12px 13px;
+  border-radius:12px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(98,41,138,.2);
+  box-shadow:0 5px 12px rgba(42,18,69,.13),inset 0 1px 0 rgba(255,255,255,.96);
+  transition: top .3s cubic-bezier(.2,.8,.25,1),left .3s cubic-bezier(.2,.8,.25,1),
+    box-shadow .15s,transform .15s;
+}
+
+.home-tool-panel:focus-visible { outline:3px solid var(--plum); outline-offset:3px; }
+.home-tool-panel.drag {
+  z-index:5;
+  transform:translateY(-4px) scale(1.015);
+  box-shadow:0 22px 40px rgba(42,18,69,.38),inset 0 1px 0 rgba(255,255,255,.98);
+  transition:box-shadow .15s,transform .15s;
+}
+.home-tool-panel.clash {
+  border-color:#c2255c;
+  box-shadow:0 0 0 2px rgba(194,37,92,.52),0 12px 28px rgba(42,18,69,.28),inset 0 1px 0 rgba(255,255,255,.95);
+}
+.tool-grip {
+  position:absolute;top:8px;right:8px;width:20px;height:20px;z-index:2;
+  border:1px solid rgba(42,18,69,.16);border-radius:6px;
+  background:radial-gradient(circle,#4a1d6d 1.2px,transparent 1.4px) center/6px 6px,
+    rgba(245,240,249,.9);
+  cursor:grab;touch-action:none;
+}
+.tool-grip:active { cursor:grabbing; }
+.home-tool-panel .head { padding-right:24px;gap:9px; }
+.home-tool-panel .tm { width:max-content; max-width:100%; }
+.home-teams-cta { background:linear-gradient(180deg,#4a1d6d,#32134d);border-color:#26103b;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 4px 0 #211032,0 8px 12px rgba(42,18,69,.18); }
+.home-teams-cta:hover:not(:disabled) { background:linear-gradient(180deg,#5b287f,#3b1958); }
+.home-teams-cta:active:not(:disabled) { color:#fff;box-shadow:inset 0 2px 5px rgba(0,0,0,.28),0 1px 0 #211032; }
 
 .tool:hover {
   translate: 0 -4px;
@@ -160,20 +188,20 @@ h1 span {
 }
 
 .tool b {
-  font-size: 17px;
+  font-size: 1rem;
   line-height: 1.2;
 }
 
 .tool .sb {
-  font-size: 14px;
+  font-size: .82rem;
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .tool .tm {
   margin-top: auto;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: .76rem;
+  font-weight: 800;
 }
 
 .tool:hover .tm {
@@ -192,14 +220,12 @@ h1 span {
 }
 
 @media (max-width: 720px) {
-  :root { --row: 48px; --rows: 5; }
+  :root { --row: 48px; --rows: 7; }
   .page { padding: 20px 18px 40px; }
   .tools { justify-content: flex-start; }
   .days { grid-template-columns: 1fr; }
-  .day:first-child .well { border-radius: 16px 16px 0 0; border-right: 1px solid #fff; border-bottom: 0; }
-  .day:last-child .well { border-radius: 0 0 16px 16px; border-left: 1px solid #fff; border-top: 2px solid #fff; }
-  .day:first-child .lane { border-radius: inherit; border-right: 0; }
-  .day:last-child .lane { border-radius: inherit; box-shadow: inset 0 3px 7px rgba(42, 18, 69, .28), inset 0 0 0 1px rgba(255, 255, 255, .55); }
+  .home-schedule-table { gap:12px; }
+  .home-schedule-table .day .well { border-radius:12px; }
 }
 
 @media (max-width: 520px) {

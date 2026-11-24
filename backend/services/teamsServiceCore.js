@@ -146,11 +146,11 @@ function createTeamsService(db) {
       const key = shortDay(event.weekday);
       const start = timeToHour(event.start_time);
       const end = timeToHour(event.end_time);
-      if (key && start !== null && end !== null) events[key].push([start, end, event.title]);
+      if (key && start !== null && end !== null) events[key].push([start, end, event.title, event.description || '']);
     });
 
     const proposalRows = await db.query(
-      'SELECT p.id, p.proposed_by_user_id, p.title, p.weekday, p.start_time::text, p.end_time::text, ' +
+      'SELECT p.id, p.proposed_by_user_id, p.title, p.description, p.weekday, p.start_time::text, p.end_time::text, ' +
       'p.modality, p.status, p.converted_event_id, p.created_at, mine.response AS current_user_response, ' +
       'COUNT(r.id)::int AS response_count ' +
       'FROM team_proposals p ' +
@@ -181,6 +181,7 @@ function createTeamsService(db) {
       proposals: proposalRows.rows.map(row => ({
         id: row.id,
         title: row.title,
+        description: row.description || '',
         weekday: row.weekday,
         start_time: row.start_time.slice(0, 5),
         end_time: row.end_time.slice(0, 5),
@@ -535,25 +536,95 @@ function createTeamsService(db) {
 
   function validateProposal(input) {
     const title = validText(input.title || 'Team meeting', 'Title', 100);
+    const description = typeof input.description === 'string' ? input.description.trim() : '';
+    if (description.length > 1000) throw httpError(400, 'Description must be 1000 characters or fewer.');
     if (!DAYS.includes(input.weekday)) throw httpError(400, 'Weekday must be a day from Monday to Sunday.');
     const start = normalizeTime(input.start_time, 'start_time');
     const end = normalizeTime(input.end_time, 'end_time');
     if (minutes(end) <= minutes(start)) throw httpError(400, 'end_time must be later than start_time.');
     if (!['onsite', 'online'].includes(input.modality)) throw httpError(400, 'Modality must be onsite or online.');
-    return { title, weekday: input.weekday, start, end, modality: input.modality };
+    return { title, description, weekday: input.weekday, start, end, modality: input.modality };
+  }
+
+  async function addProposalToSharedSchedule(client, teamId, userId, teamName, proposal) {
+    const sharedSchedule = await client.query(
+      'SELECT s.id, COALESCE(sc.context, \'[]\'::jsonb) AS configuration ' +
+      'FROM schedule_shares sh JOIN schedules s ON s.id = sh.schedule_id ' +
+      'LEFT JOIN schedule_context sc ON sc.schedule_id = s.id AND sc.deleted_at IS NULL ' +
+      "WHERE sh.shared_with_group_id = $1 AND sh.shared_with_user_id IS NULL AND sh.deleted_at IS NULL AND sh.permission = 'read' " +
+      'AND s.owner_user_id = $2 AND s.group_id IS NULL AND s.deleted_at IS NULL ' +
+      'ORDER BY sh.updated_at DESC LIMIT 1 FOR UPDATE OF s',
+      [teamId, userId]
+    );
+    if (!sharedSchedule.rows.length) {
+      throw httpError(409, 'Share a personal schedule with this team before creating or accepting a proposal.');
+    }
+    const schedule = sharedSchedule.rows[0];
+    let configuration = schedule.configuration;
+    if (typeof configuration === 'string') {
+      try { configuration = JSON.parse(configuration); } catch { configuration = null; }
+    }
+    if (!Array.isArray(configuration)) throw httpError(503, 'Your shared schedule configuration could not be read.');
+    const startTime = proposal.start || proposal.start_time.slice(0, 5);
+    const endTime = proposal.end || proposal.end_time.slice(0, 5);
+    const alreadySaved = configuration.some(block => block &&
+      block.title === proposal.title &&
+      Array.isArray(block.weekdays) && block.weekdays.includes(proposal.weekday) &&
+      typeof block.start_time === 'string' && block.start_time.slice(0, 5) === startTime &&
+      typeof block.end_time === 'string' && block.end_time.slice(0, 5) === endTime &&
+      block.modality === proposal.modality
+    );
+    if (!alreadySaved) configuration.push({
+      title: proposal.title,
+      description: proposal.description || 'Team Scheduled at ' + teamName,
+      weekdays: [proposal.weekday],
+      start_time: startTime,
+      end_time: endTime,
+      modality: proposal.modality
+    });
+    await client.query(
+      'INSERT INTO schedule_context (schedule_id, context) VALUES ($1, $2::jsonb) ' +
+      'ON CONFLICT (schedule_id) DO UPDATE SET context = EXCLUDED.context, updated_at = CURRENT_TIMESTAMP, deleted_at = NULL',
+      [schedule.id, JSON.stringify(configuration)]
+    );
+    return schedule.id;
   }
 
   async function createProposal(teamId, userId, input) {
-    await getMembership(teamId, userId);
     const proposal = validateProposal(input);
-    const result = await db.query(
-      'INSERT INTO team_proposals (group_id, proposed_by_user_id, title, weekday, start_time, end_time, modality) ' +
-      'VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
-      [teamId, userId, proposal.title, proposal.weekday, proposal.start, proposal.end, proposal.modality]
-    );
-    return getTeam(teamId, userId).then(team => ({
-      proposal: team.proposals.find(item => item.id === result.rows[0].id)
-    }));
+    const client = await db.connect();
+    let proposalId;
+    try {
+      await client.query('BEGIN');
+      const membership = await getMembership(teamId, userId, client);
+      const result = await client.query(
+        'INSERT INTO team_proposals (group_id, proposed_by_user_id, title, description, weekday, start_time, end_time, modality) ' +
+        'VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+        [teamId, userId, proposal.title, proposal.description || null, proposal.weekday, proposal.start, proposal.end, proposal.modality]
+      );
+      proposalId = result.rows[0].id;
+      await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal);
+      await client.query(
+        "INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,'accept')",
+        [proposalId, userId]
+      );
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
+    return { proposal: {
+      id: proposalId,
+      title: proposal.title,
+      description: proposal.description,
+      weekday: proposal.weekday,
+      start_time: proposal.start,
+      end_time: proposal.end,
+      modality: proposal.modality,
+      status: 'pending',
+      current_user_response: 'accept',
+      response_count: 1
+    } };
   }
 
   async function respondToProposal(teamId, userId, proposalId, response) {
@@ -561,7 +632,7 @@ function createTeamsService(db) {
     const client = await db.connect();
     try {
       await client.query('BEGIN');
-      await getMembership(teamId, userId, client);
+      const membership = await getMembership(teamId, userId, client);
       const proposalResult = await client.query(
         'SELECT * FROM team_proposals WHERE id = $1 AND group_id = $2 FOR UPDATE',
         [proposalId, teamId]
@@ -569,41 +640,24 @@ function createTeamsService(db) {
       if (!proposalResult.rows.length) throw httpError(404, 'Proposal not found.');
       const proposal = proposalResult.rows[0];
       if (proposal.status !== 'pending') throw httpError(409, 'This proposal is no longer pending.');
-      await client.query(
-        'INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,$3) ' +
-        'ON CONFLICT (proposal_id, user_id) DO UPDATE SET response = EXCLUDED.response, responded_at = CURRENT_TIMESTAMP',
-        [proposalId, userId, response]
+      const previousResponse = await client.query(
+        'SELECT response FROM proposal_responses WHERE proposal_id = $1 AND user_id = $2',
+        [proposalId, userId]
       );
+      if (previousResponse.rows.length) throw httpError(409, 'You have already reviewed this proposal.');
 
-      const counts = await client.query(
-        'SELECT COUNT(*)::int AS members, COUNT(r.id)::int AS responses, ' +
-        "COUNT(r.id) FILTER (WHERE r.response = 'accept')::int AS accepted, " +
-        "COUNT(r.id) FILTER (WHERE r.response = 'decline')::int AS declined " +
-        'FROM memberships m LEFT JOIN proposal_responses r ON r.proposal_id = $2 AND r.user_id = m.user_id ' +
-        'WHERE m.group_id = $1 AND m.deleted_at IS NULL',
-        [teamId, proposalId]
-      );
-      const state = counts.rows[0];
-      let eventId = null;
-      let status = 'pending';
-      if (state.declined > 0) {
-        status = 'declined';
-        await client.query('UPDATE team_proposals SET status = $1 WHERE id = $2', [status, proposalId]);
-      } else if (state.responses === state.members && state.accepted === state.members) {
-        const event = await client.query(
-          'INSERT INTO team_events (group_id, created_by_user_id, title, weekday, start_time, end_time, modality) ' +
-          'VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
-          [teamId, proposal.proposed_by_user_id, proposal.title, proposal.weekday, proposal.start_time, proposal.end_time, proposal.modality]
-        );
-        eventId = event.rows[0].id;
-        status = 'confirmed';
+      let scheduleId = null;
+      if (response === 'decline') {
+        await client.query('DELETE FROM team_proposals WHERE id = $1 AND group_id = $2', [proposalId, teamId]);
+      } else {
+        scheduleId = await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal);
         await client.query(
-          'UPDATE team_proposals SET status = $1, converted_event_id = $2 WHERE id = $3',
-          [status, eventId, proposalId]
+          'INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,$3)',
+          [proposalId, userId, response]
         );
       }
       await client.query('COMMIT');
-      return { success: true, status, event_id: eventId };
+      return { success: true, status: response === 'accept' ? 'accepted' : 'rejected', schedule_id: scheduleId };
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;

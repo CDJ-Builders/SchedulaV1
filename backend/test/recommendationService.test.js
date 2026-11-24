@@ -59,6 +59,24 @@ test('maps Sunday out and rejects unknown weekly modality', () => {
   }, []), { status: 422 });
 });
 
+test('consolidates shared member schedules and confirmed team blocks', () => {
+  const context = service.buildConsolidatedTeamContext([
+    { user_id: 'member-1', schedule_id: 'schedule-1', configuration: [{ weekdays: ['Monday'], start_time: '08:00', end_time: '09:00', modality: 'onsite' }] },
+    { user_id: 'member-2', schedule_id: 'schedule-2', configuration: [{ weekdays: ['Monday'], start_time: '09:00', end_time: '10:00', modality: 'online' }] }
+  ], [{ weekday: 'Monday', start_time: '10:00', end_time: '11:00', modality: 'onsite' }]);
+  assert.deepEqual(context.occupancy.mon.slice(1, 4), ['ON', 'OL', 'ON']);
+  assert.deepEqual(context.warnings, []);
+  assert.equal(Object.hasOwn(context, 'preferences'), false);
+});
+
+test('warns when some members have not shared a schedule', () => {
+  const context = service.buildConsolidatedTeamContext([
+    { user_id: 'member-1', schedule_id: 'schedule-1', configuration: [] },
+    { user_id: 'member-2', schedule_id: null, configuration: [] }
+  ], []);
+  assert.ok(context.warnings.some(message => message.includes('have not shared a schedule')));
+});
+
 test('rejects active dated busy availability for the weekly-only model', () => {
   assert.doesNotThrow(() => service.ensureWeeklyOnlyAvailability([]));
   assert.throws(() => service.ensureWeeklyOnlyAvailability([{ id: 'busy-block' }]), {

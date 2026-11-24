@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node db-server.js",
     "test": "node --test",
-    "db:reset": "node scripts/db-reset.js"
+    "db:reset": "node scripts/db-reset.js",
+    "db:migrate:team-proposal-description": "node scripts/apply-team-proposal-description.js"
   },
   "dependencies": {
     "compression": "^1.8.1",

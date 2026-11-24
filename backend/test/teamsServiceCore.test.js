@@ -166,3 +166,125 @@ test('the last member leaving deletes the team for everyone', async () => {
   assert.equal(statements.some(sql => sql.startsWith('UPDATE groups')), true);
   assert.equal(statements.at(-1), 'COMMIT');
 });
+
+test('accepting a proposal adds a described weekly block to the reviewers shared personal schedule', async () => {
+  const statements = [];
+  let savedConfiguration;
+  const db = {
+    query() { throw new Error('Proposal review must run in a transaction.'); },
+    connect() {
+      return Promise.resolve({
+        async query(sql, params) {
+          statements.push(sql);
+          if (sql.startsWith('SELECT g.id, g.name')) return { rows: [{ id: 'team-id', name: 'Study Crew', owner_user_id: 'owner-id', role: 'member' }] };
+          if (sql.startsWith('SELECT * FROM team_proposals')) return { rows: [{ id: 'proposal-id', title: 'Weekly study', weekday: 'Tuesday', start_time: '10:00:00', end_time: '11:00:00', modality: 'online', status: 'pending' }] };
+          if (sql.startsWith('SELECT response FROM proposal_responses')) return { rows: [] };
+          if (sql.startsWith('SELECT s.id, COALESCE(sc.context')) return { rows: [{ id: 'schedule-id', configuration: [{ title: 'Existing', description: '', weekdays: ['Monday'], start_time: '08:00', end_time: '09:00', modality: 'onsite' }] }] };
+          if (sql.startsWith('INSERT INTO schedule_context')) savedConfiguration = JSON.parse(params[1]);
+          return { rows: [] };
+        },
+        release() {}
+      });
+    }
+  };
+  const service = createTeamsService(db);
+
+  assert.deepEqual(await service.respondToProposal('team-id', 'reviewer-id', 'proposal-id', 'accept'), {
+    success: true, status: 'accepted', schedule_id: 'schedule-id'
+  });
+  assert.equal(savedConfiguration.length, 2);
+  assert.deepEqual(savedConfiguration[1], {
+    title: 'Weekly study', description: 'Team Scheduled at Study Crew', weekdays: ['Tuesday'],
+    start_time: '10:00', end_time: '11:00', modality: 'online'
+  });
+  assert.ok(statements.some(sql => sql.startsWith('INSERT INTO proposal_responses')));
+  assert.equal(statements.at(-1), 'COMMIT');
+});
+
+test('rejecting a proposal removes it for all team members', async () => {
+  const statements = [];
+  const db = {
+    query() { throw new Error('Proposal review must run in a transaction.'); },
+    connect() {
+      return Promise.resolve({
+        async query(sql) {
+          statements.push(sql);
+          if (sql.startsWith('SELECT g.id, g.name')) return { rows: [{ id: 'team-id', name: 'Study Crew', owner_user_id: 'owner-id', role: 'member' }] };
+          if (sql.startsWith('SELECT * FROM team_proposals')) return { rows: [{ id: 'proposal-id', status: 'pending' }] };
+          if (sql.startsWith('SELECT response FROM proposal_responses')) return { rows: [] };
+          return { rows: [] };
+        },
+        release() {}
+      });
+    }
+  };
+  const service = createTeamsService(db);
+
+  assert.deepEqual(await service.respondToProposal('team-id', 'reviewer-id', 'proposal-id', 'decline'), {
+    success: true, status: 'rejected', schedule_id: null
+  });
+  assert.ok(statements.some(sql => sql.startsWith('DELETE FROM team_proposals')));
+  assert.equal(statements.at(-1), 'COMMIT');
+});
+
+test('creating a proposal immediately adds it to the proposers shared personal schedule', async () => {
+  const statements = [];
+  let savedConfiguration;
+  const db = {
+    query() { throw new Error('Proposal creation must run in a transaction.'); },
+    connect() {
+      return Promise.resolve({
+        async query(sql, params) {
+          statements.push(sql);
+          if (sql.startsWith('SELECT g.id, g.name')) return { rows: [{ id: 'team-id', name: 'Study Crew', owner_user_id: 'owner-id', role: 'member' }] };
+          if (sql.startsWith('INSERT INTO team_proposals')) return { rows: [{ id: 'proposal-id' }] };
+          if (sql.startsWith('SELECT s.id, COALESCE(sc.context')) return { rows: [{ id: 'schedule-id', configuration: [] }] };
+          if (sql.startsWith('INSERT INTO schedule_context')) savedConfiguration = JSON.parse(params[1]);
+          return { rows: [] };
+        },
+        release() {}
+      });
+    }
+  };
+  const service = createTeamsService(db);
+
+  const result = await service.createProposal('team-id', 'proposer-id', {
+    title: 'Weekly study', weekday: 'Tuesday', start_time: '10:00', end_time: '11:00', modality: 'online'
+  });
+  assert.equal(result.proposal.current_user_response, 'accept');
+  assert.deepEqual(savedConfiguration, [{
+    title: 'Weekly study', description: 'Team Scheduled at Study Crew', weekdays: ['Tuesday'],
+    start_time: '10:00', end_time: '11:00', modality: 'online'
+  }]);
+  assert.ok(statements.some(sql => sql.startsWith('INSERT INTO proposal_responses')));
+  assert.equal(statements.at(-1), 'COMMIT');
+});
+
+test('proposal creation does not duplicate an identical block already on the shared schedule', async () => {
+  let savedConfiguration;
+  const existingBlock = {
+    title: 'Weekly study', description: 'Already there', weekdays: ['Tuesday'],
+    start_time: '10:00:00', end_time: '11:00:00', modality: 'online'
+  };
+  const db = {
+    query() { throw new Error('Proposal creation must run in a transaction.'); },
+    connect() {
+      return Promise.resolve({
+        async query(sql, params) {
+          if (sql.startsWith('SELECT g.id, g.name')) return { rows: [{ id: 'team-id', name: 'Study Crew', owner_user_id: 'owner-id', role: 'member' }] };
+          if (sql.startsWith('INSERT INTO team_proposals')) return { rows: [{ id: 'proposal-id' }] };
+          if (sql.startsWith('SELECT s.id, COALESCE(sc.context')) return { rows: [{ id: 'schedule-id', configuration: [existingBlock] }] };
+          if (sql.startsWith('INSERT INTO schedule_context')) savedConfiguration = JSON.parse(params[1]);
+          return { rows: [] };
+        },
+        release() {}
+      });
+    }
+  };
+  const service = createTeamsService(db);
+
+  await service.createProposal('team-id', 'proposer-id', {
+    title: 'Weekly study', weekday: 'Tuesday', start_time: '10:00', end_time: '11:00', modality: 'online'
+  });
+  assert.deepEqual(savedConfiguration, [existingBlock]);
+});

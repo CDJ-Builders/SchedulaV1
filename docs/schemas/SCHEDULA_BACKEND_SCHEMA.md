@@ -33,7 +33,7 @@ flowchart TD
   - `userService.js`: User session, profile updates, account deletion cascades, preferences CRUD, and availability block CRUD.
   - `scheduleService.js`: Schedule container CRUD, weekly configuration validation, event CRUD, and GiST-indexed conflict detection.
   - `teamsService.js` / `teamsServiceCore.js`: Team membership, shared schedules, preferences, proposals, role changes, and team lifecycle operations.
-  - `recommendationService.js`: SchedulaML integration orchestrator; loads schedule configuration and preferences, builds 6-day x 15-slot occupancy grids, enforces constraints, queries `schedulaml` inference service, and returns ranked slot suggestions.
+  - `recommendationService.js`: SchedulaML integration orchestrator; loads personal or consolidated team schedule context, loads only the requesting user's preferences, builds 6-day x 15-slot occupancy grids, enforces constraints, queries `schedulaml`, and returns ranked slot suggestions.
   - `adminService.js`: Administrative user management and global schedule deletion.
 
 ---
@@ -169,6 +169,9 @@ Team lifecycle routes require authentication. Only the current team creator (`gr
 | :--- | :--- | :--- |
 | `POST` | `/api/teams/:teamId/leave` | Removes the current user's membership; leaving as the last member deletes the team for everyone |
 | `DELETE` | `/api/teams/:teamId` | Deletes the team for everyone; current creator only |
+| `POST` | `/api/teams/:teamId/recommendations` | Returns up to five weekly slots using schedules shared with the team, confirmed team blocks, and only the requester's preferences |
+| `POST` | `/api/teams/:teamId/proposals` | Creates a weekly block proposal for member review |
+| `POST` | `/api/teams/:teamId/proposals/:proposalId/responses` | Accept adds the block to the current member's shared personal schedule; reject deletes the proposal for all members |
 
 ---
 

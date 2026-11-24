@@ -281,6 +281,8 @@ function renderEvents() {
   }
   const esc = window.APP_UTILS?.escapeHtml || (item => String(item ?? ''));
   const selectedDay = eventsDayFilter.value;
+  const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const days = selectedDay === 'all' ? dayOrder : [selectedDay];
   const visibleEvents = events
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => selectedDay === 'all' || event.weekdays.includes(selectedDay));
@@ -290,12 +292,26 @@ function renderEvents() {
     return;
   }
 
-  visibleEvents.forEach(({ event, index }) => {
-    const card = document.createElement('article');
-    card.className = 'event-card';
-    card.dataset.weekday = event.weekdays[0] || '';
-    card.innerHTML = `<div class="event-card-body card-body-flex"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(event))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><button class="btn-remove btn-remove-inline" type="button" data-event-key="new-${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div>`;
-    eventsList.appendChild(card);
+  days.forEach(day => {
+    const dayEvents = visibleEvents.filter(({ event }) => event.weekdays.includes(day));
+    if (!dayEvents.length) return;
+    if (selectedDay === 'all') {
+      const heading = document.createElement('h3');
+      heading.className = 'event-day-heading';
+      heading.textContent = day;
+      eventsList.appendChild(heading);
+    }
+    dayEvents.sort((a, b) => a.event.start_time.localeCompare(b.event.start_time)
+      || a.event.end_time.localeCompare(b.event.end_time)
+      || a.event.title.localeCompare(b.event.title));
+    dayEvents.forEach(({ event, index }) => {
+      const card = document.createElement('article');
+      card.className = 'event-card';
+      card.dataset.weekday = day;
+      const daySpecificEvent = { ...event, weekdays: [day] };
+      card.innerHTML = `<div class="event-card-body card-body-flex"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(daySpecificEvent))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><button class="btn-remove btn-remove-inline" type="button" data-event-key="new-${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div>`;
+      eventsList.appendChild(card);
+    });
   });
 }
 

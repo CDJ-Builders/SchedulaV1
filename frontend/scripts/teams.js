@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', async function () {
  var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
  var $ = function (id) { return document.getElementById(id); };
  var TEAMS = [], team = null, viewMode = 'team', selectedMember = null, personalSchedules = [];
- var FROM = 8, TO = 18;
+ // Match Builder's visible schedule window so member view does not hide the
+ // early and evening blocks present in the consolidated team schedule.
+ var FROM = 7, TO = 22;
  var memberSlider = $('member-slider');
  var statusTimer = null, statusHideTimer = null;
 
@@ -81,13 +83,14 @@ document.addEventListener('DOMContentLoaded', async function () {
  function toHour(value) { var parts = String(value || '').split(':').map(Number); return (parts[0] || 0) + (parts[1] || 0) / 60; }
  function fullDay(shortDay) { return {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'}[shortDay]; }
  function blocksForDay(shortDay) {
-  var blocks = (team.events[shortDay] || []).map(function (b) { return { s:b[0], e:b[1], title:b[2], kind:'team' }; });
-  (team.proposals || []).filter(function (proposal) {
-   return proposal.status === 'pending' && proposal.weekday === fullDay(shortDay);
-  }).forEach(function (proposal) {
-   blocks.push({ s:toHour(proposal.start_time), e:toHour(proposal.end_time), title:proposal.title || 'Team meeting', kind:'prop', proposal:proposal });
+  // Pending proposals are shown in the review dialog. Rendering them over the
+  // shared schedule duplicates the block for its proposer and each accepter.
+  return (team.events[shortDay] || []).map(function (b) { return { s:b[0], e:b[1], title:b[2], description:b[3] || '', kind:'team' }; });
+ }
+ function sortBlocksByTime(blocks) {
+  return blocks.sort(function (a, b) {
+   return a.s - b.s || a.e - b.e || String(a.title || '').localeCompare(String(b.title || ''));
   });
-  return blocks;
  }
 
  function revealMember(button) {
@@ -137,14 +140,15 @@ document.addEventListener('DOMContentLoaded', async function () {
      var fullDay = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'}[shortDay];
      var column = el('div', 'member-day-column team-day-cell');
      column.setAttribute('aria-label', fullDay);
-     var blocks = (selected.busy[shortDay] || []).map(function (block) { return { s:block[0], e:block[1], title:block[2] || 'Busy', kind:'' }; })
-      .concat(blocksForDay(shortDay));
+     var blocks = sortBlocksByTime((selected.busy[shortDay] || []).map(function (block) { return { s:block[0], e:block[1], title:block[2] || 'Busy', kind:'' }; })
+      .concat(blocksForDay(shortDay)));
      blocks.forEach(function (blockData) {
       if (blockData.e <= FROM || blockData.s >= TO) return;
       var block = el('div', 'team-block member-week-block ' + blockData.kind);
       block.style.top = ((Math.max(blockData.s, FROM) - FROM) / (TO - FROM) * 100) + '%';
       block.style.height = ((Math.min(blockData.e, TO) - Math.max(blockData.s, FROM)) / (TO - FROM) * 100) + '%';
       block.appendChild(el('b', '', blockData.title));
+      if (blockData.description) block.appendChild(el('small', '', blockData.description));
       block.appendChild(el('small', '', rng(blockData.s, blockData.e)));
       column.appendChild(block);
      });
@@ -172,12 +176,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     DAYS.forEach(function (shortDay) {
      var fullDay = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'}[shortDay];
      var cell = el('div', 'team-day-cell');
-     var blocks = (member.busy[shortDay] || []).map(function (block) { return { s:block[0], e:block[1], title:block[2] || 'Busy', kind:'' }; })
-      .concat(blocksForDay(shortDay));
+     var blocks = sortBlocksByTime((member.busy[shortDay] || []).map(function (block) { return { s:block[0], e:block[1], title:block[2] || 'Busy', kind:'' }; })
+      .concat(blocksForDay(shortDay)));
      if (!blocks.length) cell.appendChild(el('span', 'team-empty', 'No blocks added'));
      blocks.forEach(function (blockData) {
       var block = el('div', 'team-block ' + blockData.kind);
       block.appendChild(el('b', '', blockData.title));
+      if (blockData.description) block.appendChild(el('small', '', blockData.description));
       block.appendChild(el('small', '', rng(blockData.s, blockData.e)));
       cell.appendChild(block);
      });
@@ -193,39 +198,72 @@ document.addEventListener('DOMContentLoaded', async function () {
  }
 
  function renderProposals() {
-  var container = $('team-proposals'), list = $('team-proposals-list');
-  list.textContent = '';
-  var proposals = team.proposals || [];
+  var container = $('team-proposal-review'), count = $('team-proposal-review-count');
+  var currentMember = (team.members || []).find(function (member) { return member.isSelf; });
+  var currentUserId = currentMember && String(currentMember.id);
+  var proposals = (team.proposals || []).filter(function (proposal) {
+   return proposal.status === 'pending' && !proposal.current_user_response &&
+    (!currentUserId || String(proposal.proposed_by_user_id) !== currentUserId);
+  });
   container.hidden = proposals.length === 0;
+  count.textContent = proposals.length + (proposals.length === 1 ? ' Proposal to Review' : ' Proposals to Review');
+  var list = $('team-proposal-review-list');
+  list.textContent = '';
   proposals.forEach(function (proposal) {
    var row = el('article', 'team-proposal');
    var detail = el('div', 'team-proposal-detail');
    detail.appendChild(el('strong', '', proposal.title || 'Team meeting'));
    detail.appendChild(el('span', '', proposal.weekday + ' · ' + proposal.start_time + '–' + proposal.end_time));
+   if (proposal.description) detail.appendChild(el('span', 'team-proposal-description', proposal.description));
    row.appendChild(detail);
-   var response = proposal.current_user_response;
-   if (proposal.status === 'pending' && !response) {
-    ['accept', 'decline'].forEach(function (choice) {
-     var button = el('button', 'key xs', choice === 'accept' ? 'Accept' : 'Decline');
-     button.type = 'button';
-     button.addEventListener('click', async function () {
-      button.disabled = true;
-      try {
-       await api('/teams/' + encodeURIComponent(team.id) + '/proposals/' + encodeURIComponent(proposal.id) + '/responses', {
-        method:'POST', body:JSON.stringify({ response:choice })
-       });
-       await refreshTeams(team.id);
-       showStatus('Your response was recorded.');
-      } catch (error) { showStatus(error.message, true); button.disabled = false; }
-     });
-     row.appendChild(button);
+   [['decline', 'Reject', 'danger'], ['accept', 'Accept', 'success']].forEach(function (choice) {
+    var button = el('button', 'key sm ' + choice[2], choice[1]);
+    button.type = 'button';
+    button.addEventListener('click', async function () {
+     button.disabled = true;
+     var rowButtons = row.querySelectorAll('button');
+     rowButtons.forEach(function (item) { item.disabled = true; });
+     $('team-proposal-review-status').hidden = false;
+     $('team-proposal-review-status').textContent = choice[0] === 'accept' ? 'Adding this block to your shared schedule…' : 'Removing this proposal for everyone…';
+     try {
+      await api('/teams/' + encodeURIComponent(team.id) + '/proposals/' + encodeURIComponent(proposal.id) + '/responses', {
+       method:'POST', body:JSON.stringify({ response:choice[0] })
+      });
+      var teamId = team.id;
+      await refreshTeams(teamId);
+      if (!($('team-proposal-review-dialog').open)) return;
+      $('team-proposal-review-status').textContent = choice[0] === 'accept'
+       ? 'Added to your shared schedule.' : 'Proposal rejected and removed for everyone.';
+      showStatus(choice[0] === 'accept' ? 'Weekly block added to your shared schedule.' : 'Proposal rejected for everyone.');
+     } catch (error) {
+      $('team-proposal-review-status').hidden = false;
+      $('team-proposal-review-status').textContent = error.message;
+      $('team-proposal-review-status').classList.add('is-error');
+      rowButtons.forEach(function (item) { item.disabled = false; });
+     }
     });
-   } else {
-    row.appendChild(el('span', 'team-proposal-response', response ? (response === 'accept' ? 'You accepted' : 'You declined') : proposal.status));
-   }
+    row.appendChild(button);
+   });
    list.appendChild(row);
   });
+  if (!proposals.length && $('team-proposal-review-dialog').open) {
+   list.appendChild(el('p', 'team-proposal-review-empty', 'You’re all caught up.'));
+  }
  }
+
+ $('team-proposal-review-open').addEventListener('click', function () {
+  $('team-proposal-review-status').hidden = true;
+  $('team-proposal-review-status').classList.remove('is-error');
+  renderProposals();
+  $('team-proposal-review-dialog').showModal();
+  var firstAction = $('team-proposal-review-list').querySelector('button');
+  ($('team-proposal-review-close')).focus();
+  if (firstAction) firstAction.focus();
+ });
+ $('team-proposal-review-close').addEventListener('click', function () { $('team-proposal-review-dialog').close(); $('team-proposal-review-open').focus(); });
+ $('team-proposal-review-dialog').addEventListener('click', function (event) {
+  if (event.target === this) { this.close(); $('team-proposal-review-open').focus(); }
+ });
 
  var sel = $('team');
  function fill() { sel.textContent = ''; var newTeam = el('option', '', 'New Team'); newTeam.value = '__new_team__'; sel.appendChild(newTeam); TEAMS.forEach(function (x) { var o = el('option', '', x.name); o.value = x.id; sel.appendChild(o); }); if (team) sel.value = team.id; }
@@ -327,11 +365,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   $('close-new-team-dialog').hidden = true;
   $('no-team-title').textContent = 'No Team Yet';
   if (!noTeamDialog.open) {
-   if (typeof noTeamDialog.show === 'function') {
-    noTeamDialog.show();
-   } else {
-    noTeamDialog.setAttribute('open', '');
-   }
+   if (typeof noTeamDialog.show === 'function') noTeamDialog.show();
+   else noTeamDialog.setAttribute('open', '');
   }
  }
  function showTeamChoices() {
@@ -363,9 +398,14 @@ document.addEventListener('DOMContentLoaded', async function () {
   $('no-team-title').textContent = 'No Team Yet';
   if (!TEAMS.length) showNoTeamDialog();
  };
- $('prop').onclick = function () {
-  window.noticePopup('More team scheduling tools are coming soon.', 'Coming soon');
- };
+ noTeamDialog.addEventListener('cancel', function (event) {
+  if (!TEAMS.length) event.preventDefault();
+ });
+ window.addEventListener('schedula:team-proposal-created', async function (event) {
+  if (!team || String(event.detail && event.detail.teamId) !== String(team.id)) return;
+  await refreshTeams(team.id);
+  showStatus('Proposal sent and saved to your shared personal schedule.');
+ });
 
  $('import-team-schedule').addEventListener('click', async function () {
   if (!team) return;
