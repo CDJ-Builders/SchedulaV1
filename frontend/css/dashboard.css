@@ -143,8 +143,10 @@ h1 span {
   cursor:grab;touch-action:none;
 }
 .tool-grip:active { cursor:grabbing; }
-.home-tool-panel .head { padding-right:24px;gap:9px; }
-.home-tool-panel .tm { width:max-content; max-width:100%; }
+.home-tool-panel .head { min-width:0;padding-right:30px;gap:9px;align-items:flex-start; }
+.home-tool-panel .head b { flex:1 1 auto;min-width:0;overflow-wrap:anywhere; }
+.home-tool-panel .sb { min-width:0;overflow-wrap:anywhere;line-height:1.4; }
+.home-tool-panel .tm { min-width:0;width:max-content;max-width:100%;line-height:1.25; }
 .home-teams-cta { background:linear-gradient(180deg,#4a1d6d,#32134d);border-color:#26103b;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 4px 0 #211032,0 8px 12px rgba(42,18,69,.18); }
 .home-teams-cta:hover:not(:disabled) { background:linear-gradient(180deg,#5b287f,#3b1958); }
 .home-teams-cta:active:not(:disabled) { color:#fff;box-shadow:inset 0 2px 5px rgba(0,0,0,.28),0 1px 0 #211032; }
