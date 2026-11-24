@@ -1,122 +1,167 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Schedula | Teams</title>
-<meta name="description" content="Compare your team's schedules and find a time that works for everyone.">
-<link rel="icon" type="image/png" href="../favicon.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Schedula | Teams</title>
+    <meta name="description" content="Compare your team's schedules and find a time that works for everyone.">
+    <link rel="icon" type="image/png" href="../favicon.png">
 
-<link rel="stylesheet" href="../frontend/css/theme.css">
-<link rel="stylesheet" href="../frontend/css/background.css">
-<link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
-<link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
-<link rel="stylesheet" href="../frontend/css/teams.css">
-<link rel="stylesheet" href="../frontend/css/team-preferences.css">
-<script src="../frontend/scripts/theme.js"></script>
+    <link rel="stylesheet" href="../frontend/css/theme.css">
+    <link rel="stylesheet" href="../frontend/css/background.css">
+    <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
+    <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
+    <link rel="stylesheet" href="../frontend/css/teams.css">
+    <link rel="stylesheet" href="../frontend/css/team-preferences.css">
+    <script src="../frontend/scripts/theme.js"></script>
 </head>
+
 <body class="schedula-background teams-page has-site-footer">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="m" fill-rule="evenodd" d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z"/></defs></svg>
-<div class="page">
- <header class="top app-shell-header">
-  <a class="brand" href="home.html" aria-label="Schedula home"><img src="../assets/logo.png" alt="" class="mark" aria-hidden="true">Schedula</a>
-  <nav class="nav" aria-label="Main navigation">
-   <a class="key" href="home.html">Home</a>
-   <a class="key" href="builder.html">Builder</a>
-   <a class="key" href="plotter.html">Plotter</a>
-   <a class="key" href="teams.html" aria-current="page">Teams</a>
-  </nav>
-  <div class="tools">
-   <div class="acct" role="group" aria-label="Signed-in account"><span class="avatar" id="avatar" aria-hidden="true">U</span><span class="acct-name" id="header-username-display">User</span></div>
-   <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
-   <a class="key sm icon" href="profile.html" aria-label="Profile settings" title="Profile settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
-   <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg></button>
-  </div>
- </header>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <path id="m" fill-rule="evenodd"
+                d="M108.5 117.0L108.5 346.8L307.8 346.8L313.8 345.8L324.5 342.5L333.8 338.8L344.8 333.0L355.0 326.2L362.5 320.2L371.8 311.2L380.2 301.0L389.5 286.2L396.0 271.8L399.8 259.8L401.5 251.5L403.0 240.2L403.2 224.8L402.5 215.8L400.5 204.2L398.2 195.8L394.0 184.0L390.2 176.0L384.0 165.2L373.8 152.0L366.2 144.2L358.2 137.2L348.8 130.5L340.8 125.8L327.5 119.8L304.5 117.0ZM138.2 143.0L138.8 142.5L294.8 142.5L309.8 145.5L318.2 148.5L328.8 153.8L335.8 158.2L343.0 164.0L350.5 171.5L355.8 178.0L359.8 184.0L365.2 194.5L369.8 207.2L371.8 216.5L372.8 226.2L372.8 235.5L372.0 243.0L369.2 257.2L365.8 265.8L361.2 274.2L356.8 281.5L351.0 288.8L343.5 296.2L335.0 303.0L323.8 309.8L317.0 312.8L300.5 317.5L290.5 318.8L148.2 319.0L141.5 319.5L139.5 319.0L138.2 317.0ZM74.0 81.2L64.2 92.0L55.0 106.0L51.8 112.5L50.2 117.8L47.2 124.8L45.2 132.0L43.8 141.5L44.0 323.8L48.2 339.2L55.0 354.2L61.2 364.2L70.8 375.8L79.5 383.8L86.0 388.8L93.8 393.8L102.5 398.2L111.0 401.8L120.0 404.5L128.0 406.2L139.0 407.5L352.5 407.5L364.8 404.5L374.0 400.2L381.8 395.0L389.2 387.8L396.5 377.0L399.5 370.2L401.5 363.8L402.5 358.2L402.5 342.0L401.8 339.5L373.5 339.5L373.2 357.8L370.5 364.2L366.5 369.8L362.2 373.5L355.8 377.0L350.8 378.5L138.5 378.2L125.0 375.2L113.8 370.8L102.8 364.0L96.2 358.8L87.2 349.0L81.0 339.8L77.0 331.5L77.2 331.0L74.5 324.5L72.2 314.8L72.2 140.5L78.2 124.2L84.8 113.0L91.2 105.2L100.2 97.0L103.8 95.0L105.5 93.2L114.5 88.2L115.0 88.5L118.0 86.8L126.5 83.8L132.8 82.2L344.8 82.2L353.5 84.2L358.5 86.2L366.0 92.0L369.2 96.2L372.2 102.2L373.5 106.5L374.0 114.0L403.0 114.0L403.5 112.5L403.0 103.2L399.8 90.5L394.8 80.0L386.8 70.0L379.8 64.0L369.0 57.8L360.5 54.8L353.0 53.2L138.0 53.0L123.5 55.0L114.0 57.5L104.0 61.2L94.0 66.2L88.0 70.0ZM459.8 52.5L431.2 52.5L430.5 53.8L430.5 359.5L428.5 380.5L425.8 388.8L419.8 399.8L414.8 406.2L409.5 411.8L402.5 417.5L395.8 421.8L383.8 427.0L374.5 429.2L44.2 429.2L44.2 459.2L102.0 458.8L358.2 458.8L359.2 458.2L370.0 458.0L385.5 455.5L402.2 449.8L414.2 443.2L421.8 438.0L428.2 432.5L435.8 424.8L441.2 417.8L445.2 411.8L450.5 401.8L456.2 385.8L459.0 369.0L459.8 356.5Z" />
+        </defs>
+    </svg>
+    <div class="page">
+        <header class="top app-shell-header">
+            <a class="brand" href="home.html" aria-label="Schedula home"><img src="../assets/logo.png" alt=""
+                    class="mark" aria-hidden="true">Schedula</a>
+            <nav class="nav" aria-label="Main navigation">
+                <a class="key" href="home.html">Home</a>
+                <a class="key" href="builder.html">Builder</a>
+                <a class="key" href="plotter.html">Plotter</a>
+                <a class="key" href="teams.html" aria-current="page">Teams</a>
+            </nav>
+            <div class="tools">
+                <div class="acct" role="group" aria-label="Signed-in account"><span class="avatar" id="avatar"
+                        aria-hidden="true">U</span><span class="acct-name" id="header-username-display">User</span>
+                </div>
+                <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
+                <a class="key sm icon" href="profile.html" aria-label="Profile settings" title="Profile settings"><svg
+                        viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+                        <circle cx="16" cy="7" r="2" />
+                        <circle cx="8" cy="17" r="2" />
+                    </svg></a>
+                <button class="key sm lav icon" type="button" data-action="logout" data-redirect="../index.html"
+                    aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9" />
+                    </svg></button>
+            </div>
+        </header>
 
- <main class="wrap" id="main-content">
-  <p class="team-status" id="team-status" role="status" aria-live="polite">Loading teams…</p>
-  <section class="teams-toolbar" aria-label="Team schedule controls">
-   <div class="team-view-control">
-    <button class="team-view-title" type="button" id="view-toggle" aria-pressed="false">Team View</button>
-    <div id="member-slider" class="member-slider" role="group" aria-label="Select team member" hidden></div>
-   </div>
-   <div class="team-name-control">
-    <label class="sr" for="team">Team</label>
-    <select id="team" class="team-select"></select>
-    <button class="preferences-button" type="button" id="show-member-preferences">Preferences</button>
-    <a class="team-settings" id="team-settings-link" href="teams-settings.html?team=t1" aria-label="Team settings" title="Team settings">
-     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.6V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L7.6 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 6.4 14H6v-2.6h.4a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L9.4 6.6l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1H21V14h-.2a1.7 1.7 0 0 0-1.4 1z"/></svg>
-    </a>
-   </div>
-  </section>
+        <main class="wrap" id="main-content">
+            <p class="team-status" id="team-status" role="status" aria-live="polite">Loading teams…</p>
+            <section class="teams-toolbar" aria-label="Team schedule controls">
+                <div class="team-toolbar-left">
+                    <div class="team-view-switch" role="group" aria-label="Schedule view">
+                        <button type="button" class="team-view-option is-active" id="team-view-button"
+                            aria-pressed="true">Team View</button>
+                        <button type="button" class="team-view-option" id="member-view-button"
+                            aria-pressed="false">Member View</button>
+                    </div>
+                    <div id="member-slider" class="member-slider" role="group" aria-label="Select team member" hidden>
+                    </div>
+                </div>
+                <div class="team-name-control">
+                    <label class="sr" for="team">Team</label>
+                    <select id="team" class="team-select" aria-label="Choose team"></select>
+                    <button class="preferences-button" type="button" id="show-member-preferences">Preferences</button>
+                    <a class="team-settings" id="team-settings-link" href="teams-settings.html"
+                        aria-label="Team settings" title="Team settings">
+                        <svg class="settings-gear-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="8.25" />
+                            <circle cx="12" cy="12" r="3.15" />
+                            <path d="M12 1.75v2.1M12 20.15v2.1M1.75 12h2.1M20.15 12h2.1M4.75 4.75l1.5 1.5M17.75 17.75l1.5 1.5M19.25 4.75l-1.5 1.5M6.25 17.75l-1.5 1.5" />
+                        </svg>
+                    </a>
+                </div>
+            </section>
 
-  <section class="team-content" aria-label="Team availability">
-   <div class="board" role="table" id="board"></div>
-   <div class="dock">
-    <label class="team-day-control" for="team-day">
-     <span>Meeting day</span>
-     <select id="team-day">
-      <option value="Mon">Monday</option><option value="Tue">Tuesday</option><option value="Wed">Wednesday</option>
-      <option value="Thu">Thursday</option><option value="Fri">Friday</option><option value="Sat">Saturday</option><option value="Sun">Sunday</option>
-     </select>
-    </label>
-    <label class="team-day-control" for="team-modality">
-     <span>Modality</span>
-     <select id="team-modality"><option value="online">Online</option><option value="onsite">Onsite</option></select>
-    </label>
-    <span class="free-count" id="chip">2 free windows</span>
-    <button class="propose-button" type="button" id="prop">Propose</button>
-   </div>
-   <section class="team-proposals" id="team-proposals" aria-labelledby="team-proposals-heading" hidden>
-    <h2 id="team-proposals-heading">Meeting proposals</h2>
-    <div id="team-proposals-list"></div>
-   </section>
-   <p class="sr" id="msg"></p>
-   <p class="sr" id="live" aria-live="polite"></p>
-  </section>
- </main>
-</div>
+            <section class="team-content" aria-label="Team availability">
+                <div class="board" role="table" id="board"></div>
+                <div class="dock">
+                    <div class="team-shared-manager">
+                        <label for="team-shared-schedule">Manage shared schedule</label>
+                        <div class="team-shared-controls">
+                            <select id="team-shared-schedule" aria-label="Choose a saved schedule to share with the team">
+                                <option value="">No shared schedule</option>
+                            </select>
+                            <button class="team-shared-import" type="button" id="import-team-schedule">Import schedule</button>
+                        </div>
+                    </div>
+                    <button class="propose-button" type="button" id="prop">Propose</button>
+                </div>
+                <section class="team-proposals" id="team-proposals" aria-labelledby="team-proposals-heading" hidden>
+                    <h2 id="team-proposals-heading">Meeting proposals</h2>
+                    <div id="team-proposals-list"></div>
+                </section>
+                <p class="sr" id="msg"></p>
+                <p class="sr" id="live" aria-live="polite"></p>
+            </section>
+        </main>
+    </div>
 
-<footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
+    <footer class="site-footer site-footer--static" role="contentinfo" aria-busy="true"></footer>
 
-<dialog class="preferences-dialog" id="member-preferences-dialog" aria-labelledby="member-preferences-title">
- <div class="preferences-dialog-heading">
-  <div>
-   <h2 id="member-preferences-title">Member preferences</h2>
-   <p id="member-preferences-caption">Sample preferences</p>
-  </div>
-  <button type="button" class="preferences-close" id="close-member-preferences" aria-label="Close preferences">×</button>
- </div>
- <div class="preferences-list" id="member-preferences-list"></div>
-</dialog>
+    <dialog class="preferences-dialog" id="member-preferences-dialog" aria-labelledby="member-preferences-title">
+        <div class="preferences-dialog-heading">
+            <div>
+                <h2 id="member-preferences-title">Member Preferences</h2>
+                <p id="member-preferences-caption">Team Member Preferences</p>
+            </div>
+            <button type="button" class="preferences-close" id="close-member-preferences"
+                aria-label="Close preferences">×</button>
+        </div>
+        <div class="preferences-list" id="member-preferences-list"></div>
+    </dialog>
 
-<dialog class="no-team-dialog" id="no-team-dialog" aria-labelledby="no-team-title">
- <div class="no-team-heading">
-  <h1 id="no-team-title">No Team Yet</h1>
-  <button class="no-team-close" type="button" id="close-no-team" aria-label="Close No Team Yet popup">×</button>
- </div>
- <div class="no-team-actions">
-  <button class="no-team-action" type="button" id="join-team-from-empty">
-   <span>Join Team</span>
-   <span class="no-team-action-detail">Enter Code</span>
-  </button>
-  <button class="no-team-action" type="button" id="create-team-from-empty">Create Team</button>
- </div>
-</dialog>
+    <dialog class="no-team-dialog" id="no-team-dialog" aria-labelledby="no-team-title">
+        <div class="no-team-heading">
+            <h1 id="no-team-title">No Team Yet</h1>
+            <button class="preferences-close new-team-choice-close" type="button" id="close-new-team-dialog"
+                aria-label="Close new team choices" hidden>×</button>
+        </div>
+        <div class="no-team-actions">
+            <button class="no-team-action" type="button" id="join-team-from-empty">
+                <span>Join</span>
+            </button>
+            <button class="no-team-action" type="button" id="create-team-from-empty">Create</button>
+        </div>
+    </dialog>
 
-<dialog id="dlg" aria-labelledby="dt"><h2 id="dt"></h2><label class="lbl" for="dv" id="dl"></label><input id="dv" autocomplete="off"><p class="dm" id="dm" aria-live="polite"></p>
- <div class="cta" style="margin:0"><button class="key sm" type="button" id="dok">Continue</button><button class="key sm lav" type="button" id="dno">Cancel</button></div></dialog>
 
-<script src="../frontend/scripts/utils.js"></script>
-<script src="../frontend/scripts/popup.js"></script>
-<script src="../frontend/scripts/background.js"></script>
-<script src="../frontend/scripts/header.js"></script>
-<script src="../frontend/scripts/footer.js"></script>
-<script src="../frontend/scripts/auth.js"></script>
-<script src="../frontend/scripts/teamPreferences.js"></script>
+    <dialog class="team-dialog team-join-dialog" id="team-join-dialog" aria-labelledby="team-join-title">
+        <div class="team-dialog-mark" aria-hidden="true"></div>
+        <h2 id="team-join-title">Share a schedule?</h2>
+        <p>Select a schedule to share with this team, or skip to start with a blank shared schedule.</p>
+        <label class="team-dialog-label" for="join-schedule-select">Schedule</label>
+        <select id="join-schedule-select"></select>
+        <p class="team-dialog-feedback" id="join-schedule-feedback" aria-live="polite"></p>
+        <div class="team-dialog-actions team-join-actions">
+            <button class="key sm" type="button" id="cancel-team-join">Cancel</button>
+            <button class="key sm lav" type="button" id="skip-team-join">Skip</button>
+            <button class="key sm success" type="button" id="confirm-team-join">Share &amp; join</button>
+        </div>
+    </dialog>
 
-<script src="../frontend/scripts/teams.js"></script>
+    <dialog id="dlg" aria-labelledby="dt">
+        <h2 id="dt"></h2><label class="lbl" for="dv" id="dl"></label><input id="dv" autocomplete="off">
+        <p class="dm" id="dm" aria-live="polite"></p>
+        <div class="cta" style="margin:0"><button class="key sm" type="button" id="dok">Continue</button><button
+                class="key sm lav" type="button" id="dno">Cancel</button></div>
+    </dialog>
+
+    <script src="../frontend/scripts/utils.js"></script>
+    <script src="../frontend/scripts/popup.js"></script>
+    <script src="../frontend/scripts/background.js"></script>
+    <script src="../frontend/scripts/header.js"></script>
+    <script src="../frontend/scripts/footer.js"></script>
+    <script src="../frontend/scripts/auth.js"></script>
+    <script src="../frontend/scripts/teamPreferences.js"></script>
+    <script src="../frontend/scripts/teams.js"></script>
 </body>
-</html>
 
+</html>

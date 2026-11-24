@@ -37,7 +37,7 @@ router.post('/teams', asyncHandler(async (req, res) => {
 }));
 
 router.post('/teams/join', joinLimiter, asyncHandler(async (req, res) => {
-  const team = await teamsService.joinTeam(req.user.user_id, req.body?.code);
+  const team = await teamsService.joinTeam(req.user.user_id, req.body?.code, req.body?.schedule_id);
   res.json({ team });
 }));
 
@@ -47,6 +47,11 @@ router.get('/teams/:teamId', asyncHandler(async (req, res) => {
 
 router.get('/teams/:teamId/week', asyncHandler(async (req, res) => {
   res.json({ week: await teamsService.getTeam(req.params.teamId, req.user.user_id) });
+}));
+
+router.put('/teams/:teamId/shared-schedule', asyncHandler(async (req, res) => {
+  const team = await teamsService.setSharedSchedule(req.params.teamId, req.user.user_id, req.body?.schedule_id);
+  res.json({ team });
 }));
 
 router.put('/teams/:teamId', asyncHandler(async (req, res) => {

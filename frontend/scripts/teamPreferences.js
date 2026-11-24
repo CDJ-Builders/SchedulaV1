@@ -31,14 +31,14 @@
       const card = document.createElement('article');
       card.className = 'member-preference-card';
       const heading = document.createElement('h3');
-      heading.textContent = member.isSelf ? 'You' : member.name;
+      heading.textContent = member.isSelf ? member.name + ' (You)' : member.name;
       card.appendChild(heading);
       [
-        ['Preferred days', preference.days || 'No preferences set'],
-        ['Preferred times', preference.times || 'No preferences set'],
+        ['Preferred Days', preference.days || 'No preferences set'],
+        ['Preferred Times', preference.times || 'No preferences set'],
         ['Modality', preference.modality || 'No preference'],
         ['Commute', preference.commute || 'No commute'],
-        ['Preferred break', Number(preference.preferredBreakMinutes ?? 60) + ' minutes'],
+        ['Preferred Break', Number(preference.preferredBreakMinutes ?? 60) + ' minutes'],
         ['Back-to-back tolerance', String(preference.maxBackToBack ?? 0)]
       ].forEach(function (detail) {
         const row = document.createElement('p');

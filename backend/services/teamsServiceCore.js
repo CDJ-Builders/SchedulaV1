@@ -101,6 +101,7 @@ function createTeamsService(db) {
       name: row.display_name || row.email,
       timezone: row.timezone || 'UTC',
       role: normalizeRole(row.role),
+      isCreator: row.user_id === team.owner_user_id,
       isSelf: row.user_id === userId,
       busy: Object.fromEntries(Object.values(SHORT_DAY).map(day => [day, []]))
     }));
@@ -108,9 +109,11 @@ function createTeamsService(db) {
 
     const schedules = await db.query(
       'SELECT s.owner_user_id, sc.context ' +
-      'FROM memberships m JOIN schedules s ON s.owner_user_id = m.user_id AND s.deleted_at IS NULL ' +
+      'FROM memberships m ' +
+      "JOIN schedule_shares sh ON sh.shared_with_group_id = m.group_id AND sh.deleted_at IS NULL AND sh.permission = 'read' " +
+      'JOIN schedules s ON s.id = sh.schedule_id AND s.owner_user_id = m.user_id AND s.deleted_at IS NULL AND s.group_id IS NULL ' +
       'LEFT JOIN schedule_context sc ON sc.schedule_id = s.id AND sc.deleted_at IS NULL ' +
-      'WHERE m.group_id = $1 AND m.deleted_at IS NULL AND s.group_id IS NULL',
+      'WHERE m.group_id = $1 AND m.deleted_at IS NULL',
       [teamId]
     );
     schedules.rows.forEach(row => {
@@ -157,6 +160,13 @@ function createTeamsService(db) {
       'GROUP BY p.id, mine.response ORDER BY p.created_at DESC LIMIT 30',
       [teamId, userId]
     );
+    const sharedSchedule = await db.query(
+      'SELECT s.id FROM schedule_shares sh ' +
+      'JOIN schedules s ON s.id = sh.schedule_id ' +
+      "WHERE sh.shared_with_group_id = $1 AND sh.shared_with_user_id IS NULL AND sh.deleted_at IS NULL AND sh.permission = 'read' " +
+      'AND s.owner_user_id = $2 AND s.group_id IS NULL AND s.deleted_at IS NULL ORDER BY sh.updated_at DESC LIMIT 1',
+      [teamId, userId]
+    );
 
     return {
       id: team.id,
@@ -164,6 +174,8 @@ function createTeamsService(db) {
       code: team.group_code,
       role: normalizeRole(team.role),
       isAdmin: team.role === 'owner' || team.role === 'admin',
+      isCreator: team.owner_user_id === userId,
+      sharedScheduleId: sharedSchedule.rows.length ? sharedSchedule.rows[0].id : null,
       members,
       events,
       proposals: proposalRows.rows.map(row => ({
@@ -214,19 +226,96 @@ function createTeamsService(db) {
     throw httpError(503, 'Unable to generate a team code. Please try again.');
   }
 
-  async function joinTeam(userId, rawCode) {
+  async function joinTeam(userId, rawCode, requestedScheduleId) {
     const code = validText(rawCode, 'Team code', 32).toUpperCase();
     if (!/^SCH-[A-F0-9]{4}$/.test(code)) throw httpError(404, 'Team not found.');
-    const result = await db.query('SELECT id FROM groups WHERE group_code = $1 AND deleted_at IS NULL', [code]);
-    if (!result.rows.length) throw httpError(404, 'Team not found.');
-    const teamId = result.rows[0].id;
-    const joined = await db.query(
-      "INSERT INTO memberships (group_id, user_id, role) VALUES ($1, $2, 'member') " +
-      "ON CONFLICT (group_id, user_id) DO UPDATE SET role = 'member', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP " +
-      'WHERE memberships.deleted_at IS NOT NULL RETURNING id',
-      [teamId, userId]
-    );
-    if (!joined.rows.length) throw httpError(409, 'You are already a member of this team.');
+    if (requestedScheduleId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestedScheduleId)) {
+      throw httpError(400, 'schedule_id must be a valid UUID.');
+    }
+    const client = await db.connect();
+    let teamId;
+    try {
+      await client.query('BEGIN');
+      const result = await client.query('SELECT id FROM groups WHERE group_code = $1 AND deleted_at IS NULL FOR UPDATE', [code]);
+      if (!result.rows.length) throw httpError(404, 'Team not found.');
+      teamId = result.rows[0].id;
+      if (requestedScheduleId) {
+        const schedule = await client.query(
+          'SELECT id FROM schedules WHERE id = $1 AND owner_user_id = $2 AND group_id IS NULL AND deleted_at IS NULL FOR SHARE',
+          [requestedScheduleId, userId]
+        );
+        if (!schedule.rows.length) throw httpError(404, 'Personal schedule not found.');
+      }
+      const joined = await client.query(
+        "INSERT INTO memberships (group_id, user_id, role) VALUES ($1, $2, 'member') " +
+        "ON CONFLICT (group_id, user_id) DO UPDATE SET role = 'member', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP " +
+        'WHERE memberships.deleted_at IS NOT NULL RETURNING id',
+        [teamId, userId]
+      );
+      if (!joined.rows.length) throw httpError(409, 'You are already a member of this team.');
+      if (requestedScheduleId) {
+        const existingShare = await client.query(
+          'SELECT id FROM schedule_shares WHERE schedule_id = $1 AND shared_with_user_id IS NULL AND shared_with_group_id = $2 FOR UPDATE',
+          [requestedScheduleId, teamId]
+        );
+        if (existingShare.rows.length) {
+          await client.query("UPDATE schedule_shares SET permission = 'read', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1", [existingShare.rows[0].id]);
+        } else {
+          await client.query("INSERT INTO schedule_shares (schedule_id, shared_with_group_id, permission) VALUES ($1, $2, 'read')", [requestedScheduleId, teamId]);
+        }
+      }
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
+    return getTeam(teamId, userId);
+  }
+
+  async function setSharedSchedule(teamId, userId, requestedScheduleId) {
+    const scheduleId = requestedScheduleId || null;
+    if (scheduleId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scheduleId)) {
+      throw httpError(400, 'schedule_id must be a valid UUID.');
+    }
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      await getMembership(teamId, userId, client);
+      if (scheduleId) {
+        const schedule = await client.query(
+          'SELECT id FROM schedules WHERE id = $1 AND owner_user_id = $2 AND group_id IS NULL AND deleted_at IS NULL FOR SHARE',
+          [scheduleId, userId]
+        );
+        if (!schedule.rows.length) throw httpError(404, 'Personal schedule not found.');
+      }
+      await client.query(
+        'UPDATE schedule_shares sh SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
+        'FROM schedules s WHERE s.id = sh.schedule_id AND s.owner_user_id = $2 ' +
+        'AND sh.shared_with_group_id = $1 AND sh.shared_with_user_id IS NULL AND sh.deleted_at IS NULL',
+        [teamId, userId]
+      );
+      if (scheduleId) {
+        const existing = await client.query(
+          'SELECT id FROM schedule_shares WHERE schedule_id = $1 AND shared_with_user_id IS NULL AND shared_with_group_id = $2 ORDER BY updated_at DESC LIMIT 1 FOR UPDATE',
+          [scheduleId, teamId]
+        );
+        if (existing.rows.length) {
+          await client.query(
+            "UPDATE schedule_shares SET permission = 'read', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+            [existing.rows[0].id]
+          );
+        } else {
+          await client.query(
+            "INSERT INTO schedule_shares (schedule_id, shared_with_group_id, permission) VALUES ($1, $2, 'read')",
+            [scheduleId, teamId]
+          );
+        }
+      }
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
     return getTeam(teamId, userId);
   }
 
@@ -281,6 +370,7 @@ function createTeamsService(db) {
         if (oldRole === 'owner') {
           const nextOwner = admins.rows.find(row => row.user_id !== targetId);
           await client.query('UPDATE groups SET owner_user_id = $1 WHERE id = $2', [nextOwner.user_id, teamId]);
+          await client.query("UPDATE memberships SET role = 'owner' WHERE group_id = $1 AND user_id = $2", [teamId, nextOwner.user_id]);
         }
       }
       await client.query(
@@ -305,22 +395,27 @@ function createTeamsService(db) {
     const client = await db.connect();
     try {
       await client.query('BEGIN');
-      const target = await client.query(
-        'SELECT role FROM memberships WHERE group_id = $1 AND user_id = $2 AND deleted_at IS NULL FOR UPDATE',
-        [teamId, targetId]
+      const group = await client.query('SELECT owner_user_id FROM groups WHERE id = $1 AND deleted_at IS NULL FOR UPDATE', [teamId]);
+      if (!group.rows.length) throw httpError(404, 'Team not found.');
+      const active = await client.query(
+        'SELECT m.user_id, m.role, COALESCE(p.display_name, u.email) AS member_name ' +
+        'FROM memberships m JOIN users u ON u.id = m.user_id ' +
+        'LEFT JOIN profiles p ON p.user_id = u.id AND p.deleted_at IS NULL ' +
+        "WHERE m.group_id = $1 AND m.deleted_at IS NULL AND u.deleted_at IS NULL AND m.role IN ('owner','admin','member') " +
+        "ORDER BY CASE WHEN m.role IN ('owner','admin') THEN 0 ELSE 1 END, LOWER(COALESCE(p.display_name, u.email)), m.user_id FOR UPDATE OF m",
+        [teamId]
       );
-      if (!target.rows.length) throw httpError(404, 'Team member not found.');
-      const role = target.rows[0].role;
-      if (role === 'owner' || role === 'admin') {
-        const admins = await client.query(
-          "SELECT user_id FROM memberships WHERE group_id = $1 AND deleted_at IS NULL AND role IN ('owner','admin') FOR UPDATE",
-          [teamId]
-        );
-        if (admins.rows.length <= 1) throw httpError(409, 'Promote another admin before removing the last admin.');
-        if (role === 'owner') {
-          const nextOwner = admins.rows.find(row => row.user_id !== targetId);
-          await client.query('UPDATE groups SET owner_user_id = $1 WHERE id = $2', [nextOwner.user_id, teamId]);
-        }
+      const target = active.rows.find(member => member.user_id === targetId);
+      if (!target) throw httpError(404, 'Team member not found.');
+      const creatorLeaves = group.rows[0].owner_user_id === targetId || target.role === 'owner';
+      if (creatorLeaves) {
+        const successor = active.rows.find(member => member.user_id !== targetId);
+        if (!successor) throw httpError(409, 'The last team member cannot leave.');
+        await client.query('UPDATE groups SET owner_user_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [successor.user_id, teamId]);
+        await client.query("UPDATE memberships SET role = 'owner', updated_at = CURRENT_TIMESTAMP WHERE group_id = $1 AND user_id = $2", [teamId, successor.user_id]);
+      } else if (target.role === 'admin') {
+        const admins = active.rows.filter(member => member.role === 'owner' || member.role === 'admin');
+        if (admins.length <= 1) throw httpError(409, 'Promote another admin before removing the last admin.');
       }
       await client.query(
         'UPDATE memberships SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ' +
@@ -341,7 +436,7 @@ function createTeamsService(db) {
   }
 
   async function listMemberPreferences(teamId, userId) {
-    await getMembership(teamId, userId);
+    const team = await getMembership(teamId, userId);
     const result = await db.query(
       'SELECT m.user_id, m.role, p.display_name, u.email, ' +
       'pr.\"PrefMon\", pr.\"PrefTue\", pr.\"PrefWed\", pr.\"PrefThurs\", pr.\"PrefFri\", pr.\"PrefSat\", ' +
@@ -362,6 +457,7 @@ function createTeamsService(db) {
         id: row.user_id,
         name: row.display_name || row.email,
         isSelf: row.user_id === userId,
+        isCreator: row.user_id === team.owner_user_id,
         role: normalizeRole(row.role),
         preferences: {
           days: days.length ? days.join(', ') : 'No preferences set',
@@ -453,7 +549,7 @@ function createTeamsService(db) {
   }
 
   return {
-    listTeams, getTeam, createTeam, joinTeam, renameTeam, regenerateCode,
+    listTeams, getTeam, createTeam, joinTeam, setSharedSchedule, renameTeam, regenerateCode,
     changeMemberRole, removeMember, leaveTeam, listMemberPreferences,
     createProposal, respondToProposal
   };

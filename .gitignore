@@ -6,9 +6,11 @@
 graphify-out/
 .graphify*
 skills-lock.json
-CODEX.md
-PRD.md
-PROGRESS.md
+tools/CODEX.md
+tools/PRD.md
+tools/PROGRESS.md
+tools/AGENTS.md
+docs/GRAPHIFY_CODEBASE_INDEX.md
 
 # ── Dependencies ──────────────────────────────────────────────
 node_modules/

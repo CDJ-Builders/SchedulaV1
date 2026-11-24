@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!localStorage.getItem('token')) { location.href = 'login.html'; return; }
   var $ = function (id) { return document.getElementById(id); };
   var teamSelect = $('settings-team-select');
-  var memberSelect = $('settings-member-select');
   var activeTeam = null;
   var teams = [];
 
@@ -20,58 +19,120 @@ document.addEventListener('DOMContentLoaded', function () {
     var element = $(id);
     if (element) { element.textContent = message || ''; element.classList.toggle('is-error', Boolean(error)); }
   }
-  function displayName(member) { return member.isSelf ? 'You' : member.name; }
-  function showNoTeams() {
+  function escapePopup(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]; }); }
+  function confirmPopup(options) {
+    return new Promise(function (resolve) {
+      window.confirmPopup(escapePopup(options.message), function () { resolve(true); }, function () { resolve(false); }, escapePopup(options.title), options.tone === 'warning' ? 'warning' : (options.tone === 'danger' ? 'error' : 'primary'));
+    });
+  }
+  function noticePopup(title, message, tone) {
+    if (tone === 'danger') window.alert('Error: ' + escapePopup(message), escapePopup(title));
+    else if (tone === 'warning') window.alert('⚠️ ' + escapePopup(message), escapePopup(title));
+    else window.successPopup(escapePopup(message), escapePopup(title));
+  }
+  function displayName(member) { return member.isSelf ? member.name + ' (You)' : member.name; }
+  function memberIcon(kind) {
+    var image = document.createElement('img');
+    image.className = 'settings-member-icon ' + kind;
+    image.alt = '';
+    image.setAttribute('aria-hidden', 'true');
+    image.src = kind === 'admin' ? '../assets/admin.png' : '../assets/profile.png';
+    return image;
+  }
+  function creatorCrown() {
+    var crown = document.createElement('span');
+    crown.className = 'settings-creator-crown';
+    crown.setAttribute('role', 'img');
+    crown.setAttribute('aria-label', 'Team creator');
+    crown.title = 'Team creator';
+    crown.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 5 4 4-7 4 7 5-4-2 12H5L3 7Z"/><path d="M6 21h12"/></svg>';
+    return crown;
+  }
+  function personLabel(member) {
+    var label = document.createElement('span');
+    label.className = 'settings-person-label';
+    if (member.isCreator) label.appendChild(creatorCrown());
+    label.appendChild(memberIcon(member.role === 'admin' ? 'admin' : 'member'));
+    label.appendChild(document.createTextNode(displayName(member)));
+    return label;
+  }
+  function actionIcon(kind) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('settings-role-icon');
+    var paths = {
+      promote:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+      demote:'<path d="M12 5v14M19 12l-7 7-7-7"/>',
+      remove:'<path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/>'
+    };
+    svg.innerHTML = paths[kind];
+    return svg;
+  }
+  function setButtonContents(button, icon, label) {
+    button.appendChild(actionIcon(icon));
+    var text = document.createElement('span');
+    text.textContent = label;
+    button.appendChild(text);
+  }
+  function showNoTeams(message) {
     $('settings-title').textContent = 'Teams';
     $('team-settings-content').hidden = true;
     $('no-teams-message').hidden = false;
-  }
-  function populateMemberSelect() {
-    memberSelect.textContent = '';
-    (activeTeam.members || []).forEach(function (member) {
-      var option = document.createElement('option');
-      option.value = member.id;
-      option.textContent = displayName(member);
-      if (member.isSelf) option.selected = true;
-      memberSelect.appendChild(option);
-    });
+    $('no-teams-message').textContent = message || 'You are not a member of a team yet. Create or join one from the Teams page.';
+    $('no-teams-message').classList.toggle('is-error', Boolean(message));
   }
   function populatePeople(id, role) {
     var list = $(id);
     list.textContent = '';
     (activeTeam.members || []).filter(function (member) { return (member.role === 'admin') === (role === 'admin'); }).forEach(function (member) {
       var item = document.createElement('li');
-      var label = document.createElement('span');
-      label.textContent = displayName(member);
-      item.appendChild(label);
+      item.appendChild(personLabel(member));
       if (activeTeam.isAdmin && !member.isSelf) {
         var action = document.createElement('button');
-        action.className = 'settings-role-button';
+        var actionType = role === 'admin' ? 'demote' : 'promote';
+        action.className = 'settings-role-button ' + actionType;
         action.type = 'button';
-        action.textContent = role === 'admin' ? 'Demote' : 'Promote to admin';
+        setButtonContents(action, actionType, actionType === 'demote' ? 'Demote' : 'Promote');
         action.addEventListener('click', async function () {
+          var promote = actionType === 'promote';
+          var approved = await confirmPopup({
+            title: promote ? 'Promote member?' : 'Demote admin?',
+            message: promote
+              ? 'Give ' + displayName(member) + ' admin access to this team?'
+              : 'Remove admin access from ' + displayName(member) + '?',
+            confirmLabel: promote ? 'Promote' : 'Demote',
+            tone: promote ? 'success' : 'warning'
+          });
+          if (!approved) return;
           action.disabled = true;
           try {
             await api('/teams/' + activeTeam.id + '/members/' + member.id, {
-              method: 'PUT', body: JSON.stringify({ role: role === 'admin' ? 'member' : 'admin' })
+              method: 'PUT', body: JSON.stringify({ role: promote ? 'admin' : 'member' })
             });
             await loadTeam(activeTeam.id);
-            feedback('team-name-feedback', 'Member role updated.');
-          } catch (error) { feedback('team-name-feedback', error.message, true); action.disabled = false; }
+            await noticePopup(promote ? 'Member promoted' : 'Admin demoted', displayName(member) + (promote ? ' is now an admin.' : ' is now a member.'));
+          } catch (error) { await noticePopup('Could not update role', error.message, 'danger'); action.disabled = false; }
         });
         item.appendChild(action);
         var remove = document.createElement('button');
-        remove.className = 'settings-role-button';
+        remove.className = 'settings-role-button remove';
         remove.type = 'button';
-        remove.textContent = 'Remove';
+        setButtonContents(remove, 'remove', 'Remove');
         remove.addEventListener('click', async function () {
-          if (!window.confirm('Remove ' + displayName(member) + ' from this team?')) return;
+          var approved = await confirmPopup({
+            title: 'Remove team member?',
+            message: 'Remove ' + displayName(member) + ' from this team? They will lose access to its shared schedule.',
+            confirmLabel: 'Remove',
+            tone: 'danger'
+          });
+          if (!approved) return;
           remove.disabled = true;
           try {
             await api('/teams/' + activeTeam.id + '/members/' + member.id, { method: 'DELETE' });
             await loadTeam(activeTeam.id);
-            feedback('team-name-feedback', 'Member removed.');
-          } catch (error) { feedback('team-name-feedback', error.message, true); remove.disabled = false; }
+            await noticePopup('Member removed', displayName(member) + ' was removed from the team.');
+          } catch (error) { await noticePopup('Could not remove member', error.message, 'danger'); remove.disabled = false; }
         });
         item.appendChild(remove);
       }
@@ -88,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $('group-code').textContent = activeTeam.code || 'No group code';
     $('regenerate-group-code').hidden = !activeTeam.isAdmin;
     $('role-permission-note').hidden = activeTeam.isAdmin;
-    populateMemberSelect();
     populatePeople('settings-admins', 'admin');
     populatePeople('settings-members', 'member');
     $('leave-team').hidden = false;
@@ -101,6 +161,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function fillTeamSelect() {
     teamSelect.textContent = '';
+    var newTeamOption = document.createElement('option');
+    newTeamOption.value = '__new_team__';
+    newTeamOption.textContent = 'New Team';
+    teamSelect.appendChild(newTeamOption);
     teams.forEach(function (team) {
       var option = document.createElement('option');
       option.value = team.id;
@@ -128,17 +192,33 @@ document.addEventListener('DOMContentLoaded', function () {
     finally { button.disabled = false; }
   });
   $('regenerate-group-code').addEventListener('click', async function () {
-    if (!window.confirm('Regenerate the group code? Existing codes will stop working.')) return;
+    var approved = await confirmPopup({
+      title: 'Regenerate team code?',
+      message: 'The current code will stop working. Anyone using it will need the new code.',
+      confirmLabel: 'Regenerate',
+      tone: 'warning'
+    });
+    if (!approved) return;
     this.disabled = true;
     try {
       var result = await api('/teams/' + activeTeam.id + '/group-code', { method: 'POST' });
       $('group-code').textContent = result.code;
-      feedback('group-code-feedback', 'Group code regenerated.');
-    } catch (error) { feedback('group-code-feedback', error.message, true); }
+      await noticePopup('Team code regenerated', 'The new team code is ready to share.');
+    } catch (error) { await noticePopup('Could not regenerate code', error.message, 'danger'); }
     finally { this.disabled = false; }
   });
   $('leave-team').addEventListener('click', async function () {
-    if (!activeTeam || !window.confirm('Leave ' + activeTeam.name + '?')) return;
+    if (!activeTeam) return;
+    var leavingTeamName = activeTeam.name;
+    var approved = await confirmPopup({
+      title: 'Leave this team?',
+      message: activeTeam.isCreator
+        ? 'Creator access will transfer to the next admin, or to the first member alphabetically.'
+        : 'You will lose access to this team and its shared schedule.',
+      confirmLabel: 'Leave team',
+      tone: 'danger'
+    });
+    if (!approved) return;
     this.disabled = true;
     try {
       await api('/teams/' + activeTeam.id + '/leave', { method: 'POST' });
@@ -146,9 +226,11 @@ document.addEventListener('DOMContentLoaded', function () {
       fillTeamSelect();
       if (!teams.length) showNoTeams();
       else { teamSelect.value = teams[0].id; await loadTeam(teams[0].id); }
-    } catch (error) { feedback('team-name-feedback', error.message, true); this.disabled = false; }
+      await noticePopup('You left the team', 'You no longer have access to ' + leavingTeamName + '.');
+    } catch (error) { await noticePopup('Could not leave team', error.message, 'danger'); this.disabled = false; }
   });
   teamSelect.addEventListener('change', function () {
+    if (this.value === '__new_team__') { location.href = 'teams.html?action=choose'; return; }
     location.href = 'teams-settings.html?team=' + encodeURIComponent(this.value);
   });
 
@@ -156,12 +238,12 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       var result = await api('/teams');
       teams = result.teams || [];
-      if (!teams.length) return showNoTeams();
       fillTeamSelect();
+      if (!teams.length) return showNoTeams();
       var requested = new URLSearchParams(location.search).get('team');
       var selected = teams.find(function (team) { return team.id === requested; }) || teams[0];
       teamSelect.value = selected.id;
       await loadTeam(selected.id);
-    } catch (error) { showNoTeams(); feedback('team-name-feedback', error.message, true); }
+    } catch (error) { showNoTeams('Could not load your teams: ' + error.message); }
   })();
 });
