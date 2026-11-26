@@ -7,6 +7,31 @@
   'use strict';
   const STYLE_KEYS = ['color', 'fontColor', 'title', 'description', 'notes'];
 
+  function parseClockMinutes(value) {
+    if (typeof value !== 'string' || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) return null;
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  function getTimelineStartMinutes(blocks = [], events = [], defaultStart = 7 * 60) {
+    let earliest = defaultStart;
+    blocks.forEach(block => {
+      const start = parseClockMinutes(block?.start_time);
+      const end = parseClockMinutes(block?.end_time);
+      if (Array.isArray(block?.weekdays) && block.weekdays.length && start !== null && end !== null && end > start) {
+        earliest = Math.min(earliest, start);
+      }
+    });
+    events.forEach(event => {
+      const startAt = new Date(event?.start_at);
+      const endAt = new Date(event?.end_at);
+      if (!Number.isNaN(startAt.getTime()) && !Number.isNaN(endAt.getTime()) && endAt > startAt) {
+        earliest = Math.min(earliest, startAt.getHours() * 60 + startAt.getMinutes());
+      }
+    });
+    return earliest < defaultStart ? Math.floor(earliest / 60) * 60 : defaultStart;
+  }
+
   function resolveBlockStyle(block, batchDefaults) {
     const overrides = block && block.overrides && typeof block.overrides === 'object' ? block.overrides : {};
     const style = {
@@ -68,5 +93,5 @@
     return blocks.map(block => block.id === id ? clearOneBlockOverride(block, field) : block);
   }
 
-  return { STYLE_KEYS, resolveBlockStyle, setBlockOverride, clearBlockOverride, applyBatch };
+  return { STYLE_KEYS, getTimelineStartMinutes, resolveBlockStyle, setBlockOverride, clearBlockOverride, applyBatch };
 });

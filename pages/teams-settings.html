@@ -48,6 +48,10 @@
         </header>
 
         <main class="teams-settings-main" id="main-content">
+            <div class="teams-settings-page-title">
+                <h1 id="settings-page-title">Schedule Teams Settings</h1>
+                <p>Configure your group settings and permissions</p>
+            </div>
             <section class="settings-toolbar" aria-label="Team controls">
                 <div class="settings-view-controls">
                     <a class="settings-view-button" id="settings-view-link" href="teams.html">Team View</a>
@@ -57,7 +61,7 @@
                     <select id="settings-team-select" class="settings-team-select" aria-label="Choose team"></select>
                     <button class="settings-preferences-button" type="button"
                         id="show-member-preferences">Preferences</button>
-                    <a class="settings-back is-active" id="settings-page-button" href="#settings-title"
+                    <a class="settings-back is-active" id="settings-page-button" href="#settings-page-title"
                         aria-current="page" aria-label="Team settings" title="Team settings">
                         <svg class="settings-gear-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <circle cx="12" cy="12" r="8.25" />
@@ -69,7 +73,7 @@
             </section>
 
             <section class="team-settings-content" id="team-settings-content" aria-labelledby="settings-title" hidden>
-                <h1 id="settings-title">Settings</h1>
+                <h2 id="settings-title">Settings</h2>
                 <div class="settings-columns">
                     <div class="settings-column">
                         <section class="settings-card" aria-labelledby="group-name-heading">

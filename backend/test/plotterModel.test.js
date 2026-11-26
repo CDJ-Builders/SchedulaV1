@@ -5,6 +5,22 @@ const assert = require('node:assert/strict');
 const Model = require('../../frontend/scripts/plotterModel');
 const { normalizeConfiguration } = require('../services/scheduleService');
 
+test('timeline keeps the 7 AM start unless a class begins earlier', () => {
+  assert.equal(Model.getTimelineStartMinutes([
+    { weekdays: ['Monday'], start_time: '08:30', end_time: '09:30' },
+    { weekdays: ['Tuesday'], start_time: '07:00', end_time: '08:00' }
+  ]), 420);
+  assert.equal(Model.getTimelineStartMinutes([
+    { weekdays: ['Monday'], start_time: '06:45', end_time: '08:00' }
+  ]), 360);
+});
+
+test('timeline also expands for dated events before 7 AM', () => {
+  const start = new Date(2026, 0, 1, 5, 35);
+  const end = new Date(2026, 0, 1, 6, 20);
+  assert.equal(Model.getTimelineStartMinutes([], [{ start_at: start.toISOString(), end_at: end.toISOString() }]), 300);
+});
+
 test('resolveBlockStyle combines batch defaults, block fields, and overrides', () => {
   const style = Model.resolveBlockStyle({ title: 'Math', notes: '', overrides: { title: 'Algebra', color: '#123456' } }, { color: '#ffffff', fontColor: '#222222' });
   assert.deepEqual(style, { color: '#123456', fontColor: '#222222', title: 'Algebra', description: '', notes: '' });

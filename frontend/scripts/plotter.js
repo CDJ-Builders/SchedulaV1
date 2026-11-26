@@ -21,17 +21,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const editorStatus = document.getElementById('block-editor-status');
   const overwriteInput = document.getElementById('overwrite-customizations');
   const hideDetails = document.getElementById('hide-prof');
-  const hideCategory = document.getElementById('hide-code');
   const hideTitle = document.getElementById('hide-name');
   const hideTime = document.getElementById('hide-time');
   const hideDay = document.getElementById('hide-day');
-  const hideLocation = document.getElementById('hide-location');
   const colorInput = document.getElementById('custom-color');
   const fontColorInput = document.getElementById('custom-font-color');
   const timeLabels = document.getElementById('plotter-time-labels');
   const dayGrid = document.querySelector('.day-columns-grid');
   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const dayStartMinutes = 7 * 60;
+  const defaultDayStartMinutes = 7 * 60;
+  let dayStartMinutes = defaultDayStartMinutes;
   let schedules = [];
   let selectedSchedule = null;
   let latestEventEnd = null;
@@ -87,13 +86,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const configuration = parseJsonValue(value);
     if (!Array.isArray(configuration)) return [];
     return configuration.filter(block => block && typeof block === 'object').map(block => ({
-      ...block,
       id: typeof block.id === 'string' && block.id ? block.id : makeId(),
       title: typeof block.title === 'string' ? block.title : '',
       description: typeof block.description === 'string' ? block.description : '',
       notes: typeof block.notes === 'string' ? block.notes : '',
-      category: typeof block.category === 'string' ? block.category : '',
-      location: typeof block.location === 'string' ? block.location : '',
       weekdays: Array.isArray(block.weekdays) ? block.weekdays.filter(day => dayNames.includes(day)) : [],
       start_time: typeof block.start_time === 'string' ? block.start_time : '',
       end_time: typeof block.end_time === 'string' ? block.end_time : '',
@@ -150,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function appendBlock(item, layout = {}) {
-    const { day, startTime, endTime, title, description, notes, category, location, modality = 'onsite', blockId, legacy = false } = item;
+    const { day, startTime, endTime, title, description, notes, modality = 'onsite', blockId, legacy = false } = item;
     const startMinutes = parseTime(startTime); const endMinutes = parseTime(endTime); const column = dayNames.indexOf(day);
     if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes || column < 0 || startMinutes < dayStartMinutes) return;
     latestEventEnd = Math.max(latestEventEnd ?? dayStartMinutes, endMinutes);
@@ -171,14 +167,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       block.addEventListener('click', event => selectBlock(blockId, event));
       block.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectBlock(blockId, event); } });
     }
-    block.setAttribute('aria-label', [style.title || title || 'Untitled event', day, category, location, `${startTime} to ${endTime}`].filter(Boolean).join(', '));
+    block.setAttribute('aria-label', [style.title || title || 'Untitled event', day, `${startTime} to ${endTime}`].filter(Boolean).join(', '));
     const modalityLabel = document.createElement('span'); modalityLabel.className = 'event-modality-label'; modalityLabel.textContent = modality === 'online' ? 'ONLINE' : 'ONSITE'; block.appendChild(modalityLabel);
     if (!hideDay.checked) { const el = document.createElement('span'); el.className = 'event-day-label'; el.textContent = day; block.appendChild(el); }
     if (!hideTitle.checked) { const el = document.createElement('div'); el.className = 'subject-name'; el.textContent = style.title || 'Untitled block'; block.appendChild(el); }
     const detailText = style.notes || style.description || description;
     if (!hideDetails.checked && detailText) { const el = document.createElement('div'); el.className = 'prof-name'; el.textContent = detailText; block.appendChild(el); }
-    if (!hideCategory.checked && category) { const el = document.createElement('span'); el.className = 'event-category'; el.textContent = category; block.appendChild(el); }
-    if (!hideLocation.checked && location) { const el = document.createElement('span'); el.className = 'event-location'; el.textContent = location; block.appendChild(el); }
     if (!hideTime.checked) { const el = document.createElement('div'); el.className = 'time-text'; el.textContent = `${startTime} - ${endTime}`; block.appendChild(el); }
     blocks.appendChild(block);
   }
@@ -208,12 +202,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   function plotSchedule(schedule) {
     const configuration = normalizeBlocks(schedule.configuration);
     const events = Array.isArray(schedule.events) ? schedule.events : [];
+    dayStartMinutes = Model.getTimelineStartMinutes(configuration, events, defaultDayStartMinutes);
     layoutDayOccurrences(configuration, events).forEach(item => appendBlock({
       ...item.block, blockId: item.block.id, legacy: item.legacy, day: item.day,
       startTime: item.block.start_time || new Date(item.block.start_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
       endTime: item.block.end_time || new Date(item.block.end_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
       title: item.block.title, description: item.block.description, notes: item.block.notes,
-      category: item.block.category, location: item.block.location, modality: item.block.modality
+      modality: item.block.modality
     }, item));
     return configuration.length + events.length;
   }
@@ -358,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const name = document.createElement('strong'); name.textContent = style.title || 'Untitled block'; card.appendChild(name);
       const detail = style.notes || style.description || item.block.description;
       if (detail) { const note = document.createElement('span'); note.textContent = detail; card.appendChild(note); }
-      const metadata = [item.block.category, item.block.location, item.block.modality === 'online' ? 'Online' : 'Onsite'].filter(Boolean).join(' · ');
+      const metadata = item.block.modality === 'online' ? 'Online' : 'Onsite';
       if (metadata) { const meta = document.createElement('span'); meta.className = 'export-meta'; meta.textContent = metadata; card.appendChild(meta); }
       const time = document.createElement('small'); time.textContent = item.legacy
         ? `${new Date(item.block.start_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}–${new Date(item.block.end_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}`
@@ -427,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   generateButton.addEventListener('click', () => { if (!selectedSchedule) { notifyExport('Select a schedule first.', true); return; } renderSelectedSchedule(); });
-  [hideDetails, hideCategory, hideTitle, hideTime, hideDay, hideLocation].forEach(input => input.addEventListener('change', renderSelectedSchedule));
+  [hideDetails, hideTitle, hideTime, hideDay].forEach(input => input.addEventListener('change', renderSelectedSchedule));
   colorInput.addEventListener('input', () => applyBatchChange(colorInput, 'color'));
   fontColorInput.addEventListener('input', () => applyBatchChange(fontColorInput, 'fontColor'));
   exportButton.addEventListener('click', () => { exportMenu.hidden = !exportMenu.hidden; exportButton.setAttribute('aria-expanded', String(!exportMenu.hidden)); });

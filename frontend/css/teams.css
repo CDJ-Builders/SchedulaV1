@@ -26,17 +26,6 @@ body.schedula-background.teams-page .wrap {
   color: var(--teams-plum);
 }
 
-[data-theme="dark"] body.schedula-background.teams-page .wrap {
-  color: var(--fg);
-}
-
-[data-theme="dark"] body.schedula-background.teams-page .panel,
-[data-theme="dark"] body.schedula-background.teams-page .board,
-[data-theme="dark"] body.schedula-background.teams-page .dock,
-[data-theme="dark"] body.schedula-background.teams-page dialog {
-  color: var(--teams-plum);
-}
-
 body.schedula-background.teams-page .acct,
 body.schedula-background.teams-page .panel,
 body.schedula-background.teams-page .board,
@@ -79,6 +68,27 @@ body.schedula-background.teams-page .wrap {
   max-width: 1280px;
   margin: 0 auto;
   color: #2a1245;
+}
+
+body.schedula-background.teams-page .teams-page-title {
+  margin: 0;
+}
+
+body.schedula-background.teams-page .teams-page-title h1 {
+  margin: 0;
+  font-weight: 800;
+  font-variation-settings: "wdth" 80;
+  font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+  line-height: .92;
+  letter-spacing: -.035em;
+}
+
+body.schedula-background.teams-page .teams-page-title p {
+  max-width: 36ch;
+  margin: 16px 0 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 body.schedula-background.teams-page .teams-toolbar {
@@ -179,7 +189,8 @@ body.schedula-background.teams-page.no-team-mode .page {
   min-height: calc(100svh - 120px);
 }
 
-body.schedula-background.teams-page.no-team-mode #main-content {
+body.schedula-background.teams-page.no-team-mode #main-content .teams-toolbar,
+body.schedula-background.teams-page.no-team-mode #main-content .team-content {
   display: none !important;
 }
 

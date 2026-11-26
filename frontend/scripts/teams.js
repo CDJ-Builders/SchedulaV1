@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async function () {
    if (!TEAMS.length) {
     team = null;
     sel.textContent = '';
-    $('main-content').hidden = true;
+    $('main-content').hidden = false;
     document.body.classList.add('no-team-mode');
     showStatus('Create a team or join with a code to get started.');
     showNoTeamDialog();

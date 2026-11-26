@@ -77,9 +77,7 @@ const EVENT_COLUMNS = `
   e.end_at,
   e.timezone,
   e.description,
-  e.location,
   e.modality,
-  e.category,
   e.color,
   e.priority,
   e.status,
@@ -97,9 +95,7 @@ const RETURNING_EVENT_COLUMNS = `
   end_at,
   timezone,
   description,
-  location,
   modality,
-  category,
   color,
   priority,
   status,
@@ -115,9 +111,7 @@ function getEventInput(input) {
     end_at: input.end_at,
     timezone: input.timezone || 'UTC',
     description: input.description ?? null,
-    location: input.location ?? null,
     modality: input.modality ?? null,
-    category: input.category ?? null,
     color: input.color ?? null,
     priority: input.priority ?? null,
     status: input.status ?? null,
@@ -145,7 +139,7 @@ async function listSchedules(userId) {
     `SELECT s.id, s.owner_user_id, s.group_id, s.title, s.timezone, s.color,
             COALESCE(sc.context, '[]'::jsonb) AS configuration,
             s.created_at, s.updated_at,
-            COALESCE(jsonb_agg(to_jsonb(e) - 'event_window' ORDER BY e.start_at)
+            COALESCE(jsonb_agg(to_jsonb(e) - 'event_window' - 'category' - 'location' ORDER BY e.start_at)
               FILTER (WHERE e.id IS NOT NULL), '[]'::jsonb) AS events
        FROM schedules s
        LEFT JOIN schedule_context sc ON sc.schedule_id = s.id AND sc.deleted_at IS NULL
@@ -232,15 +226,15 @@ async function createEvent(userId, scheduleId, input) {
      )
      INSERT INTO events (
        schedule_id, owner_user_id, title, start_at, end_at, timezone,
-       description, location, modality, category, color, priority, status,
+       description, modality, color, priority, status,
        recurrence_rule, reminder_offset_minutes, notes
      )
-     SELECT id, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+     SELECT id, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
        FROM owned_schedule
     RETURNING ${RETURNING_EVENT_COLUMNS}`,
     [
       scheduleId, userId, event.title, event.start_at, event.end_at, event.timezone,
-      event.description, event.location, event.modality, event.category, event.color,
+      event.description, event.modality, event.color,
       event.priority, event.status, event.recurrence_rule,
       event.reminder_offset_minutes, event.notes
     ]
@@ -259,16 +253,15 @@ async function updateEvent(userId, eventId, input) {
   const result = await pool.query(
     `UPDATE events e
         SET title = $1, start_at = $2, end_at = $3, timezone = $4,
-            description = $5, location = $6, modality = $7, category = $8,
-            color = $9, priority = $10, status = $11, recurrence_rule = $12,
-            reminder_offset_minutes = $13, notes = $14
-      WHERE e.id = $15 AND e.owner_user_id = $16 AND e.deleted_at IS NULL
+            description = $5, modality = $6, color = $7, priority = $8,
+            status = $9, recurrence_rule = $10, reminder_offset_minutes = $11,
+            notes = $12
+      WHERE e.id = $13 AND e.owner_user_id = $14 AND e.deleted_at IS NULL
       RETURNING ${RETURNING_EVENT_COLUMNS}`,
     [
       event.title, event.start_at, event.end_at, event.timezone, event.description,
-      event.location, event.modality, event.category, event.color, event.priority,
-      event.status, event.recurrence_rule, event.reminder_offset_minutes,
-      event.notes, eventId, userId
+      event.modality, event.color, event.priority, event.status,
+      event.recurrence_rule, event.reminder_offset_minutes, event.notes, eventId, userId
     ]
   );
   if (!result.rows.length) {

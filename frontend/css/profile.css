@@ -30,26 +30,6 @@ body.pf {
   font-optical-sizing: auto;
 }
 
-html:not([data-theme="light"]) body.pf {
-  --bg: #09090b;
-  --panel: #09090b;
-  --surface: #f4ecfa;
-  --input-bg: #ffffff;
-  --panel-glass: #09090b;
-  --glass: #ffffff;
-  --panel-border-glass: rgba(255, 255, 255, .08);
-  --border: rgba(42, 18, 69, .26);
-  --text: #2a1245;
-  --muted: #5b4778;
-  --accent: #8b5cf6;
-  --accent-rgb: 139, 92, 246;
-  --accent-skeuo-border: rgba(42, 18, 69, .6);
-  --bezel: #ffffff;
-  --hair: rgba(42, 18, 69, .10);
-  --well: #b596c8;
-  --bezel-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .14), 0 0 0 1px rgba(42, 18, 69, .10), 0 6px 0 #62298a, 0 14px 20px rgba(42, 18, 69, .24);
-}
-
 body.pf::before,
 body.pf::after {
   display: none;
@@ -214,14 +194,6 @@ body.pf .pf-panel h2 {
   font-variation-settings: "wdth" 85;
   letter-spacing: -.02em;
   color: var(--text);
-}
-
-html:not([data-theme="light"]) body.pf .page-title-text {
-  color: #f4f4f5;
-}
-
-html:not([data-theme="light"]) body.pf .page-title p {
-  color: #c9c9d2;
 }
 
 body.pf .pf-panel > p {
@@ -474,28 +446,8 @@ body.pf .preference-check-grid input[type="checkbox"] {
   }
 }
 
-html:not([data-theme="light"]) body.pf .pf-panel,
-html:not([data-theme="light"]) body.pf .profile-info-field-wrapper,
-html:not([data-theme="light"]) body.pf .profile-select-group,
-html:not([data-theme="light"]) body.pf .pf-field,
-html:not([data-theme="light"]) body.pf .event-form-grid {
-  color: #2a1245;
-}
-
-html:not([data-theme="light"]) body.pf .pf-panel h2,
-html:not([data-theme="light"]) body.pf .pf-panel p,
-html:not([data-theme="light"]) body.pf .pf-panel span,
-html:not([data-theme="light"]) body.pf .pf-field,
-html:not([data-theme="light"]) body.pf .profile-select-group {
-  color: #2a1245;
-}
-
 body.pf ::-webkit-calendar-picker-indicator {
   opacity: .7;
-}
-
-html:not([data-theme="light"]) body.pf ::-webkit-calendar-picker-indicator {
-  filter: invert(1);
 }
 
 body.pf select option {
@@ -555,10 +507,6 @@ body.pf .danger-zone-col h3 {
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--flag);
-}
-
-html:not([data-theme="light"]) body.pf .danger-zone-col h3 {
-  color: #ff8fb1;
 }
 
 body.pf .danger-zone-col p {

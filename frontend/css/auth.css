@@ -106,24 +106,15 @@ h1 span {
 
 /* Login and sign-up page layout */
 .auth-page {
-  --auth-card: rgba(9, 9, 11, 0.72);
-  --auth-card-edge: rgba(255, 255, 255, 0.12);
-  --auth-input: rgba(255, 255, 255, 0.055);
-  --auth-input-edge: rgba(255, 255, 255, 0.12);
-  --auth-heading: #f4f4f5;
-  --auth-muted: #a1a1aa;
-  --auth-plum: #2a1245;
-  --auth-accent: #8b5cf6;
-  overflow-x: hidden;
-}
-
-[data-theme="light"] .auth-page {
   --auth-card: rgba(255, 255, 255, 0.82);
   --auth-card-edge: rgba(42, 18, 69, 0.14);
   --auth-input: #ffffff;
   --auth-input-edge: rgba(42, 18, 69, 0.18);
   --auth-heading: #2a1245;
   --auth-muted: #5b4778;
+  --auth-plum: #2a1245;
+  --auth-accent: #8b5cf6;
+  overflow-x: hidden;
 }
 
 /* Auth header controls */
@@ -183,13 +174,6 @@ h1 span {
   transition: transform 140ms ease, box-shadow 140ms ease, background 180ms ease;
 }
 
-[data-theme="light"] .auth-page .app-shell-header .theme-toggle,
-[data-theme="light"] .auth-page .app-shell-header .auth-back-btn {
-  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
-  color: var(--auth-plum);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98,41,138,.18), 0 4px 0 #62298a, 0 9px 18px rgba(42,18,69,.18);
-}
-
 .auth-page .app-shell-header .auth-back-btn {
   width: auto;
   min-width: 84px;
@@ -226,10 +210,6 @@ h1 span {
   -webkit-backdrop-filter: blur(24px) saturate(140%);
 }
 
-[data-theme="light"] .auth-page .login-card {
-  box-shadow: inset 0 1px 0 #fff, 0 24px 64px rgba(42,18,69,.14);
-}
-
 .auth-page .login-card::before {
   content: none;
 }
@@ -242,10 +222,6 @@ h1 span {
   justify-content: center;
   padding: 54px 48px 44px;
   border-right: 1px solid var(--auth-card-edge);
-  background: transparent;
-}
-
-[data-theme="light"] .auth-page .auth-visual {
   background: transparent;
 }
 
@@ -461,25 +437,6 @@ h1 span {
   accent-color: #62298a;
 }
 
-[data-theme="light"] .auth-page .theme-toggle,
-[data-theme="light"] .auth-page .theme-toggle svg,
-[data-theme="light"] .auth-page .theme-toggle svg * {
-  color: #2a1245;
-  stroke: #2a1245;
-  fill: none;
-}
-
-[data-theme="dark"] .auth-page .theme-toggle,
-:not([data-theme="light"]) .auth-page .theme-toggle,
-[data-theme="dark"] .auth-page .theme-toggle svg,
-:not([data-theme="light"]) .auth-page .theme-toggle svg,
-[data-theme="dark"] .auth-page .theme-toggle svg *,
-:not([data-theme="light"]) .auth-page .theme-toggle svg * {
-  color: #f4f4f5;
-  stroke: #f4f4f5;
-  fill: none;
-}
-
 @media (max-width: 900px) {
   .auth-page .page-shell {
     min-height: calc(100svh - 78px);
@@ -512,4 +469,37 @@ h1 span {
   .auth-page .auth-visual-copy { font-size: 15px; }
   .auth-page .card-content { padding: 30px 24px 34px; }
   .auth-page .card-content h1 { font-size: 36px; }
+}
+
+/* Light appearance defaults promoted from the former theme rules. */
+.auth-page {
+--auth-card: rgba(255, 255, 255, 0.82);
+  --auth-card-edge: rgba(42, 18, 69, 0.14);
+  --auth-input: #ffffff;
+  --auth-input-edge: rgba(42, 18, 69, 0.18);
+  --auth-heading: #2a1245;
+  --auth-muted: #5b4778;
+}
+
+.auth-page .app-shell-header .theme-toggle,
+.auth-page .app-shell-header .auth-back-btn {
+background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  color: var(--auth-plum);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98,41,138,.18), 0 4px 0 #62298a, 0 9px 18px rgba(42,18,69,.18);
+}
+
+.auth-page .login-card {
+box-shadow: inset 0 1px 0 #fff, 0 24px 64px rgba(42,18,69,.14);
+}
+
+.auth-page .auth-visual {
+background: transparent;
+}
+
+.auth-page .theme-toggle,
+.auth-page .theme-toggle svg,
+.auth-page .theme-toggle svg * {
+color: #2a1245;
+  stroke: #2a1245;
+  fill: none;
 }

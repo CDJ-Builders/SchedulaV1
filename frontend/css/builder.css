@@ -605,18 +605,6 @@ img[src$="/delete.png"] {
   fill: none;
 }
 
-#save-schedule-btn svg,
-#save-schedule-btn svg *,
-[data-theme="light"] #save-schedule-btn svg,
-[data-theme="light"] #save-schedule-btn svg *,
-[data-theme="dark"] #save-schedule-btn svg,
-[data-theme="dark"] #save-schedule-btn svg * {
-  color: #fff !important;
-  stroke: #fff !important;
-  fill: none !important;
-  filter: none !important;
-}
-
 @keyframes drop {
   from {
     opacity: 0;
@@ -1043,4 +1031,13 @@ dialog.smart-schedule-dialog::backdrop {
   .save-schedule-container .btn-primary {
     flex: 1 1 100%;
   }
+}
+
+/* Light appearance defaults promoted from the former theme rules. */
+#save-schedule-btn svg,
+#save-schedule-btn svg * {
+color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  filter: none !important;
 }

@@ -201,16 +201,6 @@
   font-weight: 800;
 }
 
-[data-theme="dark"] .app-shell-header .brand,
-:not([data-theme="light"]) .app-shell-header .brand {
-  --header-fg: #f4f4f5;
-  color: #f4f4f5;
-}
-
-[data-theme="light"] .app-shell-header .brand { color: #2a1245; }
-[data-theme="light"] .app-shell-header .acct,
-[data-theme="light"] .app-shell-header .acct-name { color: #2a1245; }
-
 .app-shell-header svg,
 .app-shell-header svg *,
 .app-shell-header .theme-toggle,
@@ -480,24 +470,6 @@ body.has-site-footer > .page {
   transform: translateY(-3px) scale(1.015);
 }
 
-[data-theme="light"] .footer-info-modal .custom-modal {
-  background: #ffffff;
-  border-color: rgba(139, 92, 246, 0.12);
-  color: #0f172a;
-}
-
-[data-theme="light"] .footer-info-modal .custom-modal-title {
-  color: #0f172a;
-}
-
-[data-theme="light"] .footer-info-modal .custom-modal-body {
-  color: #475569;
-}
-
-[data-theme="light"] .footer-info-modal .custom-modal-body h4 {
-  color: #0f172a;
-}
-
 /* Scrollable info modals (terms, privacy, about) */
 .footer-info-modal .custom-modal {
   width: min(560px, calc(100vw - 32px));
@@ -568,21 +540,34 @@ body.has-site-footer > .page {
   }
 }
 
-/* ─── Inline version numbers (beside copyright) ─────────────────── */
-.sfv-inline {
-  margin-left: 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: ui-monospace, 'Cascadia Code', 'Fira Mono', monospace;
-  letter-spacing: 0.04em;
-  color: transparent;
-  transition: color 0.35s ease;
+/* Light appearance defaults promoted from the former theme rules. */
+.app-shell-header .brand {
+color: #2a1245;
+}
+
+.app-shell-header .acct,
+.app-shell-header .acct-name {
+color: #2a1245;
+}
+
+.footer-info-modal .custom-modal {
+background: #ffffff;
+  border-color: rgba(139, 92, 246, 0.12);
+  color: #0f172a;
+}
+
+.footer-info-modal .custom-modal-title {
+color: #0f172a;
+}
+
+.footer-info-modal .custom-modal-body {
+color: #475569;
+}
+
+.footer-info-modal .custom-modal-body h4 {
+color: #0f172a;
 }
 
 .sfv-inline.sfv-loaded {
-  color: rgba(139, 92, 246, 0.55);
-}
-
-[data-theme="light"] .sfv-inline.sfv-loaded {
-  color: rgba(109, 40, 217, 0.45);
+color: rgba(109, 40, 217, 0.45);
 }

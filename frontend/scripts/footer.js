@@ -137,7 +137,6 @@
       <div class="site-footer-inner">
         <p class="site-footer-copy">
           &copy; CDJ Builders
-          <span class="sfv-inline" id="sfv-inline" aria-label="Deployed versions"></span>
         </p>
         <nav class="site-footer-nav" aria-label="Site footer">
           <a class="site-footer-link" href="mailto:cdj.builders.dev@gmail.com">
@@ -173,24 +172,6 @@
       btn.addEventListener('click', () => showFooterModal(btn.getAttribute('data-footer-modal')));
     });
 
-    // Fetch version data from /versions.json
-    fetch(assetBase + 'versions.json')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data) return;
-        const inline = document.getElementById('sfv-inline');
-        if (!inline) return;
-        const parts = [
-          data.frontend ? 'v' + data.frontend : null,
-          data.backend ? 'v' + data.backend : null,
-          data.postgres ? 'v' + data.postgres : null
-        ].filter(Boolean);
-        if (parts.length) {
-          inline.textContent = parts.join(' · ');
-          inline.classList.add('sfv-loaded');
-        }
-      })
-      .catch(() => { /* silent fallback for local dev */ });
   }
 
   loadStylesheet();
