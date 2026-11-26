@@ -23,9 +23,15 @@ Time management significantly influences academic and professional performance (
 ## 🎯 Agile SCRUM & Sprint Planning
 
 ### Sprint 6 Goal
-Multi-Schedule Proposals, streamline timetable visualization, and Quality of Life Fixes.
+Plotter Feature
 
 ### Sprint 7 Goal
+Super Admin
+
+### Sprint 8 Goal 
+Quality of Life Fixes
+
+### Sprint 9 Goal
 Deployment
 
 ### Team Roles & Responsibilities
