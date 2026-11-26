@@ -1,5 +1,26 @@
 const { pool } = require('../config/database');
 const WEEKDAYS = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+const BLOCK_OVERRIDE_KEYS = new Set(['color', 'fontColor', 'title', 'description', 'notes']);
+
+function normalizeBlockOverrides(overrides) {
+  if (overrides === undefined || overrides === null) return {};
+  if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) {
+    throw configurationError('block overrides must be an object');
+  }
+  const normalized = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    if (!BLOCK_OVERRIDE_KEYS.has(key)) throw configurationError(`Unsupported block override: ${key}`);
+    if (key === 'color' || key === 'fontColor') {
+      if (typeof value !== 'string' || !/^#[\da-f]{6}$/i.test(value)) throw configurationError(`${key} must be a six-digit hex color`);
+      normalized[key] = value.toLowerCase();
+    } else {
+      const limit = key === 'title' ? 120 : 240;
+      if (typeof value !== 'string' || value.length > limit) throw configurationError(`${key} must be a string of ${limit} characters or fewer`);
+      normalized[key] = value;
+    }
+  }
+  return normalized;
+}
 
 function configurationError(message) {
   const error = new Error(message);
@@ -14,6 +35,8 @@ function normalizeConfiguration(configuration) {
   return configuration.map((block) => {
     const title = typeof block?.title === 'string' ? block.title.trim() : '';
     const description = typeof block?.description === 'string' ? block.description.trim() : '';
+    const notes = block?.notes === undefined ? '' : block.notes;
+    if (typeof notes !== 'string' || notes.length > 240) throw configurationError('notes must be a string of 240 characters or fewer');
     const weekdays = Array.isArray(block?.weekdays)
       ? [...new Set(block.weekdays.filter(day => WEEKDAYS.has(day)))]
       : [];
@@ -21,14 +44,27 @@ function normalizeConfiguration(configuration) {
     const endTime = typeof block?.end_time === 'string' ? block.end_time : '';
     const modality = typeof block?.modality === 'string' ? block.modality : 'onsite';
     const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-    if (!title || weekdays.length !== 1 || !validTime.test(startTime) || !validTime.test(endTime)) {
+    if (!title || title.length > 120 || description.length > 240 || weekdays.length !== 1 || !validTime.test(startTime) || !validTime.test(endTime)) {
       throw configurationError('Each weekly block requires title, weekdays, start_time, and end_time');
     }
     if (!['onsite', 'online'].includes(modality)) {
       throw configurationError("modality must be 'onsite' or 'online'");
     }
     if (endTime <= startTime) throw configurationError('end_time must be later than start_time');
-    return { title, description, weekdays, start_time: startTime, end_time: endTime, modality };
+    const blockId = typeof block.id === 'string' && /^[\w-]{1,80}$/.test(block.id) ? block.id : null;
+    if (block.id !== undefined && blockId === null) throw configurationError('block id is invalid');
+    const overrides = normalizeBlockOverrides(block.overrides);
+    return {
+      ...(blockId ? { id: blockId } : {}),
+      title,
+      description,
+      ...(notes ? { notes } : {}),
+      weekdays,
+      start_time: startTime,
+      end_time: endTime,
+      modality,
+      ...(Object.keys(overrides).length ? { overrides } : {})
+    };
   });
 }
 
@@ -273,6 +309,8 @@ async function findConflicts(userId, eventId, startAt, endAt, scheduleId) {
 }
 
 module.exports = {
+  normalizeConfiguration,
+  normalizeBlockOverrides,
   listSchedules,
   createSchedule,
   updateSchedule,
