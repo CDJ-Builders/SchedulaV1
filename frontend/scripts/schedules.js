@@ -12,6 +12,12 @@ const scheduleExcelButton = document.getElementById('schedule-excel-btn');
 const addEventButton = document.getElementById('add-event-btn');
 const smartScheduleButton = document.getElementById('smart-schedule-btn');
 const smartScheduleDialog = document.getElementById('smart-schedule-dialog');
+const editWeeklyBlockDialog = document.getElementById('edit-weekly-block-dialog');
+const editBlockTitleInput = document.getElementById('edit-block-title');
+const editBlockWeekdayInput = document.getElementById('edit-block-weekday');
+const editBlockModalityInput = document.getElementById('edit-block-modality');
+const editBlockStartInput = document.getElementById('edit-block-start');
+const editBlockEndInput = document.getElementById('edit-block-end');
 const eventTitleInput = document.getElementById('event-title');
 const eventModalityInput = document.getElementById('event-modality');
 const smartScheduleTitle = document.getElementById('smart-schedule-title-input');
@@ -33,6 +39,7 @@ let schedules = [];
 let activeScheduleId = 'new';
 let events = [];
 let smartScheduleLoading = false;
+let editingBlockIndex = null;
 
 function tokenHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -309,7 +316,7 @@ function renderEvents() {
       card.className = 'event-card';
       card.dataset.weekday = day;
       const daySpecificEvent = { ...event, weekdays: [day] };
-      card.innerHTML = `<div class="event-card-body card-body-flex"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(daySpecificEvent))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><button class="btn-remove btn-remove-inline" type="button" data-event-key="new-${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div>`;
+      card.innerHTML = `<div class="event-card-body"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(daySpecificEvent))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><div class="event-card-actions"><button class="btn-primary btn-edit-inline" type="button" data-event-action="edit" data-event-index="${index}">EDIT</button><button class="btn-remove btn-remove-inline" type="button" data-event-action="remove" data-event-index="${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div></div>`;
       eventsList.appendChild(card);
     });
   });
@@ -436,6 +443,93 @@ function addEvent() {
   renderEvents();
   clearEventForm();
   showBuilderNotice('Weekly block added. Save the schedule to sync it.', 'Weekly block added');
+}
+
+function openWeeklyBlockEditor(index) {
+  const block = events[index];
+  if (!block) return;
+  editingBlockIndex = index;
+  editBlockTitleInput.value = block.title;
+  editBlockWeekdayInput.value = block.weekdays[0] || '';
+  editBlockModalityInput.value = block.modality;
+  editBlockStartInput.value = block.start_time;
+  editBlockEndInput.value = block.end_time;
+  editWeeklyBlockDialog.showModal();
+  editBlockTitleInput.focus();
+}
+
+function showWeeklyBlockEditError(message, title) {
+  const index = editingBlockIndex;
+  const draft = {
+    title: editBlockTitleInput.value,
+    weekday: editBlockWeekdayInput.value,
+    modality: editBlockModalityInput.value,
+    start: editBlockStartInput.value,
+    end: editBlockEndInput.value
+  };
+  if (editWeeklyBlockDialog.open) editWeeklyBlockDialog.close();
+  showBuilderNotice(message.startsWith('Error:') || message.toLowerCase().includes('conflict') ? message : `Error: ${message}`, title);
+  const popup = document.querySelector('.custom-modal-overlay');
+  let resumed = false;
+  let escapeHandler;
+  const resumeEditor = () => {
+    if (resumed) return;
+    resumed = true;
+    if (escapeHandler) document.removeEventListener('keydown', escapeHandler);
+    window.setTimeout(() => {
+      if (!events[index]) return;
+      editingBlockIndex = index;
+      editBlockTitleInput.value = draft.title;
+      editBlockWeekdayInput.value = draft.weekday;
+      editBlockModalityInput.value = draft.modality;
+      editBlockStartInput.value = draft.start;
+      editBlockEndInput.value = draft.end;
+      editWeeklyBlockDialog.showModal();
+      editBlockTitleInput.focus();
+    }, 310);
+  };
+  popup?.querySelector('.custom-modal-actions button')?.addEventListener('click', resumeEditor, { once: true });
+  popup?.addEventListener('click', event => { if (event.target === popup) resumeEditor(); }, { once: true });
+  escapeHandler = function reopenAfterEscape(event) {
+    if (event.key !== 'Escape') return;
+    resumeEditor();
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+function saveWeeklyBlockEdit() {
+  const index = editingBlockIndex;
+  const original = events[index];
+  if (!original) { editWeeklyBlockDialog.close(); return; }
+  const updated = {
+    ...original,
+    title: editBlockTitleInput.value.trim(),
+    weekdays: [editBlockWeekdayInput.value].filter(Boolean),
+    modality: editBlockModalityInput.value,
+    start_time: editBlockStartInput.value,
+    end_time: editBlockEndInput.value
+  };
+  const error = validateBlock(updated);
+  if (error) {
+    showWeeklyBlockEditError(error, 'Weekly block details required');
+    return;
+  }
+  const conflict = findBlockConflict(updated, events.filter((_, eventIndex) => eventIndex !== index));
+  if (conflict) {
+    const weekday = updated.weekdays.find(day => conflict.weekdays.includes(day));
+    showWeeklyBlockEditError(`This block overlaps “${conflict.title}” on ${weekday}.`, 'Schedule conflict');
+    return;
+  }
+  events[index] = updated;
+  editingBlockIndex = null;
+  renderEvents();
+  editWeeklyBlockDialog.close();
+  if (typeof window.successPopup === 'function') {
+    window.successPopup('Weekly block updated. Save the schedule to sync your changes.', 'Weekly block updated');
+  } else {
+    showBuilderNotice('Weekly block updated. Save the schedule to sync your changes.', 'Weekly block updated');
+  }
+  updateSmartScheduleEligibility(false);
 }
 
 async function saveSchedule() {
@@ -632,10 +726,16 @@ smartScheduleGenerateButton.addEventListener('click', async () => {
 });
 saveScheduleButton.addEventListener('click', saveSchedule);
 eventsList.addEventListener('click', event => {
-  const button = event.target.closest('[data-event-key]');
+  const button = event.target.closest('[data-event-action]');
   if (!button) return;
-  const index = Number(button.dataset.eventKey.slice(4));
+  const index = Number(button.dataset.eventIndex);
   if (!Number.isInteger(index) || index < 0 || index >= events.length) return;
+
+  if (button.dataset.eventAction === 'edit') {
+    openWeeklyBlockEditor(index);
+    return;
+  }
+  if (button.dataset.eventAction !== 'remove') return;
 
   const removeBlock = () => {
     events.splice(index, 1);
@@ -648,6 +748,18 @@ eventsList.addEventListener('click', event => {
     removeBlock();
   }
 });
+document.getElementById('edit-block-cancel').addEventListener('click', () => {
+  editingBlockIndex = null;
+  editWeeklyBlockDialog.close();
+});
+document.getElementById('edit-block-save').addEventListener('click', saveWeeklyBlockEdit);
+editWeeklyBlockDialog.addEventListener('click', event => {
+  if (event.target === editWeeklyBlockDialog) {
+    editingBlockIndex = null;
+    editWeeklyBlockDialog.close();
+  }
+});
+editWeeklyBlockDialog.addEventListener('close', () => { editingBlockIndex = null; });
 deleteScheduleButton.addEventListener('click', () => {
   if (activeScheduleId === 'new') {
     showBuilderNotice('Select an existing schedule before deleting.', 'Schedule selection required');

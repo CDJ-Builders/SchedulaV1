@@ -38,8 +38,8 @@
           <span class="acct-name header-username" id="header-username-display">User</span>
         </div>
         <button class="theme-toggle key sm icon" type="button" aria-label="Toggle theme"></button>
-        <a class="key icon" href="profile.html" aria-label="Profile settings" title="Profile settings"><svg viewBox="0 0 24 24"
-            aria-hidden="true">
+        <a class="key icon" href="profile.html" aria-label="Profile settings" title="Profile settings"><svg
+            viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
             <circle cx="16" cy="7" r="2" />
             <circle cx="8" cy="17" r="2" />
@@ -225,6 +225,54 @@
             then save the schedule.</p>
         </div>
         <button id="smart-schedule-cancel" class="btn-primary smart-schedule-cancel" type="button">Cancel</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="edit-weekly-block-dialog" class="smart-schedule-dialog edit-weekly-block-dialog"
+    aria-labelledby="edit-weekly-block-title">
+    <div class="smart-schedule-dialog-content">
+      <header class="smart-schedule-dialog-header">
+        <h2 id="edit-weekly-block-title">Edit weekly block</h2>
+      </header>
+      <div class="smart-schedule-controls edit-weekly-block-controls">
+        <label class="field smart-schedule-title-field" for="edit-block-title">
+          <span>Title</span>
+          <input id="edit-block-title" type="text" required maxlength="160">
+        </label>
+        <label class="field" for="edit-block-weekday">
+          <span>Weekday</span>
+          <select id="edit-block-weekday" required>
+            <option value="">Select a weekday</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </label>
+        <label class="field" for="edit-block-modality">
+          <span>Modality</span>
+          <select id="edit-block-modality" required>
+            <option value="">Select a modality</option>
+            <option value="onsite">Onsite</option>
+            <option value="online">Online</option>
+          </select>
+        </label>
+        <label class="field" for="edit-block-start">
+          <span>Start time</span>
+          <input id="edit-block-start" type="time" required>
+        </label>
+        <label class="field" for="edit-block-end">
+          <span>End time</span>
+          <input id="edit-block-end" type="time" required>
+        </label>
+      </div>
+      <footer class="smart-schedule-dialog-footer">
+        <button id="edit-block-cancel" class="btn-primary smart-schedule-cancel" type="button">Cancel</button>
+        <button id="edit-block-save" class="btn-primary btn-save" type="button">Finish Changes</button>
       </footer>
     </div>
   </dialog>

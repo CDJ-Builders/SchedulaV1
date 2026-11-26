@@ -223,6 +223,13 @@
   scrollbar-color: #b596c8 #f7f3fa;
 }
 
+.custom-dropdown-menu--dialog {
+  position:fixed;
+  z-index:2147483647;
+  min-width:0;
+  max-width:calc(100vw - 24px);
+}
+
 .custom-dropdown-menu[hidden] {
   display: none !important;
 }

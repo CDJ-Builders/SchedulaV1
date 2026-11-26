@@ -5,7 +5,7 @@
   if (root) root.PlotterModel = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  const STYLE_KEYS = ['color', 'fontColor', 'title', 'description', 'notes'];
+  const STYLE_KEYS = ['color', 'fontColor', 'gradient', 'fontGradient', 'fontFamily', 'title', 'description', 'notes'];
 
   function parseClockMinutes(value) {
     if (typeof value !== 'string' || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) return null;
@@ -37,6 +37,9 @@
     const style = {
       color: batchDefaults.color,
       fontColor: batchDefaults.fontColor,
+      gradient: Boolean(batchDefaults.gradient),
+      fontGradient: Boolean(batchDefaults.fontGradient),
+      fontFamily: batchDefaults.fontFamily || 'system',
       title: block.title || '',
       description: block.description || '',
       notes: block.notes || ''

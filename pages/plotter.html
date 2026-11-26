@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="../favicon.png">
     <link rel="stylesheet" href="../frontend/css/theme.css">
     <link rel="stylesheet" href="../frontend/css/plotter.css">
+    <link rel="stylesheet" href="../frontend/css/custom-dropdown.css">
     <link rel="stylesheet" href="../frontend/css/background.css">
     <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
     <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
@@ -59,58 +60,125 @@
             <section class="page-panel">
                 <section class="plotter-workspace card" aria-label="Schedule plotter controls">
                     <div class="plotter-tabs" role="tablist" aria-label="Plotter settings">
-                        <button id="tab-schedule" class="plotter-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-schedule" tabindex="0">Select schedule</button>
-                        <button id="tab-options" class="plotter-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-options" tabindex="-1">Options</button>
-                        <button id="tab-block" class="plotter-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-block" tabindex="-1">Selected block</button>
+                        <button id="tab-schedule" class="plotter-tab" type="button" role="tab" aria-selected="true"
+                            aria-controls="panel-schedule" tabindex="0">Select Schedule</button>
+                        <button id="tab-options" class="plotter-tab" type="button" role="tab" aria-selected="false"
+                            aria-controls="panel-options" tabindex="-1">Options</button>
+                        <button id="tab-block" class="plotter-tab" type="button" role="tab" aria-selected="false"
+                            aria-controls="panel-block" tabindex="-1">Edit Block</button>
                     </div>
 
-                    <div id="panel-schedule" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-schedule" tabindex="0">
+                    <div id="panel-schedule" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-schedule"
+                        tabindex="0">
                         <h2>Select schedule</h2>
                         <div class="well">
                             <div id="plotter-schedule-list" class="plotter-schedule-list lane" aria-busy="true">
-                                <div class="schedule-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="panel-options" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-options" tabindex="0" hidden>
-                    <div class="plotter-options-box">
-                        <h2 class="options-title">Options</h2>
-
-                        <div class="options-checkboxes">
-                            <label><span>Hide details</span><input type="checkbox" id="hide-prof"></label>
-                            <label><span>Hide title</span><input type="checkbox" id="hide-name"></label>
-                            <label><span>Hide time</span><input type="checkbox" id="hide-time"></label>
-                            <label><span>Hide day</span><input type="checkbox" id="hide-day"></label>
-                        </div>
-
-                        <div class="options-color">
-                            <div class="options-color-item">
-                                <label for="custom-color">Custom block color</label>
-                                <div class="color-input-wrapper">
-                                    <input type="color" id="custom-color" value="#ffffff"
-                                        oninput="document.getElementById('color-hex-display').textContent = this.value.toUpperCase()">
-                                    <span class="hex-text" id="color-hex-display">#FFFFFF</span>
-                                </div>
-                            </div>
-                            <div class="options-color-item">
-                                <label for="custom-font-color">Custom font color</label>
-                                <div class="color-input-wrapper">
-                                    <input type="color" id="custom-font-color" value="#2a1245"
-                                        oninput="document.getElementById('font-color-hex-display').textContent = this.value.toUpperCase()">
-                                    <span class="hex-text" id="font-color-hex-display">#2A1245</span>
+                                <div class="schedule-skeleton" aria-hidden="true">
+                                    <span></span><span></span><span></span>
                                 </div>
                             </div>
                         </div>
-                        <label class="overwrite-option"><input type="checkbox" id="overwrite-customizations"><span>Overwrite individual customizations</span></label>
-                    </div>
                     </div>
 
-                    <div id="panel-block" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-block" tabindex="0" hidden>
+                    <div id="panel-options" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-options"
+                        tabindex="0" hidden>
+                        <div class="plotter-options-box">
+                            <h2 class="options-title">Options</h2>
+
+                            <div class="options-checkboxes">
+                                <label><span>Hide details</span><input type="checkbox" id="hide-prof"></label>
+                                <label><span>Hide title</span><input type="checkbox" id="hide-name"></label>
+                                <label><span>Hide time</span><input type="checkbox" id="hide-time"></label>
+                                <label><span>Hide day</span><input type="checkbox" id="hide-day"></label>
+                            </div>
+
+                            <div class="options-color">
+                                <fieldset class="color-picker-group" data-color-target="color">
+                                    <legend>Block color</legend>
+                                    <div class="color-swatches" role="group" aria-label="Default block colors">
+                                        <button class="color-swatch is-selected" type="button" data-color="#FFFFFF" aria-label="White" aria-pressed="true" style="--swatch-color:#FFFFFF"></button>
+                                        <button class="color-swatch" type="button" data-color="#D9C2EC" aria-label="Lavender" aria-pressed="false" style="--swatch-color:#D9C2EC"></button>
+                                        <button class="color-swatch" type="button" data-color="#A7D8F0" aria-label="Sky blue" aria-pressed="false" style="--swatch-color:#A7D8F0"></button>
+                                        <button class="color-swatch" type="button" data-color="#A9D6B2" aria-label="Sage" aria-pressed="false" style="--swatch-color:#A9D6B2"></button>
+                                        <button class="color-swatch" type="button" data-color="#FFE08A" aria-label="Sunshine" aria-pressed="false" style="--swatch-color:#FFE08A"></button>
+                                        <button class="color-swatch" type="button" data-color="#F5B6C8" aria-label="Rose" aria-pressed="false" style="--swatch-color:#F5B6C8"></button>
+                                        <button class="color-swatch" type="button" data-color="#F2B88F" aria-label="Peach" aria-pressed="false" style="--swatch-color:#F2B88F"></button>
+                                        <button class="color-swatch" type="button" data-color="#B5C9A9" aria-label="Mint" aria-pressed="false" style="--swatch-color:#B5C9A9"></button>
+                                        <button class="color-swatch" type="button" data-color="#B8C1D9" aria-label="Periwinkle" aria-pressed="false" style="--swatch-color:#B8C1D9"></button>
+                                    </div>
+                                    <label class="gradient-toggle"><input type="checkbox" id="block-gradient"><span>Use gradient</span></label>
+                                    <div class="custom-color-row">
+                                        <label for="custom-color">Custom color</label>
+                                        <input type="color" id="custom-color" value="#ffffff" aria-label="Choose a custom block color">
+                                        <label class="hex-field-label" for="color-hex-display">Hex</label>
+                                        <input class="hex-input" type="text" id="color-hex-display" value="#FFFFFF" readonly aria-label="Current block color hex code">
+                                    </div>
+                                </fieldset>
+                                <fieldset class="color-picker-group" data-color-target="fontColor">
+                                    <legend>Font color</legend>
+                                    <div class="color-swatches" role="group" aria-label="Default font colors">
+                                        <button class="color-swatch is-selected" type="button" data-color="#2A1245" aria-label="Plum" aria-pressed="true" style="--swatch-color:#2A1245"></button>
+                                        <button class="color-swatch" type="button" data-color="#FFFFFF" aria-label="White" aria-pressed="false" style="--swatch-color:#FFFFFF"></button>
+                                        <button class="color-swatch" type="button" data-color="#202124" aria-label="Charcoal" aria-pressed="false" style="--swatch-color:#202124"></button>
+                                        <button class="color-swatch" type="button" data-color="#315B39" aria-label="Forest" aria-pressed="false" style="--swatch-color:#315B39"></button>
+                                        <button class="color-swatch" type="button" data-color="#1E40AF" aria-label="Blue" aria-pressed="false" style="--swatch-color:#1E40AF"></button>
+                                        <button class="color-swatch" type="button" data-color="#9A3412" aria-label="Rust" aria-pressed="false" style="--swatch-color:#9A3412"></button>
+                                        <button class="color-swatch" type="button" data-color="#751F2C" aria-label="Burgundy" aria-pressed="false" style="--swatch-color:#751F2C"></button>
+                                        <button class="color-swatch" type="button" data-color="#51445F" aria-label="Mauve" aria-pressed="false" style="--swatch-color:#51445F"></button>
+                                        <button class="color-swatch" type="button" data-color="#5F6368" aria-label="Slate" aria-pressed="false" style="--swatch-color:#5F6368"></button>
+                                    </div>
+                                    <label class="gradient-toggle"><input type="checkbox" id="font-gradient"><span>Use gradient</span></label>
+                                    <div class="custom-color-row">
+                                        <label for="custom-font-color">Custom color</label>
+                                        <input type="color" id="custom-font-color" value="#2a1245" aria-label="Choose custom font color">
+                                        <label class="hex-field-label" for="font-color-hex-display">Hex</label>
+                                        <input class="hex-input" type="text" id="font-color-hex-display" value="#2A1245" readonly aria-label="Current font color hex code">
+                                    </div>
+                                </fieldset>
+                                <fieldset class="color-picker-group background-color-picker" data-color-target="background">
+                                <legend>Canvas background</legend>
+                                <div class="color-swatches" role="group" aria-label="Default canvas background colors">
+                                    <button class="color-swatch is-selected" type="button" data-color="#B596C8" aria-label="Lavender" aria-pressed="true" style="--swatch-color:#B596C8"></button>
+                                    <button class="color-swatch" type="button" data-color="#D9C2EC" aria-label="Pale lavender" aria-pressed="false" style="--swatch-color:#D9C2EC"></button>
+                                    <button class="color-swatch" type="button" data-color="#A7D8F0" aria-label="Sky blue" aria-pressed="false" style="--swatch-color:#A7D8F0"></button>
+                                    <button class="color-swatch" type="button" data-color="#A9D6B2" aria-label="Sage" aria-pressed="false" style="--swatch-color:#A9D6B2"></button>
+                                    <button class="color-swatch" type="button" data-color="#FFE08A" aria-label="Sunshine" aria-pressed="false" style="--swatch-color:#FFE08A"></button>
+                                    <button class="color-swatch" type="button" data-color="#F5B6C8" aria-label="Rose" aria-pressed="false" style="--swatch-color:#F5B6C8"></button>
+                                    <button class="color-swatch" type="button" data-color="#F2B88F" aria-label="Peach" aria-pressed="false" style="--swatch-color:#F2B88F"></button>
+                                    <button class="color-swatch" type="button" data-color="#B5C9A9" aria-label="Mint" aria-pressed="false" style="--swatch-color:#B5C9A9"></button>
+                                    <button class="color-swatch" type="button" data-color="#B8C1D9" aria-label="Periwinkle" aria-pressed="false" style="--swatch-color:#B8C1D9"></button>
+                                </div>
+                                <label class="gradient-toggle"><input type="checkbox" id="canvas-gradient"><span>Use gradient</span></label>
+                                <div class="custom-color-row">
+                                    <label for="canvas-background-color">Custom color</label>
+                                    <input type="color" id="canvas-background-color" value="#b596c8" aria-label="Choose a custom canvas background color">
+                                    <label class="hex-field-label" for="canvas-background-hex">Hex</label>
+                                    <input class="hex-input" type="text" id="canvas-background-hex" value="#B596C8" readonly aria-label="Current canvas background hex code">
+                                </div>
+                                </fieldset>
+                            </div>
+                            <div class="plotter-font-picker">
+                                <label for="block-font-family">Block font</label>
+                                <select id="block-font-family" class="plotter-font-select">
+                                    <option value="system">System UI (Default)</option>
+                                    <option value="arial">Arial</option>
+                                    <option value="georgia">Georgia</option>
+                                    <option value="verdana">Verdana</option>
+                                    <option value="trebuchet">Trebuchet MS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="panel-block" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-block"
+                        tabindex="0" hidden>
                         <section id="block-editor" class="block-editor" aria-labelledby="block-editor-title" hidden>
-                            <div class="block-editor-heading"><h2 id="block-editor-title">Edit selected block</h2><p>Individual changes apply to every weekday occurrence of the selected block.</p></div>
+                            <div class="block-editor-heading">
+                                <h2 id="block-editor-title">Edit Selected Blocks</h2>
+                            </div>
                             <div id="block-editor-fields" class="block-editor-fields"></div>
-                            <p id="block-editor-status" class="block-editor-status" role="status" aria-live="polite"></p>
+                            <p id="block-editor-status" class="block-editor-status" role="status" aria-live="polite">
+                            </p>
                         </section>
                         <p class="block-empty-hint">Select a block on the schedule to edit its individual style.</p>
                     </div>
@@ -125,17 +193,15 @@
                                 <path d="M9 4v16M15 4v16M3 12h18" />
                             </svg>Generate schedule</button>
                         <div class="export-actions">
-                            <button id="btn-export" class="key btn-save" type="button" aria-haspopup="true" aria-expanded="false">Export <span aria-hidden="true">▾</span></button>
+                            <button id="btn-export" class="key btn-save" type="button" aria-haspopup="true"
+                                aria-expanded="false">Export <span aria-hidden="true">▾</span></button>
                             <div id="export-menu" class="export-menu" role="menu" hidden>
                                 <button type="button" role="menuitem" data-export="png">Export PNG</button>
-                                <button type="button" role="menuitem" data-export="pdf-landscape">Export PDF · Landscape</button>
-                                <button type="button" role="menuitem" data-export="pdf-portrait">Export PDF · Portrait</button>
+                                <button type="button" role="menuitem" data-export="pdf">Export PDF</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <p id="export-status" class="export-status" role="status" aria-live="polite" hidden></p>
 
                 <!-- Canvas Section -->
                 <div class="plotter-canvas-wrapper" id="capture-area">
@@ -190,6 +256,7 @@
     <script src="../frontend/scripts/header.js"></script>
     <script src="../frontend/scripts/footer.js"></script>
     <script src="../frontend/scripts/auth.js"></script>
+    <script src="../frontend/scripts/customDropdown.js"></script>
     <script src="../frontend/scripts/plotterModel.js"></script>
     <script src="../frontend/scripts/plotter.js"></script>
 </body>

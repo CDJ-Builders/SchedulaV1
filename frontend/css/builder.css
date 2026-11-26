@@ -881,6 +881,22 @@ dialog.smart-schedule-dialog::backdrop {
   border-top: 1px solid rgba(42, 18, 69, .1);
 }
 
+dialog.smart-schedule-dialog.edit-weekly-block-dialog { width:min(640px,calc(100vw - 28px)); max-height:none; overflow:visible; }
+.edit-weekly-block-dialog .smart-schedule-dialog-content { max-height:min(88dvh,780px); overflow-y:auto; border-radius:22px; }
+.edit-weekly-block-controls { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.edit-weekly-block-controls .smart-schedule-title-field { grid-column:1/-1; }
+.event-card-body { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.event-card-body>div:first-child { flex:1 1 auto; min-width:0; }
+.event-card-actions { display:flex; flex:none; align-items:center; gap:8px; }
+.event-card-actions button { min-height:36px; padding:8px 12px 9px; white-space:nowrap; }
+.btn-edit-inline { color:var(--plum); }
+@media (max-width:560px) {
+  .event-card-body { align-items:flex-start; flex-direction:column; }
+  .event-card-actions { align-self:flex-end; }
+  .edit-weekly-block-controls { grid-template-columns:1fr; }
+  .edit-weekly-block-controls .smart-schedule-title-field { grid-column:1; }
+}
+
 .smart-schedule-footer-hint {
   display: flex;
   align-items: flex-start;
@@ -1040,4 +1056,11 @@ color: #fff !important;
   stroke: #fff !important;
   fill: none !important;
   filter: none !important;
+}
+
+#smart-schedule-btn,
+#save-schedule-btn,
+#edit-block-save {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }

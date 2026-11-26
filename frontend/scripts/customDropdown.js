@@ -36,6 +36,7 @@
     if (select.multiple || (select.size > 1 && !select.hasAttribute('data-custom-dropdown'))) return;
 
     const variant = getVariant(select);
+    const overflowDialog = select.closest('.edit-weekly-block-dialog');
 
     // Create wrapper
     const wrap = document.createElement('div');
@@ -85,7 +86,12 @@
     menu.id = btn.getAttribute('aria-controls');
     if (select.id) menu.setAttribute('aria-label', select.getAttribute('aria-label') || select.id.replace(/[-_]/g, ' '));
     menu.hidden = true;
-    wrap.appendChild(menu);
+    if (overflowDialog) {
+      menu.classList.add('custom-dropdown-menu--dialog');
+      overflowDialog.appendChild(menu);
+    } else {
+      wrap.appendChild(menu);
+    }
 
     select._customDropdownWrap = wrap;
     select._customDropdownBtn = btn;
@@ -217,6 +223,7 @@
       closeAllDropdowns();
       buildOptions();
       menu.hidden = false;
+      if (overflowDialog) positionDialogMenu();
       btn.classList.add('is-open');
       btn.setAttribute('aria-expanded', 'true');
       activeIndex = select.selectedIndex;
@@ -227,6 +234,27 @@
       menu.hidden = true;
       btn.classList.remove('is-open');
       btn.setAttribute('aria-expanded', 'false');
+    }
+
+    function positionDialogMenu() {
+      const trigger = btn.getBoundingClientRect();
+      const viewportPadding = 12;
+      const maxHeight = Math.max(120, Math.min(280, window.innerHeight - viewportPadding * 2));
+      const width = Math.min(trigger.width, window.innerWidth - viewportPadding * 2);
+      menu.style.width = `${width}px`;
+      menu.style.maxHeight = `${maxHeight}px`;
+      menu.style.left = `${Math.max(viewportPadding, Math.min(trigger.left, window.innerWidth - width - viewportPadding))}px`;
+      const contentHeight = Math.min(menu.scrollHeight, maxHeight);
+      const below = window.innerHeight - trigger.bottom - 8;
+      const above = trigger.top - 8;
+      const placeAbove = below < contentHeight && above > below;
+      menu.style.top = `${placeAbove
+        ? Math.max(viewportPadding, trigger.top - Math.min(contentHeight, above) - 8)
+        : Math.min(trigger.bottom + 8, window.innerHeight - contentHeight - viewportPadding)}px`;
+    }
+    if (overflowDialog) {
+      window.addEventListener('resize', positionDialogMenu);
+      overflowDialog.addEventListener('scroll', positionDialogMenu, true);
     }
 
     btn.addEventListener('click', (e) => {
@@ -286,7 +314,7 @@
   }
 
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.custom-dropdown-wrap')) {
+    if (!e.target.closest('.custom-dropdown-wrap') && !e.target.closest('.custom-dropdown-menu')) {
       closeAllDropdowns();
     }
   });
