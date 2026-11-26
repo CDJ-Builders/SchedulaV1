@@ -57,9 +57,24 @@
             </div>
 
             <section class="page-panel">
-                <div class="controls">
-                    <!-- Options Section (above schedule) -->
-                    <div class="plotter-options-box card">
+                <section class="plotter-workspace card" aria-label="Schedule plotter controls">
+                    <div class="plotter-tabs" role="tablist" aria-label="Plotter settings">
+                        <button id="tab-schedule" class="plotter-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-schedule" tabindex="0">Select schedule</button>
+                        <button id="tab-options" class="plotter-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-options" tabindex="-1">Options</button>
+                        <button id="tab-block" class="plotter-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-block" tabindex="-1">Selected block</button>
+                    </div>
+
+                    <div id="panel-schedule" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-schedule" tabindex="0">
+                        <h2>Select schedule</h2>
+                        <div class="well">
+                            <div id="plotter-schedule-list" class="plotter-schedule-list lane" aria-busy="true">
+                                <div class="schedule-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="panel-options" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-options" tabindex="0" hidden>
+                    <div class="plotter-options-box">
                         <h2 class="options-title">Options</h2>
 
                         <div class="options-checkboxes">
@@ -91,19 +106,17 @@
                         </div>
                         <label class="overwrite-option"><input type="checkbox" id="overwrite-customizations"><span>Overwrite individual customizations</span></label>
                     </div>
-
-                    <!-- Controls Section (Select schedule below options) -->
-                    <div class="plotter-controls-section card">
-                        <h2>Select schedule</h2>
-                        <div class="well">
-                            <!-- Schedules dynamically injected here -->
-                            <div id="plotter-schedule-list" class="plotter-schedule-list lane" aria-busy="true">
-                                <div class="schedule-skeleton" aria-hidden="true">
-                                    <span></span><span></span><span></span></div>
-                            </div>
-                        </div>
                     </div>
-                </div>
+
+                    <div id="panel-block" class="plotter-tab-panel" role="tabpanel" aria-labelledby="tab-block" tabindex="0" hidden>
+                        <section id="block-editor" class="block-editor" aria-labelledby="block-editor-title" hidden>
+                            <div class="block-editor-heading"><h2 id="block-editor-title">Edit selected block</h2><p>Individual changes apply to every weekday occurrence of the selected block.</p></div>
+                            <div id="block-editor-fields" class="block-editor-fields"></div>
+                            <p id="block-editor-status" class="block-editor-status" role="status" aria-live="polite"></p>
+                        </section>
+                        <p class="block-empty-hint">Select a block on the schedule to edit its individual style.</p>
+                    </div>
+                </section>
 
                 <div class="dock">
                     <p>Select a schedule, choose what to show, then generate.</p>
@@ -124,11 +137,6 @@
                     </div>
                 </div>
 
-                <section id="block-editor" class="block-editor card" aria-labelledby="block-editor-title" hidden>
-                    <div class="block-editor-heading"><h2 id="block-editor-title">Edit selected block</h2><p>Individual changes apply to every weekday occurrence of the selected block.</p></div>
-                    <div id="block-editor-fields" class="block-editor-fields"></div>
-                    <p id="block-editor-status" class="block-editor-status" role="status" aria-live="polite"></p>
-                </section>
                 <p id="export-status" class="export-status" role="status" aria-live="polite" hidden></p>
 
                 <!-- Canvas Section -->

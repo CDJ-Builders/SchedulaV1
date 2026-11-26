@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const exportMenu = document.getElementById('export-menu');
   const blocks = document.getElementById('blocks-container');
   const editor = document.getElementById('block-editor');
+  const blockTab = document.getElementById('tab-block');
+  const blockEmptyHint = document.querySelector('.block-empty-hint');
+  const tabs = [
+    { name: 'schedule', button: document.getElementById('tab-schedule'), panel: document.getElementById('panel-schedule') },
+    { name: 'options', button: document.getElementById('tab-options'), panel: document.getElementById('panel-options') },
+    { name: 'block', button: blockTab, panel: document.getElementById('panel-block') }
+  ];
   const editorFields = document.getElementById('block-editor-fields');
   const editorStatus = document.getElementById('block-editor-status');
   const overwriteInput = document.getElementById('overwrite-customizations');
@@ -31,6 +38,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedBlockIds = new Set();
   let editSnapshot = null;
   let saveTimer = null;
+  let activeTab = 'schedule';
+
+  function setActiveTab(name, focus = false) {
+    const target = tabs.find(tab => tab.name === name && !tab.button.disabled);
+    if (!target) return;
+    activeTab = target.name;
+    tabs.forEach(tab => {
+      const selected = tab === target;
+      tab.button.setAttribute('aria-selected', String(selected));
+      tab.button.tabIndex = selected ? 0 : -1;
+      tab.panel.hidden = !selected;
+    });
+    if (focus) target.button.focus();
+  }
+
+  tabs.forEach(tab => {
+    tab.button.addEventListener('click', () => setActiveTab(tab.name));
+    tab.button.addEventListener('keydown', event => {
+      const enabled = tabs.filter(item => !item.button.disabled);
+      const current = enabled.indexOf(tab);
+      let nextIndex = null;
+      if (event.key === 'ArrowRight') nextIndex = (current + 1) % enabled.length;
+      if (event.key === 'ArrowLeft') nextIndex = (current - 1 + enabled.length) % enabled.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = enabled.length - 1;
+      if (nextIndex !== null) { event.preventDefault(); setActiveTab(enabled[nextIndex].name, true); }
+    });
+  });
 
   const colorValid = value => /^#[\da-f]{6}$/i.test(value);
   const makeId = () => window.crypto?.randomUUID?.() || `block-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -81,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const button = document.createElement('button'); button.className = 'btn-select'; button.type = 'button'; button.textContent = selectedSchedule?.id === schedule.id ? 'SELECTED' : 'SELECT';
       if (selectedSchedule?.id === schedule.id) button.classList.add('selected');
       button.addEventListener('click', () => {
-        selectedSchedule = schedule; selectedBlockIds.clear(); editor.hidden = true; renderScheduleList();
+        selectedSchedule = schedule; selectedBlockIds.clear(); editor.hidden = true; renderEditor(); setActiveTab('schedule'); renderScheduleList();
         if (document.getElementById('capture-area').classList.contains('visible')) renderSelectedSchedule();
       });
       item.append(name, button); list.appendChild(item);
@@ -194,12 +229,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const multi = event.ctrlKey || event.metaKey || event.shiftKey;
     if (!multi) selectedBlockIds = new Set([id]);
     else if (selectedBlockIds.has(id)) selectedBlockIds.delete(id); else selectedBlockIds.add(id);
-    renderEditor(); renderSelectedSchedule();
+    renderEditor(); renderSelectedSchedule(); setActiveTab('block');
   }
 
   function currentSelectedBlocks() { return (selectedSchedule?.configuration || []).filter(block => selectedBlockIds.has(block.id)); }
   function renderEditor() {
-    const selected = currentSelectedBlocks(); editor.hidden = !selected.length; if (!selected.length) return;
+    const selected = currentSelectedBlocks();
+    editor.hidden = !selected.length; blockEmptyHint.hidden = Boolean(selected.length);
+    if (!selected.length) return;
     editorFields.replaceChildren();
     const style = Model.resolveBlockStyle(selected[0], batchDefaults());
     const controls = [
