@@ -160,12 +160,20 @@ Update your database credentials and secrets
 ### 3. Start SchedulaML Inference Service
 In a separate terminal, launch the Python service:
 
+> **⚠️ Python 3.13 required.** The model artifacts are incompatible with Python 3.14+. Using the wrong interpreter will cause a startup `RuntimeError`. Use `.\start.ps1` or the `uv` instructions below.
+
+**Recommended — use the included launcher (auto-selects Python 3.13):**
 ```powershell
 cd schedulaml
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+.\start.ps1
+```
+
+**Manual setup (first time or after deleting `.venv`):**
+```powershell
+cd schedulaml
+uv venv --python 3.13 .venv
+uv pip install -r requirements.txt --python .venv
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
 ### 4. Start the Backend API Server

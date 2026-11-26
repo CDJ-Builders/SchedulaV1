@@ -29,7 +29,8 @@ def verify_runtime() -> None:
         current = ".".join(map(str, current_python))
         raise RuntimeError(
             f"SchedulaML artifact 1.1.0 requires Python {expected}; this service is running Python {current}. "
-            "Create a fresh virtual environment with `py -3.13 -m venv .venv` and reinstall schedulaml/requirements.txt."
+            "Run the service using SchedulaML's dedicated Python 3.13 environment (`.\\start.ps1` or `.\\.venv\\Scripts\\python.exe -m uvicorn app.main:app`). "
+            "If recreating .venv, use `uv venv --python 3.13 .venv` or an explicit Python 3.13 executable."
         )
 
     for package, expected in SUPPORTED_MODEL_PACKAGES.items():
