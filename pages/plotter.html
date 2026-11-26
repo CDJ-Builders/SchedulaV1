@@ -89,6 +89,7 @@
                                 </div>
                             </div>
                         </div>
+                        <label class="overwrite-option"><input type="checkbox" id="overwrite-customizations"><span>Overwrite individual customizations</span></label>
                     </div>
 
                     <!-- Controls Section (Select schedule below options) -->
@@ -112,12 +113,23 @@
                                 <rect x="3" y="4" width="18" height="16" rx="3" />
                                 <path d="M9 4v16M15 4v16M3 12h18" />
                             </svg>Generate schedule</button>
-                        <button id="btn-save-png" class="key btn-save" type="button"><svg viewBox="0 0 24 24"
-                                aria-hidden="true">
-                                <path d="M12 4v10M8 10l4 4 4-4M5 19h14" />
-                            </svg>Save as PNG</button>
+                        <div class="export-actions">
+                            <button id="btn-export" class="key btn-save" type="button" aria-haspopup="true" aria-expanded="false">Export <span aria-hidden="true">▾</span></button>
+                            <div id="export-menu" class="export-menu" role="menu" hidden>
+                                <button type="button" role="menuitem" data-export="png">Export PNG</button>
+                                <button type="button" role="menuitem" data-export="pdf-landscape">Export PDF · Landscape</button>
+                                <button type="button" role="menuitem" data-export="pdf-portrait">Export PDF · Portrait</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <section id="block-editor" class="block-editor card" aria-labelledby="block-editor-title" hidden>
+                    <div class="block-editor-heading"><h2 id="block-editor-title">Edit selected block</h2><p>Individual changes apply to every weekday occurrence of the selected block.</p></div>
+                    <div id="block-editor-fields" class="block-editor-fields"></div>
+                    <p id="block-editor-status" class="block-editor-status" role="status" aria-live="polite"></p>
+                </section>
+                <p id="export-status" class="export-status" role="status" aria-live="polite" hidden></p>
 
                 <!-- Canvas Section -->
                 <div class="plotter-canvas-wrapper" id="capture-area">
@@ -172,6 +184,7 @@
     <script src="../frontend/scripts/header.js"></script>
     <script src="../frontend/scripts/footer.js"></script>
     <script src="../frontend/scripts/auth.js"></script>
+    <script src="../frontend/scripts/plotterModel.js"></script>
     <script src="../frontend/scripts/plotter.js"></script>
 </body>
 
