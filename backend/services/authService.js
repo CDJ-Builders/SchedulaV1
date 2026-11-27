@@ -51,7 +51,7 @@ async function login(email, password) {
     throw error;
   }
   const result = await pool.query(
-    `SELECT u.id, u.email, u.password_hash, u.platform_role, p.display_name
+    `SELECT u.id, u.email, u.password_hash, u.role, p.display_name
        FROM users u
        LEFT JOIN profiles p ON p.user_id = u.id AND p.deleted_at IS NULL
       WHERE LOWER(u.email::text) = LOWER($1)
@@ -76,7 +76,7 @@ async function login(email, password) {
   return {
     token,
     refreshToken,
-    user: { user_id: user.id, name: user.display_name, email: user.email, access: user.platform_role }
+    user: { user_id: user.id, name: user.display_name, email: user.email, access: user.role, role: user.role }
   };
 }
 

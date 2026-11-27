@@ -6,20 +6,6 @@ const { Client } = require('pg');
 require('../config/env');
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
-const MIGRATIONS = [
-  '001_schedula_schema.up.sql',
-  '002_demo_seed.up.sql',
-  '003_preferences_rebuild.up.sql',
-  '004_account_deletion_cascade.up.sql',
-  '005_preferred_break.up.sql',
-  '006_back_to_back_tolerance.up.sql',
-  '007_teams_features.up.sql',
-  '008_teams_demo_seed.up.sql',
-  '009_team_proposal_description.up.sql',
-  '010_session_idle_timeout.up.sql',
-  '011_remove_unused_calendar_tables.up.sql'
-];
-
 function assertLocalDevelopmentTarget() {
   const host = String(process.env.DB_HOST || '').toLowerCase();
   if (process.env.NODE_ENV === 'production') {
@@ -71,13 +57,10 @@ async function main() {
     await client.query('CREATE SCHEMA public AUTHORIZATION CURRENT_USER');
     await client.query('GRANT USAGE ON SCHEMA public TO PUBLIC');
 
-    const migrationDirectory = path.join(__dirname, '..', 'sql', 'migrations');
-    for (const file of MIGRATIONS) {
-      const sql = fs.readFileSync(path.join(migrationDirectory, file), 'utf8');
-      await client.query(withoutTransactionWrapper(sql));
-    }
+    const setupSql = fs.readFileSync(path.join(__dirname, '..', 'sql', '1setup.sql'), 'utf8');
+    await client.query(withoutTransactionWrapper(setupSql));
     await client.query('COMMIT');
-    console.log('Local development database reset complete. Applied 11 ordered migrations.');
+    console.log('Local development database reset complete. Installed the final schema baseline; no demo data was inserted.');
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch {}
     console.error('Database reset failed: ' + error.message);

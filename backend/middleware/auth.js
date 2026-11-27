@@ -35,24 +35,4 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-/**
- * Express Middleware to restrict access to Super Admins.
- * Queries the database to verify the user's platform role is 'admin'.
- */
-const adminOnly = async (req, res, next) => {
-  try {
-    const result = await pool.query(
-      'SELECT platform_role FROM users WHERE id = $1 AND deleted_at IS NULL',
-      [req.user.user_id]
-    );
-    if (result.rows.length === 0 || result.rows[0].platform_role !== 'admin') {
-      return res.status(403).json({ error: 'Access denied: Admin role required' });
-    }
-    next();
-  } catch (error) {
-    console.error('Admin verification error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
-
-module.exports = { authenticateToken, adminOnly };
+module.exports = { authenticateToken };

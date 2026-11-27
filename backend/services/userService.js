@@ -2,7 +2,7 @@ const { pool } = require('../config/database');
 
 async function getSession(userId) {
   const result = await pool.query(
-    `SELECT u.id AS user_id, u.email, u.platform_role AS access,
+    `SELECT u.id AS user_id, u.email, u.role AS access,
             p.display_name AS name, p.timezone, p.locale, p.avatar_url, p.working_hours
        FROM users u
        LEFT JOIN profiles p ON p.user_id = u.id AND p.deleted_at IS NULL
@@ -270,7 +270,16 @@ async function updatePreferences(userId, input) {
       input.max_back_to_back, input.commute_time, preferredBreakMinutes, input.preferred_modality
     ]
   );
-  return result.rows[0];
+  const toleranceResult = await pool.query(
+    'UPDATE preferences SET max_back_to_back = $1 WHERE user_id = $2 RETURNING max_back_to_back',
+    [input.max_back_to_back, userId]
+  );
+  if (!toleranceResult.rows.length) {
+    const error = new Error('Unable to save the back-to-back tolerance.');
+    error.status = 500;
+    throw error;
+  }
+  return { ...result.rows[0], max_back_to_back: toleranceResult.rows[0].max_back_to_back };
 }
 
 module.exports = {
