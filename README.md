@@ -183,7 +183,11 @@ npm start
 ```
 
 ### 5. Access the Application
-Open your browser and navigate to `http://localhost:3000` to access the application.
+```
+python -m http.server 8080
+  
+```
+Open your browser and navigate to `http://localhost:8080` to access the application.
 
 ---
 
