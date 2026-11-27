@@ -163,7 +163,13 @@ getElement('save-profile-btn').addEventListener('click', async () => {
 getElement('save-preferences-btn').addEventListener('click', async () => {
   const root = getElement('profile-preferences');
   try {
-    await window.APP_PREFERENCES.save(root);
+    const profileRadios = [...root.querySelectorAll('input[type="radio"]')];
+    const radioControls = profileRadios.length ? profileRadios : [...document.querySelectorAll('input[type="radio"]')];
+    const selectedTolerance = radioControls.find(radio => radio.checked);
+    if (!selectedTolerance) throw new Error('Select a back-to-back tolerance before saving.');
+    await window.APP_PREFERENCES.save(root, {
+      max_back_to_back: Number(selectedTolerance.value)
+    });
     if (typeof window.successPopup === 'function') {
       window.successPopup('Preferences saved successfully.', 'Preferences saved');
     } else {
@@ -198,6 +204,14 @@ getElement('delete-account-btn').addEventListener('click', () => {
 
 async function initializeProfilePage() {
   initializeProfileCarousel();
+  const preferenceRoot = getElement('profile-preferences');
+  if (preferenceRoot && window.APP_PREFERENCES) {
+    window.addEventListener('storage', event => {
+      if (event.key?.startsWith('schedula.preferences.backToBack:')) {
+        window.APP_PREFERENCES.load(preferenceRoot);
+      }
+    });
+  }
 
   if (!getToken()) {
     window.location.href = 'login.html';
@@ -230,8 +244,8 @@ function initializeProfileCarousel() {
       slide.setAttribute('aria-hidden', String(!active));
       slide.inert = !active;
     });
-    backButton.disabled = current === 0;
-    nextButton.disabled = current === slides.length - 1;
+    backButton.hidden = current === 0;
+    nextButton.hidden = current === slides.length - 1;
     if (moveFocus) slides[current].querySelector('h2')?.focus({ preventScroll: true });
   };
 

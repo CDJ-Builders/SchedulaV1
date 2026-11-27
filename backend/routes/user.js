@@ -21,10 +21,12 @@ router.delete('/user/profile', asyncHandler(async (req, res) => {
 }));
 
 router.get('/preferences', asyncHandler(async (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.json(await userService.getPreferences(req.user.user_id));
 }));
 
 router.put('/preferences', asyncHandler(async (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   try {
     res.json(await userService.updatePreferences(req.user.user_id, req.body));
   } catch (error) {

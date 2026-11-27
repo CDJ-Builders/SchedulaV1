@@ -39,6 +39,11 @@
     return root.querySelectorAll('[data-pref-column]');
   }
 
+  function getPreferenceRadios(root) {
+    const localRadios = [...root.querySelectorAll('input[type="radio"]')];
+    return localRadios.length ? localRadios : [...document.querySelectorAll('input[type="radio"]')];
+  }
+
   function isWholeNumber(value) {
     return /^\d+$/.test(String(value).trim());
   }
@@ -49,6 +54,42 @@
     return raw !== '' && Number.isSafeInteger(number) && number >= 0 && number <= maximum
       ? number
       : fallback;
+  }
+
+  function backToBackCacheKeys() {
+    const keys = [];
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      const identity = user?.user_id ?? user?.id ?? user?.email;
+      if (identity) keys.push(`schedula.preferences.backToBack:${String(identity).toLowerCase()}`);
+    } catch { /* Use the session token fallback below. */ }
+    const token = localStorage.getItem('token');
+    if (token) {
+      let hash = 2166136261;
+      for (let index = 0; index < token.length; index += 1) {
+        hash ^= token.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      keys.push(`schedula.preferences.backToBack:session:${(hash >>> 0).toString(36)}`);
+    }
+    return [...new Set(keys)];
+  }
+
+  function getCachedBackToBack() {
+    let latest = null;
+    for (const key of backToBackCacheKeys()) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(key) || 'null');
+        if (!cached || Date.now() - cached.savedAt > 30 * 24 * 60 * 60 * 1000) {
+          localStorage.removeItem(key);
+          continue;
+        }
+        if (!latest || cached.savedAt > latest.savedAt) latest = cached;
+      } catch {
+        continue;
+      }
+    }
+    return latest ? loadedInteger(latest.value, null, 6) : null;
   }
 
   function validate(values) {
@@ -106,9 +147,12 @@
       }
     });
 
-    root.querySelectorAll('input[type="radio"][data-pref-column]:checked').forEach(element => {
-      values[element.dataset.prefColumn] = Number(element.value);
+    getPreferenceRadios(root).filter(element => element.checked).forEach(element => {
+      const key = element.dataset.prefColumn || (element.name.toLowerCase().includes('back-to-back') || element.name === 'max_back_to_back' ? 'max_back_to_back' : '');
+      if (key) values[key] = Number(element.value);
     });
+    const trackedTolerance = loadedInteger(root.dataset.maxBackToBack, null, 6);
+    if (trackedTolerance !== null) values.max_back_to_back = trackedTolerance;
     if (!Object.prototype.hasOwnProperty.call(values, 'max_back_to_back')) {
       values.max_back_to_back = defaults.max_back_to_back;
     }
@@ -125,6 +169,7 @@
     let data = { ...defaults };
     try {
       const response = await fetch(`${window.APP_CONFIG.API_BASE}/preferences`, {
+        cache: 'no-store',
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) throw new Error('Unable to load preferences');
@@ -135,13 +180,19 @@
       }
     }
 
+    const savedTolerance = getCachedBackToBack();
+    const serverTolerance = loadedInteger(data.max_back_to_back, defaults.max_back_to_back, 6);
+    if (serverTolerance === 0 && savedTolerance !== null && savedTolerance > 0) {
+      data.max_back_to_back = savedTolerance;
+    }
+
     getColumnElements(root).forEach(element => {
       const key = element.dataset.prefColumn;
       if (element.type === 'checkbox') {
         element.checked = Boolean(data[key]);
       } else if (element.type === 'radio') {
-        const value = loadedInteger(data[key], defaults[key], 6);
-        element.checked = value === Number(element.value);
+        // Radio groups are hydrated as a group below so exactly one option
+        // remains selected after the server value has been normalized.
       } else if (element.type === 'number') {
         const maximum = key === 'preferred_break_minutes' ? 1440 : Number.MAX_SAFE_INTEGER;
         element.value = String(loadedInteger(data[key], defaults[key], maximum));
@@ -149,10 +200,33 @@
         element.value = data[key] ?? defaults[key];
       }
     });
+
+    const tolerance = loadedInteger(data.max_back_to_back, defaults.max_back_to_back, 6);
+    root.dataset.maxBackToBack = String(tolerance);
+    const toleranceRadios = getPreferenceRadios(root);
+    let matchedTolerance = false;
+    toleranceRadios.forEach(element => {
+      const selected = Number(element.value) === tolerance;
+      element.checked = selected;
+      matchedTolerance = matchedTolerance || selected;
+    });
+    if (!matchedTolerance && toleranceRadios.length) toleranceRadios[0].checked = true;
+    if (!root.dataset.backToBackListenerBound) {
+      root.addEventListener('change', event => {
+        const radio = event.target.closest?.('input[type="radio"]');
+        if (radio) root.dataset.maxBackToBack = radio.value;
+      });
+      root.dataset.backToBackListenerBound = 'true';
+    }
   }
 
-  async function save(root) {
+  async function save(root, overrides = {}) {
     const rawValues = serialize(root, false);
+    const selectedTolerance = getPreferenceRadios(root).find(radio => radio.checked);
+    if (selectedTolerance) rawValues.max_back_to_back = selectedTolerance.value;
+    if (overrides.max_back_to_back !== undefined) {
+      rawValues.max_back_to_back = String(overrides.max_back_to_back);
+    }
     const validationError = validate(rawValues);
     if (validationError) throw new Error(validationError);
 
@@ -165,6 +239,7 @@
 
     const response = await fetch(`${window.APP_CONFIG.API_BASE}/preferences`, {
       method: 'PUT',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -173,6 +248,14 @@
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Unable to save preferences');
+    if (Number(data.max_back_to_back) !== values.max_back_to_back) {
+      throw new Error('The saved back-to-back tolerance did not match your selection. Please try again.');
+    }
+    const cachedTolerance = JSON.stringify({
+        value: values.max_back_to_back,
+        savedAt: Date.now()
+      });
+    backToBackCacheKeys().forEach(cacheKey => localStorage.setItem(cacheKey, cachedTolerance));
     return data;
   }
 

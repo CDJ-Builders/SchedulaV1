@@ -1061,6 +1061,7 @@ body.schedula-background.teams-page dialog.team-smart-schedule-dialog::backdrop 
 .team-smart-schedule-option:active { transform:scale(.99); }
 .team-smart-schedule-option:focus-visible { outline:3px solid #9562b4; outline-offset:3px; }
 .team-smart-schedule-rank { display:grid; width:34px; height:34px; place-items:center; border-radius:10px; background:#4a1d6d; color:#fff; font-size:12px; font-weight:800; }
+.team-smart-schedule-rank,.team-smart-schedule-choose { color:#fff!important; -webkit-text-fill-color:#fff!important; }
 .team-smart-schedule-slot { display:grid; min-width:0; gap:3px; }
 .team-smart-schedule-slot strong { font-size:14px; line-height:1.25; }
 .team-smart-schedule-slot>span,.team-smart-schedule-score { color:#655174; font-size:12px; line-height:1.35; }
