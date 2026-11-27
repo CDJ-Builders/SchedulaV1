@@ -97,4 +97,18 @@ async function sendResetPinEmail(to, pin) {
   }
 }
 
-module.exports = { sendResetPinEmail };
+async function verifySmtp(timeoutMs = 3000) {
+  if (!smtpConfigured || !transporter) return null;
+  let timeout;
+  try {
+    const timeoutPromise = new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error('SMTP verification timed out')), timeoutMs);
+    });
+    await Promise.race([transporter.verify(), timeoutPromise]);
+    return true;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+module.exports = { sendResetPinEmail, verifySmtp };

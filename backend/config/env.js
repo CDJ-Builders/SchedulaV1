@@ -1,4 +1,5 @@
 const path = require('path');
+const packageVersion = require('../package.json').version;
 // This should be the very first thing required in db-server.js
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
@@ -22,6 +23,12 @@ module.exports = {
   SCHEDULAML_API_KEY: process.env.SCHEDULAML_API_KEY || '',
   SCHEDULAML_TIMEOUT_MS: Math.min(Math.max(parseInt(process.env.SCHEDULAML_TIMEOUT_MS, 10) || 5000, 250), 15000),
   SMART_SCHEDULE_ENABLED: process.env.SMART_SCHEDULE_ENABLED === 'true',
+  APP_VERSION: process.env.APP_VERSION || process.env.npm_package_version || packageVersion || 'unknown',
+  APP_COMMIT: process.env.APP_COMMIT || process.env.GIT_COMMIT || 'unknown',
+  ADMIN_ORIGIN: process.env.ADMIN_ORIGIN || '',
+  ADMIN_API_ORIGIN: process.env.ADMIN_API_ORIGIN || '',
+  ADMIN_IP_ALLOWLIST: (process.env.ADMIN_IP_ALLOWLIST || '').split(',').map(value => value.trim()).filter(Boolean),
+  TRUST_PROXY: process.env.TRUST_PROXY === 'true' ? true : process.env.TRUST_PROXY === 'false' || !process.env.TRUST_PROXY ? false : process.env.TRUST_PROXY,
   SERVE_STATIC: process.env.SERVE_STATIC === 'true',
   SMTP: {
     HOST: process.env.SMTP_HOST,
