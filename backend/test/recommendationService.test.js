@@ -77,14 +77,6 @@ test('warns when some members have not shared a schedule', () => {
   assert.ok(context.warnings.some(message => message.includes('have not shared a schedule')));
 });
 
-test('rejects active dated busy availability for the weekly-only model', () => {
-  assert.doesNotThrow(() => service.ensureWeeklyOnlyAvailability([]));
-  assert.throws(() => service.ensureWeeklyOnlyAvailability([{ id: 'busy-block' }]), {
-    status: 503,
-    message: /cannot be represented by the weekly model/
-  });
-});
-
 test('validates returned candidates and relative scores', () => {
   const valid = {
     recommendations: [{ weekday: 'Tuesday', start_time: '10:00', end_time: '11:00', score: -0.2 }],

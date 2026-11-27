@@ -80,12 +80,6 @@ function markWeeklyBlock(grid, block, warnings) {
   }
 }
 
-function ensureWeeklyOnlyAvailability(blocks) {
-  if (blocks.length) {
-    throw errorWithStatus('Upcoming dated busy availability cannot be represented by the weekly model. Recommendations are unavailable until those blocks end.', 503);
-  }
-}
-
 function requireConfirmedPreferences(pref) {
   const missing = [];
   const breakMinutes = Number(pref.preferred_break_minutes);
@@ -202,18 +196,6 @@ async function buildContext(userId, scheduleId) {
     throw errorWithStatus('Upcoming or recurring dated events cannot be represented safely by the weekly model. Convert them to canonical weekly blocks or request suggestions after they end.', 503);
   }
 
-  const busy = await pool.query(
-    `SELECT start_at, end_at, timezone FROM availability_blocks
-      WHERE user_id = $1 AND availability_type = 'busy' AND deleted_at IS NULL
-        AND end_at > CURRENT_TIMESTAMP
-      ORDER BY start_at LIMIT 101`,
-    [userId]
-  );
-  if (busy.rows.length > 100) {
-    throw errorWithStatus('Too many upcoming busy availability blocks to map safely; recommendations are temporarily unavailable.', 503);
-  }
-  ensureWeeklyOnlyAvailability(busy.rows);
-
   return {
     occupancy: grid,
     preferences: await loadPreferences(userId),
@@ -316,5 +298,5 @@ async function recommendForTeam(userId, teamId, body) {
 
 module.exports = {
   recommend, recommendForTeam, validateMeeting, validateServiceResponse, requestRecommendations,
-  markWeeklyBlock, ensureWeeklyOnlyAvailability, buildContext, buildTeamContext, buildConsolidatedTeamContext
+  markWeeklyBlock, buildContext, buildTeamContext, buildConsolidatedTeamContext
 };

@@ -6,7 +6,7 @@
 flowchart LR
   Builder[Builder button and suggestion list]
   API[Authenticated Express recommendation route]
-  DB[(PostgreSQL schedules, preferences, availability)]
+  DB[(PostgreSQL schedules and preferences)]
   ML[Private local FastAPI process]
   Artifacts[Versioned verified model artifacts]
   Builder -->|meeting fields only| API
@@ -43,7 +43,7 @@ Team proposals use `POST /api/teams/:teamId/recommendations` with the same meeti
 
 ### Express to Python
 
-Express sends `context.occupancy`, `context.preferences`, `context.warnings`, `meeting`, and `limit` to `POST /rank`. The six-day grid has 15 hourly `ON`/`OL`/`OF` cells per day, Monday through Saturday. All blocks in the canonical weekly schedule count as classes. Dated events and active dated busy availability cannot be represented by the weekly model and stop the request with a safe `503`. Only onsite and online occupancy are supported; hybrid weekly blocks are rejected. See [schedulaml-feature-contract.md](schedulaml-feature-contract.md) for the source-field mapping.
+Express sends `context.occupancy`, `context.preferences`, `context.warnings`, `meeting`, and `limit` to `POST /rank`. The six-day grid has 15 hourly `ON`/`OL`/`OF` cells per day, Monday through Saturday. All blocks in the canonical weekly schedule count as classes. Upcoming dated events cannot be represented by the weekly model and stop the request with a safe `503`. Only onsite and online occupancy are supported; hybrid weekly blocks are rejected. See [schedulaml-feature-contract.md](schedulaml-feature-contract.md) for the source-field mapping.
 
 ### Python to Express/browser
 

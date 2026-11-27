@@ -49,15 +49,6 @@ FROM schedules s
 WHERE s.title = 'Demo Week'
 ON CONFLICT (schedule_id) DO UPDATE SET context = EXCLUDED.context, deleted_at = NULL;
 
-INSERT INTO availability_blocks (user_id, start_at, end_at, timezone, availability_type, label)
-SELECT u.id, '2026-10-19 09:00:00+00', '2026-10-19 12:00:00+00', 'UTC', 'free', 'Morning focus window'
-FROM users u
-WHERE u.email = 'alex@example.test'
-  AND NOT EXISTS (
-    SELECT 1 FROM availability_blocks a
-    WHERE a.user_id = u.id AND a.label = 'Morning focus window' AND a.deleted_at IS NULL
-  );
-
 INSERT INTO events (schedule_id, owner_user_id, title, start_at, end_at, timezone, modality, category, status, notes)
 SELECT s.id, s.owner_user_id, 'Team planning', '2026-10-19 10:00:00+00', '2026-10-19 11:00:00+00', 'UTC', 'online', 'planning', 'confirmed', 'Demo event for conflict detection.'
 FROM schedules s

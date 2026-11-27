@@ -129,46 +129,6 @@ CREATE TABLE IF NOT EXISTS events (
   deleted_at TIMESTAMPTZ
 );
 
-CREATE TABLE IF NOT EXISTS recurrence_rules (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id UUID NOT NULL UNIQUE REFERENCES events(id) ON DELETE CASCADE,
-  rrule TEXT NOT NULL,
-  timezone TEXT NOT NULL DEFAULT 'UTC',
-  dtstart TIMESTAMPTZ,
-  until_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS recurrence_exceptions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  recurrence_rule_id UUID NOT NULL REFERENCES recurrence_rules(id) ON DELETE CASCADE,
-  occurrence_at TIMESTAMPTZ NOT NULL,
-  is_cancelled BOOLEAN NOT NULL DEFAULT FALSE,
-  override_start_at TIMESTAMPTZ,
-  override_end_at TIMESTAMPTZ,
-  override_values JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ,
-  UNIQUE (recurrence_rule_id, occurrence_at)
-);
-
-CREATE TABLE IF NOT EXISTS availability_blocks (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  start_at TIMESTAMPTZ NOT NULL,
-  end_at TIMESTAMPTZ NOT NULL CHECK (end_at > start_at),
-  timezone TEXT NOT NULL DEFAULT 'UTC',
-  availability_type TEXT NOT NULL CHECK (availability_type IN ('free', 'busy')),
-  label TEXT,
-  availability_window TSTZRANGE GENERATED ALWAYS AS (tstzrange(start_at, end_at, '[)')) STORED,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ
-);
-
 CREATE TABLE IF NOT EXISTS memberships (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
@@ -178,18 +138,6 @@ CREATE TABLE IF NOT EXISTS memberships (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ,
   UNIQUE (group_id, user_id)
-);
-
-CREATE TABLE IF NOT EXISTS event_participants (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  role TEXT NOT NULL DEFAULT 'participant',
-  response_status TEXT NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ,
-  UNIQUE (event_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS schedule_shares (
@@ -203,16 +151,6 @@ CREATE TABLE IF NOT EXISTS schedule_shares (
   deleted_at TIMESTAMPTZ,
   CHECK ((shared_with_user_id IS NULL) <> (shared_with_group_id IS NULL)),
   UNIQUE (schedule_id, shared_with_user_id, shared_with_group_id)
-);
-
-CREATE TABLE IF NOT EXISTS consolidated_views (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  owner_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  configuration JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS invitations (
@@ -261,11 +199,7 @@ CREATE INDEX IF NOT EXISTS idx_schedules_active_group ON schedules (group_id) WH
 CREATE INDEX IF NOT EXISTS idx_events_active_schedule_start ON events (schedule_id, start_at) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_events_active_owner_start ON events (owner_user_id, start_at) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_events_window_gist ON events USING GIST (event_window) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_availability_active_user_start ON availability_blocks (user_id, start_at) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_availability_window_gist ON availability_blocks USING GIST (availability_window) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_event_participants_active_user ON event_participants (user_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_shares_active_schedule ON schedule_shares (schedule_id) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_consolidated_views_active_owner ON consolidated_views (owner_user_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_invitations_active_group ON invitations (group_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_active_user ON refresh_tokens (user_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_active_user ON password_reset_tokens (user_id) WHERE deleted_at IS NULL;
@@ -276,8 +210,7 @@ DECLARE
 BEGIN
   FOREACH table_name IN ARRAY ARRAY[
     'users', 'profiles', 'preferences', 'groups', 'schedules', 'schedule_context',
-    'events', 'recurrence_rules', 'recurrence_exceptions', 'availability_blocks',
-    'memberships', 'event_participants', 'schedule_shares', 'consolidated_views',
+    'events', 'memberships', 'schedule_shares',
     'invitations', 'refresh_tokens', 'password_reset_tokens'
   ] LOOP
     EXECUTE format('DROP TRIGGER IF EXISTS %I_updated_at ON %I', table_name, table_name);

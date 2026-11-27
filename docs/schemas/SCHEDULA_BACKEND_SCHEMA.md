@@ -1,6 +1,6 @@
 # Schedula Backend Schema
 
-The backend is built with Node.js/Express and connects to PostgreSQL using parameterized SQL and UUID-based domain entities. Apply the executable migrations in `backend/sql/migrations/` (migrations 001 through 006) using the instructions in [DB_UPDATE_INSTRUCTIONS.md](../plans/DB_UPDATE_INSTRUCTIONS.md).
+The backend is built with Node.js/Express and connects to PostgreSQL using parameterized SQL and UUID-based domain entities. Apply the executable migrations in `backend/sql/migrations/` using the instructions in [DB_UPDATE_INSTRUCTIONS.md](../plans/DB_UPDATE_INSTRUCTIONS.md).
 
 ---
 
@@ -30,7 +30,7 @@ flowchart TD
   - `errorHandler.js`: Centralized error-handling middleware converting exceptions to uniform JSON error responses.
 - `backend/services/`:
   - `authService.js`: Registration, credential verification, JWT generation, refresh token rotation, and PIN-based password reset.
-  - `userService.js`: User session, profile updates, account deletion cascades, preferences CRUD, and availability block CRUD.
+  - `userService.js`: User session, profile updates, account deletion cascades, and preferences CRUD.
   - `scheduleService.js`: Schedule container CRUD, weekly configuration validation, event CRUD, and GiST-indexed conflict detection.
   - `teamsService.js` / `teamsServiceCore.js`: Team membership, shared schedules, preferences, proposals, role changes, and team lifecycle operations.
   - `recommendationService.js`: SchedulaML integration orchestrator; loads personal or consolidated team schedule context, loads only the requesting user's preferences, builds 6-day x 15-slot occupancy grids, enforces constraints, queries `schedulaml`, and returns ranked slot suggestions.
@@ -48,11 +48,9 @@ flowchart TD
 | `schedules` | `id UUID` | `owner_user_id UUID -> users(id) ON DELETE CASCADE`, `group_id UUID -> groups(id) ON DELETE SET NULL` | `title TEXT NOT NULL`, `timezone TEXT DEFAULT 'UTC'`, `color TEXT`, `deleted_at TIMESTAMPTZ` | Calendar schedule container |
 | `schedule_context` | `id UUID` | `schedule_id UUID -> schedules(id) ON DELETE CASCADE` | `context JSONB NOT NULL DEFAULT '{}'` (stores array of weekly recurring blocks) | Schedule metadata & weekly configuration |
 | `events` | `id UUID` | `schedule_id UUID -> schedules(id) ON DELETE CASCADE`, `owner_user_id UUID -> users(id) ON DELETE CASCADE` | `title TEXT NOT NULL`, `start_at TIMESTAMPTZ`, `end_at TIMESTAMPTZ CHECK (end_at > start_at)`, `timezone TEXT`, `event_window TSTZRANGE` (generated GiST), nullable details (`modality`, `location`, `priority`, etc.) | Scheduled event blocks |
-| `availability_blocks` | `id UUID` | `user_id UUID -> users(id) ON DELETE CASCADE` | `start_at TIMESTAMPTZ`, `end_at TIMESTAMPTZ`, `availability_type TEXT CHECK ('free','busy')`, `availability_window TSTZRANGE` (generated GiST) | User availability and blocked time |
 | `groups` | `id UUID` | `owner_user_id UUID -> users(id) ON DELETE CASCADE` | `name TEXT NOT NULL`, `description TEXT` | Collaboration team container |
 | `memberships` | `id UUID` | `group_id UUID -> groups(id) ON DELETE CASCADE`, `user_id UUID -> users(id) ON DELETE CASCADE` | `role TEXT CHECK ('owner','admin','member','viewer')`, UNIQUE `(group_id, user_id)` | Team membership and permissions |
 | `schedule_shares` | `id UUID` | `schedule_id UUID -> schedules(id) ON DELETE CASCADE`, `shared_with_user_id UUID`, `shared_with_group_id UUID` | `permission TEXT CHECK ('read','write','share')` | Schedule sharing permissions |
-| `consolidated_views` | `id UUID` | `owner_user_id UUID -> users(id) ON DELETE CASCADE` | `name TEXT NOT NULL`, `configuration JSONB` | Multi-schedule merged calendar view |
 | `invitations` | `id UUID` | `group_id UUID -> groups(id) ON DELETE CASCADE`, `invited_by_user_id UUID -> users(id) ON DELETE CASCADE` | `email CITEXT NOT NULL`, `role TEXT`, `token_hash TEXT UNIQUE`, `expires_at TIMESTAMPTZ`, `accepted_at TIMESTAMPTZ` | Group invitations |
 | `refresh_tokens` | `id UUID` | `user_id UUID -> users(id) ON DELETE CASCADE` | `token_hash TEXT UNIQUE`, `expires_at TIMESTAMPTZ`, `revoked_at TIMESTAMPTZ` | Long-lived refresh token rotation |
 | `password_reset_tokens` | `id UUID` | `user_id UUID -> users(id) ON DELETE CASCADE` | `token_hash TEXT UNIQUE`, `expires_at TIMESTAMPTZ`, `used_at TIMESTAMPTZ` | Expiring password reset PINs/tokens |
@@ -83,9 +81,6 @@ All endpoints in this group require a valid Bearer JWT header: `Authorization: B
 | `DELETE` | `/api/user/profile` | Deletes user account | Cascades deletion to schedules, events, preferences, groups, and tokens |
 | `GET` | `/api/preferences` | Fetches normalized scheduling preferences | Returns preference booleans (`pref_time_*`, `Pref*`, `avoid_time_*`, `Avoid*`), `max_back_to_back`, `commute_time`, `preferred_break_minutes`, `preferred_modality` |
 | `PUT` | `/api/preferences` | Updates scheduling preferences | Validates `max_back_to_back` (0–6), `commute_time` (>=0), `preferred_break_minutes` (0–1440), and `preferred_modality` (`'onsite' \| 'online' \| 'no preference'`) |
-| `GET` | `/api/availability` | Lists user's availability blocks | Returns array of `{ id, user_id, start_at, end_at, timezone, availability_type, label }` |
-| `POST` | `/api/availability` | Creates an availability block | Body: `{ start_at, end_at, timezone, availability_type: 'free'\|'busy', label? }` (Status `201`) |
-| `DELETE` | `/api/availability/:id`| Deletes an availability block | Status `204 No Content` |
 
 ### 3. Schedules & Events Routes (`/api`)
 
@@ -125,7 +120,7 @@ All endpoints in this group require a valid Bearer JWT.
   - `limit`: Integer from 1 to 20 (defaults to 5).
 - **Processing Logic:**
   1. The schedule configuration (weekly blocks) is read from `schedule_context`.
-  2. Any active dated busy availability blocks in `availability_blocks` stop the request with a safe `503 Service Unavailable` because the weekly model cannot represent arbitrary future dates.
+  2. Dated events that cannot be represented by the weekly model stop the request with a safe `503 Service Unavailable`.
   3. The weekly blocks are projected onto a 6-day (Mon–Sat) by 15-hourly-slot (07:00–22:00) grid with cells `'ON'` (onsite), `'OL'` (online), or `'OF'` (free/off).
   4. User preferences are verified (including `preferred_break_minutes` and `max_back_to_back`).
   5. The normalized payload is forwarded via loopback HTTP POST to `http://127.0.0.1:8001/rank` with header `X-SchedulaML-Key: <SCHEDULAML_API_KEY>`.

@@ -32,17 +32,4 @@ router.put('/preferences', asyncHandler(async (req, res) => {
   }
 }));
 
-router.get('/availability', asyncHandler(async (req, res) => {
-  res.json(await userService.listAvailability(req.user.user_id));
-}));
-
-router.post('/availability', asyncHandler(async (req, res) => {
-  res.status(201).json(await userService.createAvailability(req.user.user_id, req.body));
-}));
-
-router.delete('/availability/:id', asyncHandler(async (req, res) => {
-  await userService.deleteAvailability(req.user.user_id, req.params.id);
-  res.status(204).send();
-}));
-
 module.exports = router;

@@ -5,7 +5,7 @@
 ### Main Functions
 * *Schedule Building & Visualization:* Allows users to create, modify, and visualize personal time blocks, courses, and weekly commitments through an interactive grid builder and plotter.
 * *Smart Conflict Detection:* Automatically flags overlapping events and time clashes using temporal range evaluation (tstzrange).
-* *Team & Group Availability Coordination:* Aggregates individual member schedules and availability blocks to identify optimal common meeting times.
+* *Team & Group Schedule Coordination:* Aggregates schedules and confirmed team blocks to identify common meeting times.
 * *Custom Preferences & Modality Settings:* Allows customization of work buffers, avoided time blocks, modality preferences (e.g., onsite vs. online), and custom visual themes.
 * *Export & Sharing:* Enables sharing schedules within the system and exporting calendars to external formats (PNG, PDF, Excel).
 * *Account & Identity Management:* Secure registration, authentication, session renewal, and password reset flows.
@@ -16,7 +16,7 @@
 3. *Team-Level Roles (Collaborative Scoping):* Modeled in group memberships:
    * *Owner:* Full administrative authority over a team schedule, group settings, and membership invitations.
    * *Admin:* Manages group events and membership permissions.
-   * *Member:* Contributes availability, creates shared group events, and participates in group schedules.
+   * *Member:* Shares schedules with a team and contributes confirmed team blocks.
    * *Viewer:* Read-only access to group schedules and shared consolidated calendars.
 
 ### Technologies Used

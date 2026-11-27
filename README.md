@@ -31,6 +31,10 @@ Quality of Life Fixes
 ### Sprint 9 Goal
 Deployment
 
+### Sprint 10 Goal
+Dark Mode UI
+Mobile UI
+
 ### Team Roles & Responsibilities
 - **Product Owner:** Jimenez, Jian Jowel *(Manages backlog prioritization and user alignment)*
 - **Scrum Master:** Devega, Adrian Nate *(Tracks milestones, removes blockers, and manages time)*

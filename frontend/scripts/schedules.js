@@ -18,6 +18,7 @@ const editBlockWeekdayInput = document.getElementById('edit-block-weekday');
 const editBlockModalityInput = document.getElementById('edit-block-modality');
 const editBlockStartInput = document.getElementById('edit-block-start');
 const editBlockEndInput = document.getElementById('edit-block-end');
+const editBlockDescriptionInput = document.getElementById('edit-block-description');
 const eventTitleInput = document.getElementById('event-title');
 const eventModalityInput = document.getElementById('event-modality');
 const smartScheduleTitle = document.getElementById('smart-schedule-title-input');
@@ -454,6 +455,7 @@ function openWeeklyBlockEditor(index) {
   editBlockModalityInput.value = block.modality;
   editBlockStartInput.value = block.start_time;
   editBlockEndInput.value = block.end_time;
+  editBlockDescriptionInput.value = block.description || '';
   editWeeklyBlockDialog.showModal();
   editBlockTitleInput.focus();
 }
@@ -465,7 +467,8 @@ function showWeeklyBlockEditError(message, title) {
     weekday: editBlockWeekdayInput.value,
     modality: editBlockModalityInput.value,
     start: editBlockStartInput.value,
-    end: editBlockEndInput.value
+    end: editBlockEndInput.value,
+    description: editBlockDescriptionInput.value
   };
   if (editWeeklyBlockDialog.open) editWeeklyBlockDialog.close();
   showBuilderNotice(message.startsWith('Error:') || message.toLowerCase().includes('conflict') ? message : `Error: ${message}`, title);
@@ -484,6 +487,7 @@ function showWeeklyBlockEditError(message, title) {
       editBlockModalityInput.value = draft.modality;
       editBlockStartInput.value = draft.start;
       editBlockEndInput.value = draft.end;
+      editBlockDescriptionInput.value = draft.description;
       editWeeklyBlockDialog.showModal();
       editBlockTitleInput.focus();
     }, 310);
@@ -507,7 +511,8 @@ function saveWeeklyBlockEdit() {
     weekdays: [editBlockWeekdayInput.value].filter(Boolean),
     modality: editBlockModalityInput.value,
     start_time: editBlockStartInput.value,
-    end_time: editBlockEndInput.value
+    end_time: editBlockEndInput.value,
+    description: editBlockDescriptionInput.value.trim()
   };
   const error = validateBlock(updated);
   if (error) {

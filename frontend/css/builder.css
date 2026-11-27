@@ -146,7 +146,7 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: 40px;
-  align-items: start;
+  align-items: stretch;
   margin-top: 36px;
 }
 
@@ -357,7 +357,7 @@
   flex-direction: column;
   gap: 12px;
   min-height: 180px;
-  max-height: min(58vh, 560px);
+  max-height: min(34vh, 320px);
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -881,10 +881,12 @@ dialog.smart-schedule-dialog::backdrop {
   border-top: 1px solid rgba(42, 18, 69, .1);
 }
 
-dialog.smart-schedule-dialog.edit-weekly-block-dialog { width:min(640px,calc(100vw - 28px)); max-height:none; overflow:visible; }
-.edit-weekly-block-dialog .smart-schedule-dialog-content { max-height:min(88dvh,780px); overflow-y:auto; border-radius:22px; }
+dialog.smart-schedule-dialog.edit-weekly-block-dialog { position:fixed; inset:0; margin:auto; width:min(640px,calc(100vw - 28px)); max-height:none; overflow:visible; }
+.edit-weekly-block-dialog .smart-schedule-dialog-content { max-height:min(calc(100dvh - 32px),780px); overflow-y:auto; border-radius:22px; }
 .edit-weekly-block-controls { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .edit-weekly-block-controls .smart-schedule-title-field { grid-column:1/-1; }
+.edit-weekly-block-controls .edit-weekly-block-description { grid-column:1/-1; }
+.edit-weekly-block-description textarea { min-height:108px; resize:vertical; }
 .event-card-body { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .event-card-body>div:first-child { flex:1 1 auto; min-width:0; }
 .event-card-actions { display:flex; flex:none; align-items:center; gap:8px; }
@@ -894,7 +896,7 @@ dialog.smart-schedule-dialog.edit-weekly-block-dialog { width:min(640px,calc(100
   .event-card-body { align-items:flex-start; flex-direction:column; }
   .event-card-actions { align-self:flex-end; }
   .edit-weekly-block-controls { grid-template-columns:1fr; }
-  .edit-weekly-block-controls .smart-schedule-title-field { grid-column:1; }
+  .edit-weekly-block-controls .smart-schedule-title-field,.edit-weekly-block-controls .edit-weekly-block-description { grid-column:1; }
 }
 
 .smart-schedule-footer-hint {
