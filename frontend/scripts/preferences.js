@@ -43,6 +43,14 @@
     return /^\d+$/.test(String(value).trim());
   }
 
+  function loadedInteger(value, fallback, maximum = Number.MAX_SAFE_INTEGER) {
+    const raw = String(value ?? '').trim();
+    const number = Number(raw);
+    return raw !== '' && Number.isSafeInteger(number) && number >= 0 && number <= maximum
+      ? number
+      : fallback;
+  }
+
   function validate(values) {
     for (const key of ['max_back_to_back', 'commute_time']) {
       const raw = String(values[key] ?? '').trim();
@@ -91,11 +99,19 @@
       } else if (element.tagName === 'SELECT') {
         values[key] = element.value;
       } else if (element.type === 'number') {
-        values[key] = String(element.value).trim();
+        const rawValue = String(element.value).trim();
+        values[key] = rawValue === '' ? String(defaults[key]) : rawValue;
       } else {
         values[key] = element.value;
       }
     });
+
+    root.querySelectorAll('input[type="radio"][data-pref-column]:checked').forEach(element => {
+      values[element.dataset.prefColumn] = Number(element.value);
+    });
+    if (!Object.prototype.hasOwnProperty.call(values, 'max_back_to_back')) {
+      values.max_back_to_back = defaults.max_back_to_back;
+    }
 
     if (convertIntegers) {
       values.max_back_to_back = Number(values.max_back_to_back);
@@ -124,9 +140,11 @@
       if (element.type === 'checkbox') {
         element.checked = Boolean(data[key]);
       } else if (element.type === 'radio') {
-        element.checked = String(data[key] ?? defaults[key]) === element.value;
+        const value = loadedInteger(data[key], defaults[key], 6);
+        element.checked = value === Number(element.value);
       } else if (element.type === 'number') {
-        element.value = String(data[key] ?? defaults[key]);
+        const maximum = key === 'preferred_break_minutes' ? 1440 : Number.MAX_SAFE_INTEGER;
+        element.value = String(loadedInteger(data[key], defaults[key], maximum));
       } else {
         element.value = data[key] ?? defaults[key];
       }
@@ -136,12 +154,7 @@
   async function save(root) {
     const rawValues = serialize(root, false);
     const validationError = validate(rawValues);
-    if (validationError) {
-      if (typeof window.noticePopup === 'function') {
-        window.noticePopup(validationError, 'Preferences');
-      }
-      throw new Error(validationError);
-    }
+    if (validationError) throw new Error(validationError);
 
     const values = {
       ...rawValues,

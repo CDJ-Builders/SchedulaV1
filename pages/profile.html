@@ -56,117 +56,85 @@
         <p>Manage your account and scheduling preferences.</p>
       </div>
 
-      <div class="profile-container-two-col pf-grid">
-        <section class="profile-info-panel-col pf-panel" aria-labelledby="account-title">
-          <h2 id="account-title">Account</h2>
-          <div class="profile-info-list-col pf-fields">
-            <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name"
-                type="text"></label>
-            <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
-            <div class="profile-password-link-wrapper">
-              <span><a href="forgot-password.html">Change password?</a></span>
-            </div>
-            <button id="save-profile-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24"
-                aria-hidden="true">
-                <path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" />
-              </svg>Save Profile</button>
-            <div class="danger-zone-col">
-              <h3>Danger zone</h3>
-              <p>Permanently delete your account and its schedules.</p>
-              <button id="delete-account-btn" class="btn-danger" type="button">Delete Account</button>
-            </div>
+      <div class="profile-settings-layout">
+        <section class="pf-panel profile-step-panel profile-account-panel" aria-labelledby="account-title">
+                <h2 id="account-title">Account</h2>
+                <div class="profile-info-list-col pf-fields">
+                  <label class="profile-info-field-wrapper pf-field">Display name<input id="profile-display-name" type="text"></label>
+                  <label class="profile-info-field-wrapper pf-field">Email<input id="profile-email" type="email"></label>
+                  <div class="profile-password-link-wrapper"><span><a href="forgot-password.html">Change password?</a></span></div>
+                  <button id="save-profile-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" /></svg>Save Profile</button>
+                </div>
+                <div class="danger-zone-col">
+                  <h3>Danger zone</h3>
+                  <p>Permanently delete your account and its schedules.</p>
+                  <button id="delete-account-btn" class="btn-danger" type="button">Delete Account</button>
+                </div>
         </section>
 
-        <div class="pf-stack">
-          <section class="profile-selection-panel-col pf-panel" aria-labelledby="prefs-title">
-            <h2 id="prefs-title">Preferences</h2>
-            <div class="preferences-form" id="profile-preferences">
-              <div class="profile-select-group"><label for="preference-modality">Preferred modality</label>
-                <select id="preference-modality" data-pref-column="preferred_modality">
-                  <option value="no preference">No Preference</option>
-                  <option value="online">Online</option>
-                  <option value="onsite">Onsite</option>
-                </select>
+        <section class="profile-carousel" id="profile-carousel" aria-roledescription="carousel" aria-label="Profile preferences">
+          <div class="profile-viewport">
+            <div class="profile-slides" id="profile-preferences">
+
+            <section class="profile-slide active" data-profile-slide="0" aria-labelledby="rhythm-title">
+              <div class="pf-panel profile-step-panel">
+                <h2 id="rhythm-title">Schedule rhythm</h2>
+                <p class="profile-step-description">Set your attendance and pacing preferences.</p>
+                <div class="preferences-form">
+                  <div class="profile-select-group"><label for="preference-modality">Preferred modality</label><select id="preference-modality" data-pref-column="preferred_modality"><option value="no preference">No Preference</option><option value="online">Online</option><option value="onsite">Onsite</option></select></div>
+                  <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
+                  <fieldset class="profile-select-group preference-radio-group">
+                    <legend>Maximum back-to-back tolerance</legend>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="0" checked>0</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="1">1</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="2">2</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back-to-back" value="3">3</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back-to-back" value="4">4</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back-to-back" value="5">5</label>
+                    <label><input type="radio" name="max-back-to-back" data-pref-column="max_back-to-back" value="6">6</label>
+                  </fieldset>
+                  <div class="profile-select-group"><label for="preferred-break-minutes">Preferred break (minutes)</label><input id="preferred-break-minutes" data-pref-column="preferred_break_minutes" type="number" min="0" max="1440" step="1" value="60"></div>
+                </div>
               </div>
-              <div class="profile-select-group"><label for="commute-time">Estimated commute time (minutes)</label><input
-                  id="commute-time" data-pref-column="commute_time" type="number" min="0" step="1" value="0"></div>
-              <fieldset class="profile-select-group preference-radio-group">
-                <legend>Maximum back-to-back tolerance</legend>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back" value="0"
-                    checked>0</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="1">1</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="2">2</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="3">3</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="4">4</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="5">5</label>
-                <label><input type="radio" name="max-back-to-back" data-pref-column="max_back_to_back"
-                    value="6">6</label>
-              </fieldset>
-              <div class="profile-select-group"><label for="preferred-break-minutes">Preferred break
-                  (minutes)</label><input id="preferred-break-minutes" data-pref-column="preferred_break_minutes"
-                  type="number" min="0" max="1440" step="1" value="60"></div>
-              <fieldset class="preference-group">
-                <legend>Preferred time ranges</legend>
-                <div class="preference-check-grid">
-                  <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_1214">12:00 NN - 2:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 MN</label>
+            </section>
+
+            <section class="profile-slide" data-profile-slide="1" aria-labelledby="preferred-title" aria-hidden="true">
+              <div class="pf-panel profile-step-panel">
+                <h2 id="preferred-title">Preferred schedule</h2>
+                <p class="profile-step-description">Choose the windows and days that work best for you.</p>
+                <div class="preferences-form">
+                  <fieldset class="preference-group"><legend>Preferred time ranges</legend><div class="preference-check-grid">
+                    <label><input type="checkbox" data-pref-column="pref_time_0708">7:00 AM - 8:00 AM</label><label><input type="checkbox" data-pref-column="pref_time_0810">8:00 AM - 10:00 AM</label><label><input type="checkbox" data-pref-column="pref_time_1012">10:00 AM - 12:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1214">12:00 NN - 2:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1416">2:00 PM - 4:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1618">4:00 PM - 6:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_1820">6:00 PM - 8:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_2022">8:00 PM - 10:00 PM</label><label><input type="checkbox" data-pref-column="pref_time_2224">10:00 PM - 12:00 MN</label>
+                  </div></fieldset>
+                  <fieldset class="preference-group"><legend>Preferred days</legend><div class="preference-check-grid">
+                    <label><input type="checkbox" data-pref-column="PrefMon">Monday</label><label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label><label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label><label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label><label><input type="checkbox" data-pref-column="PrefFri">Friday</label><label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
+                  </div></fieldset>
                 </div>
-              </fieldset>
-              <fieldset class="preference-group">
-                <legend>Preferred days</legend>
-                <div class="preference-check-grid">
-                  <label><input type="checkbox" data-pref-column="PrefMon">Monday</label>
-                  <label><input type="checkbox" data-pref-column="PrefTue">Tuesday</label>
-                  <label><input type="checkbox" data-pref-column="PrefWed">Wednesday</label>
-                  <label><input type="checkbox" data-pref-column="PrefThurs">Thursday</label>
-                  <label><input type="checkbox" data-pref-column="PrefFri">Friday</label>
-                  <label><input type="checkbox" data-pref-column="PrefSat">Saturday</label>
+              </div>
+            </section>
+
+            <section class="profile-slide" data-profile-slide="2" aria-labelledby="avoid-title" aria-hidden="true">
+              <div class="pf-panel profile-step-panel">
+                <h2 id="avoid-title">Times to avoid</h2>
+                <p class="profile-step-description">Mark the time ranges and days you do not want scheduled.</p>
+                <div class="preferences-form">
+                  <fieldset class="preference-group"><legend>Avoided time ranges</legend><div class="preference-check-grid">
+                    <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label><label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label><label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label><label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 MN</label>
+                  </div></fieldset>
+                  <fieldset class="preference-group"><legend>Avoided days</legend><div class="preference-check-grid">
+                    <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label><label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label><label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label><label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label><label><input type="checkbox" data-pref-column="AvoidFri">Friday</label><label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
+                  </div></fieldset>
                 </div>
-              </fieldset>
-              <fieldset class="preference-group">
-                <legend>Avoided time ranges</legend>
-                <div class="preference-check-grid">
-                  <label><input type="checkbox" data-pref-column="avoid_time_0708">7:00 AM - 8:00 AM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_0810">8:00 AM - 10:00 AM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_1012">10:00 AM - 12:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_1214">12:00 PM - 2:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_1416">2:00 PM - 4:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_1618">4:00 PM - 6:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_1820">6:00 PM - 8:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_2022">8:00 PM - 10:00 PM</label>
-                  <label><input type="checkbox" data-pref-column="avoid_time_2224">10:00 PM - 12:00 MN</label>
-                </div>
-              </fieldset>
-              <fieldset class="preference-group">
-                <legend>Avoided days</legend>
-                <div class="preference-check-grid">
-                  <label><input type="checkbox" data-pref-column="AvoidMon">Monday</label>
-                  <label><input type="checkbox" data-pref-column="AvoidTue">Tuesday</label>
-                  <label><input type="checkbox" data-pref-column="AvoidWed">Wednesday</label>
-                  <label><input type="checkbox" data-pref-column="AvoidThurs">Thursday</label>
-                  <label><input type="checkbox" data-pref-column="AvoidFri">Friday</label>
-                  <label><input type="checkbox" data-pref-column="AvoidSat">Saturday</label>
-                </div>
-              </fieldset>
-            </div>
-            <button id="save-preferences-btn" class="btn-primary btn-save" type="button"><svg viewBox="0 0 24 24"
-                aria-hidden="true">
-                <path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" />
-              </svg>Save Preferences</button>
-          </section>
-        </div>
+              </div>
+            </section>
+          </div>
+          </div>
+          <div class="profile-carousel-actions">
+            <button class="profile-nav-arrow" id="profile-back-btn" type="button" aria-label="Previous page" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg></button>
+            <button id="save-preferences-btn" class="btn-primary btn-save profile-save-preferences" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" /></svg>Save Preferences</button>
+            <button class="profile-nav-arrow" id="profile-next-btn" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg></button>
+          </div>
+        </section>
       </div>
     </main>
   </div>

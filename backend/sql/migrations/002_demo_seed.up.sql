@@ -20,7 +20,7 @@ INSERT INTO preferences (user_id, preferred_modality)
 SELECT id, 'no preference'
 FROM users
 WHERE email = 'alex@example.test'
-ON CONFLICT (user_id) DO UPDATE SET deleted_at = NULL;
+ON CONFLICT (user_id) DO UPDATE SET preferred_modality = EXCLUDED.preferred_modality;
 
 INSERT INTO groups (owner_user_id, name, description)
 SELECT id, 'Demo Planning Team', 'Generic team schedule used for local development.'

@@ -35,8 +35,9 @@ function assertLocalDevelopmentTarget() {
 
 function isLoopbackAddress(address) {
   if (!address) return false;
-  if (net.isIPv4(address)) return address.startsWith('127.');
-  if (net.isIPv6(address)) return address === '::1' || address.toLowerCase().startsWith('::ffff:127.');
+  const hostAddress = address.split('/')[0];
+  if (net.isIPv4(hostAddress)) return hostAddress.startsWith('127.');
+  if (net.isIPv6(hostAddress)) return hostAddress === '::1' || hostAddress.toLowerCase().startsWith('::ffff:127.');
   return false;
 }
 

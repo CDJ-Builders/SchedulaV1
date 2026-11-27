@@ -197,6 +197,8 @@ getElement('delete-account-btn').addEventListener('click', () => {
 });
 
 async function initializeProfilePage() {
+  initializeProfileCarousel();
+
   if (!getToken()) {
     window.location.href = 'login.html';
     return;
@@ -209,6 +211,34 @@ async function initializeProfilePage() {
   }
 
   await loadPreferences();
+}
+
+function initializeProfileCarousel() {
+  const carousel = getElement('profile-carousel');
+  if (!carousel) return;
+
+  const slides = [...carousel.querySelectorAll('[data-profile-slide]')];
+  const backButton = getElement('profile-back-btn');
+  const nextButton = getElement('profile-next-btn');
+  let current = 0;
+
+  const showPage = (index, moveFocus = false) => {
+    current = Math.max(0, Math.min(index, slides.length - 1));
+    slides.forEach((slide, slideIndex) => {
+      const active = slideIndex === current;
+      slide.classList.toggle('active', active);
+      slide.setAttribute('aria-hidden', String(!active));
+      slide.inert = !active;
+    });
+    backButton.disabled = current === 0;
+    nextButton.disabled = current === slides.length - 1;
+    if (moveFocus) slides[current].querySelector('h2')?.focus({ preventScroll: true });
+  };
+
+  backButton.addEventListener('click', () => showPage(current - 1, true));
+  nextButton.addEventListener('click', () => showPage(current + 1, true));
+  slides.forEach(slide => slide.querySelector('h2')?.setAttribute('tabindex', '-1'));
+  showPage(0);
 }
 
 if (document.readyState === 'loading') {

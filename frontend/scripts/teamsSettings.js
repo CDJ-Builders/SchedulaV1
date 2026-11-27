@@ -29,6 +29,28 @@ document.addEventListener('DOMContentLoaded', function () {
     if (tone === 'danger') window.alert('Error: ' + escapePopup(message), escapePopup(title));
     else if (tone === 'warning') window.alert('⚠️ ' + escapePopup(message), escapePopup(title));
     else window.successPopup(escapePopup(message), escapePopup(title));
+    var popup = document.querySelector('.custom-modal-overlay');
+    var okButton = popup && popup.querySelector('#custom-alert-ok');
+    if (!okButton) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var settled = false;
+      function finish() {
+        if (settled) return;
+        settled = true;
+        okButton.removeEventListener('click', finish);
+        popup.removeEventListener('click', onBackdrop);
+        document.removeEventListener('keydown', onEscape);
+        window.setTimeout(resolve, 320);
+      }
+      function onBackdrop(event) { if (event.target === popup) finish(); }
+      function onEscape(event) { if (event.key === 'Escape') finish(); }
+      okButton.addEventListener('click', finish, { once: true });
+      popup.addEventListener('click', onBackdrop);
+      document.addEventListener('keydown', onEscape);
+    });
+  }
+  function redirectToTeamsPage() {
+    window.location.replace(new URL('./teams.html', window.location.href).href);
   }
   function displayName(member) { return member.isSelf ? member.name + ' (You)' : member.name; }
   function memberIcon(kind) {
@@ -238,13 +260,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!approved) return;
     var button = this;
     button.disabled = true;
+    var redirectTimer = null;
     try {
       var result = await api('/teams/' + activeTeam.id + '/leave', { method: 'POST' });
+      redirectTimer = window.setTimeout(redirectToTeamsPage, 1600);
       await removeTeamFromSettings(activeTeam.id);
       await noticePopup(result.teamDeleted ? 'Team deleted' : 'You left the team', result.teamDeleted
         ? leavingTeamName + ' was deleted because you were its last member.'
         : 'You no longer have access to ' + leavingTeamName + '.');
-    } catch (error) { await noticePopup('Could not leave team', error.message, 'danger'); button.disabled = false; }
+      window.clearTimeout(redirectTimer);
+      redirectToTeamsPage();
+    } catch (error) {
+      if (redirectTimer) window.clearTimeout(redirectTimer);
+      await noticePopup('Could not leave team', error.message, 'danger');
+      button.disabled = false;
+    }
   });
   $('delete-team').addEventListener('click', async function () {
     if (!activeTeam || !activeTeam.isCreator) return;
@@ -261,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
     button.disabled = true;
     try {
       await api('/teams/' + encodeURIComponent(teamId), { method: 'DELETE' });
-      location.href = 'teams.html';
+      redirectToTeamsPage();
     } catch (error) {
       await noticePopup('Could not delete team', error.message, 'danger');
       button.disabled = false;

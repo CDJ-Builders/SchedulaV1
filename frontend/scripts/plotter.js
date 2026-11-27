@@ -543,8 +543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const view = document.createElement('section'); view.className = 'schedule-export-view'; view.setAttribute('aria-label', 'Schedule export');
     const head = document.createElement('header'); head.className = 'export-header';
     const title = document.createElement('h1'); title.textContent = schedule.title || 'Schedule';
-    const period = [schedule.term, schedule.week].filter(value => typeof value === 'string' && value.trim()).join(' · ') || 'Weekly schedule';
-    const date = document.createElement('p'); date.className = 'export-description'; date.textContent = `${period} · Exported ${new Date().toLocaleDateString()}`; head.append(title, date); view.appendChild(head);
+    head.appendChild(title); view.appendChild(head);
     const grid = document.createElement('div'); grid.className = 'export-grid';
     const headerRow = document.createElement('div'); headerRow.className = 'export-head-row';
     const blank = document.createElement('div'); blank.className = 'export-time-head'; headerRow.appendChild(blank);
@@ -554,20 +553,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (let minute = dayStartMinutes; minute < endMinute; minute += 60) { const label = document.createElement('div'); label.textContent = formatHour(minute); times.appendChild(label); }
     body.appendChild(times);
     const canvasColor = canvasBackgroundInput.value;
-    const canvasGradient = canvasGradientInput.checked ? colorGradient(canvasColor) : 'none';
     const columns = dayNames.map(() => {
       const col = document.createElement('div'); col.className = 'export-day-column';
-      col.style.setProperty('--canvas-background', canvasColor); col.style.setProperty('--canvas-gradient', canvasGradient);
+      col.style.setProperty('--canvas-background', canvasColor);
       body.appendChild(col); return col;
     });
     const duration = endMinute - dayStartMinutes;
     exportItems.forEach(item => {
-      const style = item.legacy
+      const resolvedStyle = item.legacy
         ? { ...batchDefaults(), title: item.block.title || '', description: item.block.description || '', notes: item.block.notes || '' }
         : Model.resolveBlockStyle(item.block, batchDefaults());
+      const style = { ...resolvedStyle, gradient: false, fontGradient: false };
       const card = document.createElement('article'); card.className = 'export-block';
-      card.dataset.fontColor = style.fontColor;
-      card.dataset.fontGradient = String(Boolean(style.fontGradient));
       card.dataset.modality = item.block.modality || 'onsite';
       card.style.top = `${((item.start - dayStartMinutes) / duration) * 100}%`; card.style.height = `${((item.end - item.start) / duration) * 100}%`;
       card.style.left = `${(item.lane / item.laneCount) * 100}%`; card.style.width = `${100 / item.laneCount}%`;
@@ -601,19 +598,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     return `
       .schedule-export-view{box-sizing:border-box;width:1280px;padding:40px;background:#fff;color:#2a1245;font-family:"Bricolage Grotesque",system-ui,sans-serif}
       .schedule-export-view *{box-sizing:border-box}
-      .export-header{margin-bottom:22px;padding:22px 26px;border:2px solid #2a1245;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f2e8fa 48%,#e0cfee 100%);box-shadow:inset 0 1px 0 #fff,inset 0 -3px 0 rgba(98,41,138,.12),0 4px 0 #62298a,0 8px 14px rgba(42,18,69,.14)}
-      .export-header h1{margin:0 0 8px;color:#2a1245;font-size:32px;font-weight:800;line-height:1.08;letter-spacing:-.025em;overflow-wrap:anywhere}
-      .export-header .export-description{display:inline-flex;align-items:center;max-width:100%;margin:0;padding:7px 11px;border:1px solid rgba(42,18,69,.16);border-radius:9px;background:rgba(255,255,255,.68);color:#5b4778;font-size:14px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+      .export-header{display:block;margin-bottom:22px;padding:22px 26px;border:2px solid #2a1245;border-radius:18px;background:#f2e8fa!important;box-shadow:inset 0 1px 0 #fff,inset 0 -3px 0 rgba(98,41,138,.12),0 4px 0 #62298a,0 8px 14px rgba(42,18,69,.14)}
+      .schedule-export-view .export-header h1{display:block;width:auto;margin:0;color:#2a1245;background:transparent!important;padding:0;font-size:32px;font-weight:800;line-height:1.08;letter-spacing:-.025em;overflow-wrap:anywhere}
       .export-grid{width:100%;overflow:hidden;border:2px solid #2a1245;border-radius:16px;background:#fff;box-shadow:inset 0 1px 0 #fff,0 4px 0 #62298a,0 9px 18px rgba(42,18,69,.16)}
       .export-head-row,.export-grid-body{display:grid;grid-template-columns:84px repeat(7,minmax(0,1fr))}
-      .export-head-row{background:linear-gradient(180deg,#d9c2ec 0%,#c8a9dd 52%,#b596c8 100%)}
+      .export-head-row{background:#d9c2ec}
       .export-day-head,.export-time-head{min-height:48px;border-right:1px solid rgba(42,18,69,.18);border-bottom:1px solid rgba(42,18,69,.24)}
       .export-day-head{display:flex;align-items:center;justify-content:center;padding:10px 5px;color:#2a1245;font-size:13px;font-weight:800;line-height:1.2;text-align:center;text-transform:uppercase;letter-spacing:.05em;text-shadow:0 1px 0 rgba(255,255,255,.65)}
-      .export-time-head{background:linear-gradient(180deg,#d9c2ec 0%,#b596c8 100%)}
+      .export-time-head{background:#d9c2ec}
       .export-grid-body{position:relative}
-      .export-times{display:flex;flex-direction:column;background:linear-gradient(180deg,#fff 0%,#f7f1fb 100%)}
+      .export-times{display:flex;flex-direction:column;background:#fbf8fd}
       .export-times div{display:flex;align-items:flex-start;justify-content:flex-end;height:66px;padding:7px 9px 0 3px;border-right:1px solid rgba(42,18,69,.18);border-bottom:1px solid rgba(98,41,138,.12);color:#4a1d6d;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap}
-      .export-day-column{position:relative;border-left:1px solid rgba(255,255,255,.65);background:repeating-linear-gradient(to bottom,#fff 0,#fff 65px,#e6dcef 65px,#e6dcef 66px)}
+      .export-day-column{position:relative;border-left:1px solid rgba(255,255,255,.65);background-color:var(--canvas-background,#fff)}
       .export-block{position:absolute;display:flex;flex-direction:column;align-items:flex-start;overflow:hidden;border:2px solid currentColor;border-radius:8px;padding:7px 8px;font-size:11px;line-height:1.2}
       .export-block strong,.export-block span,.export-block small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .export-block .export-day{margin:0 0 3px;font-size:8px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
@@ -625,11 +621,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       .export-block[data-modality="online"] .export-meta{background:#dbeafe;color:#1e40af}
       .export-block .export-time{font-size:9px;font-weight:800;font-variant-numeric:tabular-nums}
       .export-legend{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 0;color:#5f6368;font-size:14px}
-      @media print{@page{size:A4 landscape;margin:10mm}html,body{margin:0!important;padding:0!important;background:#fff!important}.schedule-export-view{width:100%;padding:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}.export-header{margin-bottom:14px;padding:15px 18px}.export-header h1{font-size:22px}.export-grid-body{height:calc(190mm - 68px)!important}.export-times div{height:calc((190mm - 68px)/var(--rows))}.export-day-column{background-size:100% calc((190mm - 68px)/var(--rows)),100% 100%}.export-block{font-size:9px}.export-block .export-time{font-size:8px}}
+      @media print{@page{size:A4 landscape;margin:10mm}html,body{margin:0!important;padding:0!important;background:#fff!important}.schedule-export-view{width:100%;padding:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}.export-header{margin-bottom:14px;padding:15px 18px}.export-header h1{font-size:22px}.export-grid-body{height:calc(190mm - 68px)!important}.export-times div{height:calc((190mm - 68px)/var(--rows))}.export-day-column{background-size:100% calc((190mm - 68px)/var(--rows))}.export-block{font-size:9px}.export-block .export-time{font-size:8px}}
     `;
   }
   function exportCanvasCss() {
-    return '.export-day-column{background-color:var(--canvas-background,#fff);background-image:linear-gradient(to bottom,rgba(98,41,138,.18) 1px,transparent 1px),var(--canvas-gradient,none);background-size:100% 66px,100% 100%}';
+    return '.export-day-column{background-color:var(--canvas-background,#fff);background-image:linear-gradient(to bottom,rgba(98,41,138,.18) 1px,transparent 1px);background-size:100% 66px}';
   }
 
   async function withExportView(callback) {
@@ -649,15 +645,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         onclone: clonedDocument => {
           const cloneHost = clonedDocument.querySelector('.export-host');
           if (cloneHost) { cloneHost.style.position = 'fixed'; cloneHost.style.left = '0'; cloneHost.style.top = '0'; cloneHost.style.transform = 'none'; cloneHost.style.zIndex = '10000'; }
-          clonedDocument.querySelectorAll('.export-block[data-font-gradient="true"]').forEach(card => {
-            card.querySelectorAll(':scope > *').forEach(child => {
-              child.style.color = card.dataset.fontColor;
-              child.style.backgroundImage = 'none';
-              child.style.backgroundClip = 'border-box';
-              child.style.webkitBackgroundClip = 'border-box';
-              child.style.webkitTextFillColor = card.dataset.fontColor;
-            });
-          });
         }
       });
       const link = document.createElement('a'); link.href = image.toDataURL('image/png'); link.download = `schedula-${safeFilename(selectedSchedule.title)}-${localDateStamp()}.png`; link.click();
@@ -670,7 +657,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const title = safeFilename(selectedSchedule.title);
       const page = 'A4 landscape';
       const printHeight = '190mm';
-      const fitPage = `@media print{.export-grid-body{height:calc(${printHeight} - 68px)!important}.export-times div{height:calc((${printHeight} - 68px)/var(--rows))}.export-day-column{background-size:100% calc((${printHeight} - 68px)/var(--rows)),100% 100%}}`;
+      const fitPage = `@media print{.export-grid-body{height:calc(${printHeight} - 68px)!important}.export-times div{height:calc((${printHeight} - 68px)/var(--rows))}.export-day-column{background-size:100% calc((${printHeight} - 68px)/var(--rows))}}`;
       popup.document.open(); popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>schedula-${title}-${localDateStamp()}</title><style>${exportCss()}${exportCanvasCss()} @page{size:${page};margin:10mm}${fitPage}.export-host{position:static!important;left:auto!important}</style></head><body>${view.outerHTML}<script>window.addEventListener('load',()=>{document.fonts.ready.then(()=>window.print())});window.addEventListener('afterprint',()=>window.close());<\/script></body></html>`); popup.document.close();
     });
   }
