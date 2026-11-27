@@ -64,8 +64,8 @@ This file tracks the current admin implementation. Unrelated pre-existing workin
 
 ### Phase 9 — Documentation and delivery
 - [x] Document fresh setup, adoption, migrations, roles, API, privacy scope, and retention.
-- [ ] Final verification and record final diff/commands/open deployment checks here.
-- [ ] Commit reviewable admin phases without staging unrelated working-tree changes.
+- [x] Final verification and record final commands/open deployment checks here.
+- [x] Commit the implementation in three reviewable commits while leaving unrelated working-tree changes unstaged.
 
 ## Verification log
 
@@ -76,4 +76,4 @@ This file tracks the current admin implementation. Unrelated pre-existing workin
 - `git diff --check` completed without whitespace errors (Git only reported expected LF-to-CRLF normalization notices).
 - Backend JavaScript syntax checks and frontend module syntax checks passed during implementation.
 - Database-backed migrations, access integration, and visual authenticated browser checks have not been run; no test database or admin login session was provided, and this task does not apply migrations to a live database.
-- Admin changes were committed in two reviewable backend phases; final frontend/docs checklist updates are staged separately. Unrelated profile/team edits remain unstaged.
+- Admin implementation commits: `df36248` (schema ledger and roles), `d6b2f32` (diagnostics, audit, retention), and `0a159bb` (dashboard and docs). Unrelated profile/team edits remain unstaged.
