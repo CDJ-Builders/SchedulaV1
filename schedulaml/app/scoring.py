@@ -11,6 +11,7 @@ ALLOWED_SCORERS = {"lgb", "gb", "l3"}
 
 
 def selected_scorer() -> str:
+    """Return the configured scorer name, falling back to the default model."""
     scorer = os.getenv("SCHEDULAML_SCORER", "lgb").lower()
     if scorer not in ALLOWED_SCORERS:
         raise RuntimeError("SCHEDULAML_SCORER must be one of: lgb, gb, l3")
@@ -18,6 +19,7 @@ def selected_scorer() -> str:
 
 
 def rank(request: RankRequest, features: Any, predictor: Any, config: dict, schema: dict, scorer: str) -> tuple[list[dict], list[str]]:
+    """Score feasible candidates and return ranked slots with explanatory warnings."""
     response, meeting, warnings = to_model_inputs(request)
     if scorer == "l3":
         rows = predictor.predict_layered(response, meeting, top_k=100)

@@ -1,4 +1,8 @@
-/** Shared JSON client for the plain-script frontend. */
+/**
+ * Purpose: shared authenticated JSON requests.
+ * Loaded after utils.js on profile, setup, team, and admin pages.
+ * Requires: window.APP_CONFIG and localStorage; provides: window.APP_API.
+ */
 window.APP_API = {
   /** Send an authenticated JSON request to the configured API and normalize failures. */
   async request(path, options = {}, config = {}) {

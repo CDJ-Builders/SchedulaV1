@@ -23,6 +23,7 @@ SUPPORTED_MODEL_PACKAGES = {
 
 
 def verify_runtime() -> None:
+    """Reject Python runtimes incompatible with the serialized model artifacts."""
     current_python = sys.version_info[:2]
     if current_python != SUPPORTED_PYTHON:
         expected = ".".join(map(str, SUPPORTED_PYTHON))
@@ -48,6 +49,8 @@ def verify_runtime() -> None:
 
 
 def artifact_dir() -> Path:
+    """Resolve the versioned model artifact directory selected by the environment."""
+    """Resolve the model artifact directory selected by the environment."""
     root = Path(__file__).resolve().parents[1] / "artifacts"
     version = os.getenv("SCHEDULAML_ARTIFACT_VERSION", "1.1.0")
     if not version or version in {".", ".."} or "/" in version or "\\" in version:
@@ -59,6 +62,7 @@ def artifact_dir() -> Path:
 
 
 def verify_manifest(directory: Path) -> dict:
+    """Validate the artifact manifest and return its parsed metadata."""
     manifest = json.loads((directory / "MANIFEST.json").read_text(encoding="utf-8"))
     actual_files = {path.name for path in directory.iterdir() if path.is_file() and path.name != "MANIFEST.json"}
     if not REQUIRED_ARTIFACTS.issubset(actual_files):
@@ -92,6 +96,7 @@ def _artifact_import_context(directory: Path) -> Iterator[None]:
 
 
 def load_models() -> tuple[ModuleType, ModuleType, dict, dict]:
+    """Verify and load the model modules, feature schema, and runtime config."""
     verify_runtime()
     directory = artifact_dir().resolve()
     manifest = verify_manifest(directory)

@@ -5,6 +5,11 @@ const asyncHandler = require('../utils/asyncHandler');
 const { isNonEmptyString, normalizeEmail, isPlausibleEmail } = require('../middleware/validation');
 const { isValidPassword } = require('../utils/passwordPolicy');
 
+/**
+ * POST /api/signup
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/signup', asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = normalizeEmail(email);
@@ -21,6 +26,11 @@ router.post('/signup', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/verify-signup
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/verify-signup', asyncHandler(async (req, res) => {
   const { email, pin } = req.body;
   const normalizedEmail = normalizeEmail(email);
@@ -35,6 +45,11 @@ router.post('/verify-signup', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/login
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = normalizeEmail(email);
@@ -50,6 +65,11 @@ router.post('/login', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/refresh
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/refresh', asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
@@ -64,12 +84,22 @@ router.post('/refresh', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/logout
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/logout', asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
   await authService.logout(refreshToken);
   res.json({ message: 'Successfully logged out' });
 }));
 
+/**
+ * POST /api/forgot-password
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/forgot-password', asyncHandler(async (req, res) => {
   const { email } = req.body;
   const normalizedEmail = normalizeEmail(email);
@@ -88,6 +118,11 @@ router.post('/forgot-password', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/reset-password
+ * Auth: Public; submitted tokens are required for refresh and logout.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/reset-password', asyncHandler(async (req, res) => {
   const { token, pin, email, password } = req.body;
   const resetPin = pin || token;

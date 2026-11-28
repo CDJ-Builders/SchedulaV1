@@ -62,6 +62,7 @@ function normalizeRole(role) {
   return role === 'owner' || role === 'admin' ? 'admin' : 'member';
 }
 
+/** Build team operations against the injected database pool. @param {object} db @returns {object} @throws {TypeError} */
 function createTeamsService(db) {
   if (!db || typeof db.query !== 'function' || typeof db.connect !== 'function') {
     throw new TypeError('A PostgreSQL pool is required.');
@@ -86,6 +87,7 @@ function createTeamsService(db) {
     return membership;
   }
 
+  /** Load a team and its authorized member and schedule views. @param {string} teamId @param {string} userId @param {object} [options] @returns {Promise<object>} @throws {Error} */
   async function getTeam(teamId, userId, options = {}) {
     const team = await getMembership(teamId, userId);
     const memberRows = await db.query(
@@ -220,6 +222,7 @@ function createTeamsService(db) {
     };
   }
 
+  /** List teams visible to a user. @param {string} userId @param {object} [options] @returns {Promise<Array<object>>} @throws {Error} */
   async function listTeams(userId, options = {}) {
     const result = await db.query(
       'SELECT g.id FROM groups g JOIN memberships m ON m.group_id = g.id ' +
@@ -231,6 +234,7 @@ function createTeamsService(db) {
     return teams;
   }
 
+  /** Create a team owned by a user. @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
   async function createTeam(userId, input) {
     const name = validText(input.name, 'Team name', 80);
     for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -252,6 +256,7 @@ function createTeamsService(db) {
     throw httpError(503, 'Unable to generate a team code. Please try again.');
   }
 
+  /** Join a team using its invitation code. @param {string} userId @param {string} rawCode @param {string|null} requestedScheduleId @returns {Promise<object>} @throws {Error} */
   async function joinTeam(userId, rawCode, requestedScheduleId) {
     const code = validText(rawCode, 'Team code', 32).toUpperCase();
     if (!/^SCH-[A-F0-9]{4}$/.test(code)) throw httpError(404, 'Team not found.');
@@ -298,6 +303,7 @@ function createTeamsService(db) {
     return getTeam(teamId, userId);
   }
 
+  /** Set or clear the current user's shared team schedule. @param {string} teamId @param {string} userId @param {string|null} requestedScheduleId @returns {Promise<object>} @throws {Error} */
   async function setSharedSchedule(teamId, userId, requestedScheduleId) {
     const scheduleId = requestedScheduleId || null;
     if (scheduleId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scheduleId)) {
@@ -345,6 +351,7 @@ function createTeamsService(db) {
     return getTeam(teamId, userId);
   }
 
+  /** Change whether teammates can view shared schedule details. @param {string} teamId @param {string} userId @param {boolean} showDetails @returns {Promise<object>} @throws {Error} */
   async function setSharedScheduleDetails(teamId, userId, showDetails) {
     if (typeof showDetails !== 'boolean') throw httpError(400, 'show_details must be a boolean.');
     const client = await db.connect();
@@ -368,6 +375,7 @@ function createTeamsService(db) {
     return getTeam(teamId, userId);
   }
 
+  /** Rename a team after checking the caller's role. @param {string} teamId @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
   async function renameTeam(teamId, userId, input) {
     await requireAdmin(teamId, userId);
     const name = validText(input.name, 'Team name', 80);
@@ -379,6 +387,7 @@ function createTeamsService(db) {
     return getTeam(teamId, userId);
   }
 
+  /** Replace a team's join code. @param {string} teamId @param {string} userId @returns {Promise<object>} @throws {Error} */
   async function regenerateCode(teamId, userId) {
     await requireAdmin(teamId, userId);
     for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -398,6 +407,7 @@ function createTeamsService(db) {
     throw httpError(503, 'Unable to generate a team code. Please try again.');
   }
 
+  /** Change a member's team role while enforcing creator safeguards. @param {string} teamId @param {string} actorId @param {string} targetId @param {string} requestedRole @returns {Promise<object>} @throws {Error} */
   async function changeMemberRole(teamId, actorId, targetId, requestedRole) {
     await requireAdmin(teamId, actorId);
     if (!['admin', 'member'].includes(requestedRole)) throw httpError(400, 'Role must be admin or member.');
@@ -440,6 +450,7 @@ function createTeamsService(db) {
     } finally { client.release(); }
   }
 
+  /** Remove a member from a team. @param {string} teamId @param {string} actorId @param {string} targetId @returns {Promise<object>} @throws {Error} */
   async function removeMember(teamId, actorId, targetId) {
     const actor = await requireAdmin(teamId, actorId);
     if (actorId === targetId) throw httpError(400, 'Use Leave team to remove yourself.');
@@ -477,6 +488,7 @@ function createTeamsService(db) {
     );
   }
 
+  /** Delete team data when called by its creator. @param {string} teamId @param {string} userId @returns {Promise<object>} @throws {Error} */
   async function deleteTeam(teamId, userId) {
     const client = await db.connect();
     try {
@@ -541,11 +553,13 @@ function createTeamsService(db) {
     } finally { client.release(); }
   }
 
+  /** Leave a team and clean up final membership when necessary. @param {string} teamId @param {string} userId @returns {Promise<object>} @throws {Error} */
   async function leaveTeam(teamId, userId) {
     await getMembership(teamId, userId);
     return removeMembership(teamId, userId);
   }
 
+  /** List privacy-filtered preferences for authorized team members. @param {string} teamId @param {string} userId @returns {Promise<object>} @throws {Error} */
   async function listMemberPreferences(teamId, userId) {
     const team = await getMembership(teamId, userId);
     const result = await db.query(
@@ -682,6 +696,7 @@ function createTeamsService(db) {
     return schedule.id;
   }
 
+  /** Create a weekly time proposal for a team. @param {string} teamId @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
   async function createProposal(teamId, userId, input) {
     const proposal = validateProposal(input);
     const client = await db.connect();
@@ -719,6 +734,7 @@ function createTeamsService(db) {
     } };
   }
 
+  /** Record a member's response to a proposal. @param {string} teamId @param {string} userId @param {string} proposalId @param {string} response @returns {Promise<object>} @throws {Error} */
   async function respondToProposal(teamId, userId, proposalId, response) {
     if (!['accept', 'decline'].includes(response)) throw httpError(400, 'Response must be accept or decline.');
     const client = await db.connect();

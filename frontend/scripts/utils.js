@@ -1,5 +1,6 @@
 // ============================================================
-// Shared Schedula Utilities & Configurations
+// Purpose: shared API configuration and DOM/string helpers; loaded before page scripts.
+// Requires: window and document; provides: window.APP_CONFIG and window.APP_UTILS.
 // ============================================================
 
 // 1. Environment-specific API Configuration
@@ -27,11 +28,14 @@ window.APP_CONFIG = (() => {
 })();
 
 // 2. Shared Helper Operations
+/** Shared escaping, DOM, and time helpers used by page scripts. */
 window.APP_UTILS = {
+  /** Resolve an element by its document ID. @param {string} id @returns {HTMLElement|null} */
   getElement(id) {
     return document.getElementById(id);
   },
 
+  /** Escape text before inserting it into popup HTML. @param {*} value @returns {string} */
   escapePopup(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

@@ -1,6 +1,8 @@
 /**
  * @file auth.js
- * @description Manages user authentication, route guards, token extraction, navigation updates, and login/signup flows.
+ * @description Manages authentication, route guards, navigation, login/signup/reset flows; loaded on auth and application pages.
+ * @requires window.APP_CONFIG, window.APP_UTILS, and popup helpers.
+ * @provides shared authentication globals and page event handlers.
  */
 
 const SCHEDULA_HANDOFF_PREFIX = 'schedula-auth-handoff:';

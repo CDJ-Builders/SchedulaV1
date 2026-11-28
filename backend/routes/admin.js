@@ -59,6 +59,11 @@ router.use((req, res, next) => {
 });
 router.use(authenticateToken, adminRoles);
 
+/**
+ * GET /api/admin/users
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/users', pageParams, asyncHandler(async (req, res) => {
   const result = await adminUserData.listUsers(req, {
     q: String(req.query.q || '').trim(), limit: req.limit, offset: req.offset, page: req.page
@@ -66,6 +71,11 @@ router.get('/users', pageParams, asyncHandler(async (req, res) => {
   res.json(result);
 }));
 
+/**
+ * GET /api/admin/users/:id
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/users/:id', asyncHandler(async (req, res) => {
   const userId = req.params.id;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
@@ -76,6 +86,11 @@ router.get('/users/:id', asyncHandler(async (req, res) => {
   res.json(configuration);
 }));
 
+/**
+ * GET /api/admin/meta
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/meta', (req, res) => {
   res.json({
     role: req.user.role,
@@ -88,10 +103,20 @@ router.get('/meta', (req, res) => {
   });
 });
 
+/**
+ * GET /api/admin/health
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/health', asyncHandler(async (req, res) => {
   res.json(await healthService.getHealth());
 }));
 
+/**
+ * GET /api/admin/dashboard
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/dashboard', asyncHandler(async (req, res) => {
   const range = req.query.range || '30d';
   if (!['7d', '30d', '90d'].includes(range)) return res.status(400).json({ error: 'range must be 7d, 30d, or 90d' });
@@ -111,21 +136,41 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   res.json({ stats, series, breakdowns });
 }));
 
+/**
+ * GET /api/admin/stats/overview
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/stats/overview', asyncHandler(async (req, res) => {
   const range = req.query.range || '30d';
   if (!['7d', '30d', '90d'].includes(range)) return res.status(400).json({ error: 'range must be 7d, 30d, or 90d' });
   res.json(await adminStats.overview(range));
 }));
 
+/**
+ * GET /api/admin/stats/timeseries
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/stats/timeseries', asyncHandler(async (req, res) => {
   res.json(await adminStats.timeseries(req.query.metric, req.query.range || '7d', req.query.interval || 'day'));
 }));
 
+/**
+ * GET /api/admin/stats/breakdown
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/stats/breakdown', asyncHandler(async (req, res) => {
   if (!req.query.metric || String(req.query.metric).length > 64) return res.status(400).json({ error: 'metric is required' });
   res.json({ metric: req.query.metric, rows: await adminStats.breakdown(req.query.metric) });
 }));
 
+/**
+ * GET /api/admin/audit
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/audit', pageParams, validateDates, asyncHandler(async (req, res) => {
   for (const key of ['resource', 'action']) {
     if (String(req.query[key] || '').length > 100) return res.status(400).json({ error: `${key} filter is too long` });
@@ -141,12 +186,22 @@ router.get('/audit', pageParams, validateDates, asyncHandler(async (req, res) =>
   res.json({ rows: fetched.slice(0, req.limit), page: req.page, limit: req.limit, has_more: fetched.length > req.limit });
 }));
 
+/**
+ * GET /api/admin/logs/errors
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/logs/errors', pageParams, validateDates, asyncHandler(async (req, res) => {
   if (String(req.query.route || '').length > 256) return res.status(400).json({ error: 'route filter is too long' });
   const fetched = await errorLogService.list({ route: req.query.route, ...req.dateRange, limit: req.limit + 1, offset: req.offset });
   res.json({ rows: fetched.slice(0, req.limit), page: req.page, limit: req.limit, has_more: fetched.length > req.limit });
 }));
 
+/**
+ * GET /api/admin/metrics/requests
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: None.
+ */
 router.get('/metrics/requests', pageParams, validateDates, asyncHandler(async (req, res) => {
   if (String(req.query.route || '').length > 256) return res.status(400).json({ error: 'route filter is too long' });
   const rows = await metrics.summary({
@@ -158,6 +213,11 @@ router.get('/metrics/requests', pageParams, validateDates, asyncHandler(async (r
   res.json({ rows, rolling_window: metrics.rollingWindow(), page: req.page, limit: req.limit });
 }));
 
+/**
+ * PATCH /api/admin/access/users/:id/role
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.patch('/access/users/:id/role', stepUpLimiter, superAdmin, requireStepUp, asyncHandler(async (req, res) => {
   const role = req.body?.role;
   if (!['user', 'developer', 'super_admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
@@ -200,6 +260,11 @@ router.patch('/access/users/:id/role', stepUpLimiter, superAdmin, requireStepUp,
   }
 }));
 
+/**
+ * POST /api/admin/maintenance/prune-logs
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/maintenance/prune-logs', stepUpLimiter, superAdmin, requireStepUp, asyncHandler(async (req, res) => {
   const client = await pool.connect();
   let counts;
@@ -225,6 +290,11 @@ router.post('/maintenance/prune-logs', stepUpLimiter, superAdmin, requireStepUp,
   res.json({ deleted: counts, retention_days: retention });
 }));
 
+/**
+ * POST /api/admin/maintenance/clear-expired-sessions
+ * Auth: Authenticated admin; super-admin and step-up guards apply to protected mutations.
+ * Body: JSON request fields are validated by the handler.
+ */
 router.post('/maintenance/clear-expired-sessions', stepUpLimiter, superAdmin, requireStepUp, asyncHandler(async (req, res) => {
   const client = await pool.connect();
   let counts;

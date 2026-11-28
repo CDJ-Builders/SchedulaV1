@@ -1,3 +1,8 @@
+/**
+ * Purpose: render team schedules and member availability on teams.html.
+ * Requires APP_API, APP_UTILS, APP_CONFIG, popup helpers, and the team page DOM.
+ * Provides window.getTeamProposalConflicts for teamProposals.js.
+ */
 document.addEventListener('DOMContentLoaded', async function () {
  if (!localStorage.getItem('token')) { location.href = 'login.html'; return; }
 
@@ -27,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
  }
  function displayName(member) { return member.isSelf ? member.name + ' (You)' : member.name; }
+ /** Return shared member schedule conflicts for a proposed team time. @param {string} teamId @param {string} weekday @param {string} startTime @param {string} endTime @returns {Array<string>} */
  window.getTeamProposalConflicts = function (teamId, weekday, startTime, endTime) {
   if (!team || String(team.id) !== String(teamId)) return [];
   var day = { Monday:'Mon', Tuesday:'Tue', Wednesday:'Wed', Thursday:'Thu', Friday:'Fri', Saturday:'Sat', Sunday:'Sun' }[weekday];

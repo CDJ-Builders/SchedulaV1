@@ -1,5 +1,6 @@
 const { pool } = require('../config/database');
 
+/** Create middleware that authorizes a request against the user's stored role. @param {string|string[]} allowedRoles @param {Function} [query] @returns {Function} */
 function requireRole(allowedRoles, query = pool.query.bind(pool)) {
   const roles = new Set(Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]);
   return async function roleGuard(req, res, next) {

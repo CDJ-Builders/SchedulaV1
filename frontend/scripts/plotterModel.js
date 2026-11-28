@@ -1,4 +1,7 @@
-/* Pure schedule block style and override helpers; shared by Plotter UI and tests. */
+/*
+ * Purpose: pure schedule block style and override helpers.
+ * Loaded by the plotter page before plotter.js; requires no globals and provides window.PlotterModel.
+ */
 (function (root, factory) {
   const api = factory();
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -13,6 +16,7 @@
     return hours * 60 + minutes;
   }
 
+  /** Choose a readable left edge for the rendered timetable. @param {Array<object>} blocks @param {Array<object>} events @param {number} [defaultStart] @returns {number} */
   function getTimelineStartMinutes(blocks = [], events = [], defaultStart = 7 * 60) {
     let earliest = defaultStart;
     blocks.forEach(block => {
@@ -32,6 +36,7 @@
     return earliest < defaultStart ? Math.floor(earliest / 60) * 60 : defaultStart;
   }
 
+  /** Resolve a block's displayed style from batch defaults and overrides. @param {object} block @param {object} batchDefaults @returns {object} */
   function resolveBlockStyle(block, batchDefaults) {
     const overrides = block && block.overrides && typeof block.overrides === 'object' ? block.overrides : {};
     const style = {
@@ -73,6 +78,7 @@
     return next;
   }
 
+  /** Apply a style patch to selected batch defaults while preserving overrides. @param {Array<object>} blocks @param {object} batchDefaults @param {object} patch @param {object} [options] @returns {object} */
   function applyBatch(blocks, batchDefaults, patch, options = {}) {
     const skipOverridden = options.skipOverridden !== false;
     const nextBlocks = blocks.map(block => {

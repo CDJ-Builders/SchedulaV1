@@ -4,10 +4,12 @@ const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90 };
 const overviewCache = new Map();
 const CACHE_MS = 30000;
 
+/** Convert a supported dashboard range to its day count. @param {string} range @returns {number} @throws {Error} */
 function rangeDays(range) {
   return RANGE_DAYS[range] || RANGE_DAYS['30d'];
 }
 
+/** Load aggregate dashboard metrics for a supported time window. @param {string} [range] @returns {Promise<object>} @throws {Error} */
 async function overview(range = '30d') {
   const days = rangeDays(range);
   const cached = overviewCache.get(days);
@@ -63,6 +65,7 @@ async function overview(range = '30d') {
   return value;
 }
 
+/** Return a time series for an allowlisted metric. @param {string} metric @param {string} [range] @param {string} [interval] @returns {Promise<object>} @throws {Error} */
 async function timeseries(metric, range = '7d', interval = 'day') {
   if (!RANGE_DAYS[range]) throw Object.assign(new Error('range must be 7d, 30d, or 90d'), { status: 400 });
   if (!['day', 'hour'].includes(interval)) throw Object.assign(new Error('interval must be day or hour'), { status: 400 });
@@ -116,6 +119,7 @@ async function timeseries(metric, range = '7d', interval = 'day') {
   return { metric, range, interval, points: result.rows };
 }
 
+/** Return a grouped breakdown for an allowlisted metric. @param {string} metric @returns {Promise<object>} @throws {Error} */
 async function breakdown(metric) {
   switch (metric) {
     case 'users_by_role': {

@@ -1,5 +1,6 @@
 const { pool } = require('../config/database');
 
+/** Load the current user's session profile and preferences. @param {string} userId @returns {Promise<object>} @throws {Error} */
 async function getSession(userId) {
   const result = await pool.query(
     `SELECT u.id AS user_id, u.email, u.role AS access,
@@ -17,6 +18,7 @@ async function getSession(userId) {
   return result.rows[0];
 }
 
+/** Update the user's profile and optional account credentials. @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function updateProfile(userId, { display_name, timezone, locale, avatar_url, working_hours, email, password }) {
   const client = await pool.connect();
   try {
@@ -69,6 +71,7 @@ async function updateProfile(userId, { display_name, timezone, locale, avatar_ur
   }
 }
 
+/** Delete the user's account and dependent personal data. @param {string} userId @returns {Promise<void>} @throws {Error} */
 async function deleteProfile(userId) {
   const client = await pool.connect();
   try {
@@ -91,6 +94,7 @@ async function deleteProfile(userId) {
   }
 }
 
+/** Load the user's scheduling preferences. @param {string} userId @returns {Promise<object>} @throws {Error} */
 async function getPreferences(userId) {
   const result = await pool.query(
     `SELECT pref_time_0708, pref_time_0810, pref_time_1012, pref_time_1214,
@@ -126,6 +130,7 @@ async function getPreferences(userId) {
   return defaults.rows[0];
 }
 
+/** Validate and save the user's scheduling preferences. @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function updatePreferences(userId, input) {
   const preferenceKeys = [
     'pref_time_0708', 'pref_time_0810', 'pref_time_1012', 'pref_time_1214',

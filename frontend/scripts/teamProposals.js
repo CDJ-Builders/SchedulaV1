@@ -1,3 +1,8 @@
+/**
+ * Purpose: handle team proposals and team Smart Schedule on teams.html.
+ * Requires APP_API, APP_UTILS, APP_CONFIG, popup helpers, and teams.js conflict helpers.
+ * Provides proposal and recommendation dialog interactions.
+ */
 document.addEventListener('DOMContentLoaded', function () {
   const $ = id => document.getElementById(id);
   const proposalDialog = $('team-proposal-dialog');
@@ -48,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     proposalStatus.classList.toggle('is-error', isError);
   }
 
+  /** Disable proposal submission when a shared personal schedule conflicts. @returns {Array<string>} */
   function updateTeamProposalFormAvailability() {
     const button = $('team-proposal-submit');
     if (!button) return [];
@@ -150,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     $('prop').focus();
   }
 
+  /** Render team recommendation choices in the proposal dialog. @param {object} data @returns {void} */
   function renderTeamRecommendations(data) {
     resetRecommendations();
     const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];

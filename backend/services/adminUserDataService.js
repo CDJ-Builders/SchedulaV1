@@ -42,6 +42,7 @@ async function withAuditTransaction(req, action, resourceId, work) {
   }
 }
 
+/** List accounts and approved summary fields for the admin inspector. @param {object} req @param {object} filters @returns {Promise<object>} @throws {Error} */
 async function listUsers(req, { q, limit, offset, page }) {
   const search = q ? `%${q}%` : null;
   return withAuditTransaction(req, 'user.directory.view', null, async client => {
@@ -83,6 +84,7 @@ async function listUsers(req, { q, limit, offset, page }) {
   });
 }
 
+/** Read an audited, privacy-filtered account configuration. @param {object} req @param {string} userId @returns {Promise<object>} @throws {Error} */
 async function getUserConfiguration(req, userId) {
   return withAuditTransaction(req, 'user.configuration.view', userId, async client => {
     const accountResult = await client.query(

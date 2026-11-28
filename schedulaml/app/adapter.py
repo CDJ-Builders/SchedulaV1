@@ -10,6 +10,7 @@ TIME_BINS = ("0708", "0810", "1012", "1214", "1416", "1618", "1820", "2022", "22
 
 
 def to_model_inputs(request: RankRequest) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
+    """Map a validated API request into the model input dictionaries and warnings."""
     """Build every input read by features.py; never rely on its silent defaults."""
     response: dict[str, Any] = {}
     warnings: list[str] = list(request.context.warnings)
@@ -39,6 +40,7 @@ def to_model_inputs(request: RankRequest) -> tuple[dict[str, Any], dict[str, Any
 
 
 def conflicts_with_grid(day: str, start: int, end: int, request: RankRequest) -> bool:
+    """Return whether a candidate interval intersects occupied schedule cells."""
     if day not in request.context.occupancy or start < 7 or end > 22 or end <= start:
         return True
     cells = request.context.occupancy[day]

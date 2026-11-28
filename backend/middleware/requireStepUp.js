@@ -1,5 +1,6 @@
 const { pool } = require('../config/database');
 
+/** Require and verify the current password before a sensitive admin action. @param {object} req @param {object} res @param {Function} next @param {Function} [query] @returns {Promise<void>} */
 async function requireStepUp(req, res, next, query = pool.query.bind(pool)) {
   const password = req.body?.password;
   if (typeof password !== 'string' || !password) {

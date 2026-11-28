@@ -97,6 +97,7 @@ async function sendResetPinEmail(to, pin) {
   }
 }
 
+/** Send an email verification PIN or write a development preview. @param {string} to @param {string} pin @returns {Promise<void>} @throws {Error} */
 async function sendSignupPinEmail(to, pin) {
   const fromEmail = SMTP.FROM;
   const subject = 'Verify your Schedula email';
@@ -113,6 +114,7 @@ async function sendSignupPinEmail(to, pin) {
   fs.writeFileSync(file, `<p><strong>To:</strong> ${to}</p><p><strong>Subject:</strong> ${subject}</p><p><strong>PIN:</strong> ${pin}</p><hr>${html}`);
 }
 
+/** Verify SMTP connectivity within a bounded timeout. @param {number} [timeoutMs] @returns {Promise<boolean|null>} @throws {Error} */
 async function verifySmtp(timeoutMs = 3000) {
   if (!smtpConfigured || !transporter) return null;
   let timeout;

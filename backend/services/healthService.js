@@ -9,6 +9,7 @@ const loopDelay = monitorEventLoopDelay({ resolution: 20 });
 loopDelay.enable();
 let cpuSample = { at: performance.now(), usage: process.cpuUsage() };
 
+/** Classify a health measurement against configured thresholds. @param {number} value @param {object} limits @returns {string} */
 function numericStatus(value, limits) {
   if (value >= limits.down) return 'down';
   if (value >= limits.degraded) return 'degraded';
@@ -58,6 +59,7 @@ async function probeSmtp() {
   }
 }
 
+/** Collect API, database, and dependency health diagnostics. @returns {Promise<object>} @throws {Error} */
 async function getHealth() {
   const memory = process.memoryUsage();
   const loopMean = Number.isFinite(loopDelay.mean) ? loopDelay.mean / 1e6 : 0;

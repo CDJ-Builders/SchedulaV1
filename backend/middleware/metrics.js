@@ -6,6 +6,7 @@ const MAX_BUCKET_SAMPLE = 5000;
 const windowSamples = [];
 const pendingBuckets = new Map();
 
+/** Normalize route identifiers before recording request metrics. @param {object} req @returns {string} */
 function normalizeRoute(req) {
   const routePath = req.route?.path;
   const route = routePath ? `${req.baseUrl || ''}${routePath}` : req.path;
@@ -15,12 +16,14 @@ function normalizeRoute(req) {
     .slice(0, 256);
 }
 
+/** Calculate a bounded percentile from request latency samples. @param {number[]} values @param {number} fraction @returns {number} */
 function percentile(values, fraction) {
   if (!values.length) return 0;
   const sorted = [...values].sort((a, b) => a - b);
   return Number(sorted[Math.min(sorted.length - 1, Math.ceil(fraction * sorted.length) - 1)].toFixed(2));
 }
 
+/** Collect request timing and status data for diagnostics. @param {object} req @param {object} res @param {Function} next @returns {void} */
 function metrics(req, res, next) {
   const start = performance.now();
   res.on('finish', () => {
@@ -48,6 +51,7 @@ function metrics(req, res, next) {
   next();
 }
 
+/** Persist completed request metric buckets. @returns {Promise<void>} @throws {Error} */
 async function flush() {
   const cutoff = Date.now() - 65000;
   const entries = [...pendingBuckets.entries()].filter(([key]) => Date.parse(key.split('\u0000')[0]) < cutoff);
@@ -73,6 +77,7 @@ async function flush() {
 
 setInterval(flush, 15000).unref();
 
+/** Summarize in-memory request metrics with optional filters. @param {object} [filters] @returns {object} */
 function summary({ from, to, route, limit = 100, offset = 0 } = {}) {
   const conditions = [];
   const values = [];
@@ -89,6 +94,7 @@ function summary({ from, to, route, limit = 100, offset = 0 } = {}) {
   ).then(result => result.rows);
 }
 
+/** Return recent in-memory request metrics for health summaries. @param {object} [options] @returns {object} */
 function rollingWindow({ sinceMs = 5 * 60 * 1000 } = {}) {
   const cutoff = Date.now() - sinceMs;
   const samples = windowSamples.filter(sample => sample.createdAt >= cutoff);

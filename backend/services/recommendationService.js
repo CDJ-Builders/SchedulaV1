@@ -11,6 +11,7 @@ function errorWithStatus(message, status) {
   return error;
 }
 
+/** Validate the caller's meeting request and normalize its limit. @param {object} body @returns {object} @throws {Error} */
 function validateMeeting(body) {
   if (!body || Object.keys(body).some(key => !['meeting', 'limit'].includes(key))) {
     throw errorWithStatus('Only meeting and limit may be provided; schedule context is loaded by the server.', 422);
@@ -42,6 +43,7 @@ function parseClock(value) {
   return hour * 60 + minute;
 }
 
+/** Map a canonical weekly block into the model's occupied-hour grid. @param {object} grid @param {object} block @param {string[]} warnings @returns {void} @throws {Error} */
 function markWeeklyBlock(grid, block, warnings) {
   const start = parseClock(block?.start_time);
   const end = parseClock(block?.end_time);
@@ -135,6 +137,7 @@ async function loadPreferences(userId) {
   return requireConfirmedPreferences(result.rows[0] || {});
 }
 
+/** Combine shared weekly schedules and team events into a model grid. @param {Array<object>} memberSchedules @param {Array<object>} teamEvents @returns {object} @throws {Error} */
 function buildConsolidatedTeamContext(memberSchedules, teamEvents) {
   const grid = Object.fromEntries(DAY_CODES.map(day => [day, Array(15).fill('OF')]));
   const warnings = [];
@@ -241,12 +244,14 @@ async function buildTeamContext(userId, teamId) {
   return buildConsolidatedTeamContext(memberSchedules.rows, teamEvents.rows);
 }
 
+/** Reject model responses that contain malformed metadata or candidates. @param {object} response @param {number} durationMinutes @returns {object} @throws {Error} */
 function validateServiceResponse(response, durationMinutes) {
   if (!response || !Array.isArray(response.recommendations) || !response.model || typeof response.model.name !== 'string' || typeof response.model.version !== 'string' || !Array.isArray(response.warnings) || !response.warnings.every(message => typeof message === 'string')) {
     throw errorWithStatus('Recommendation service returned an invalid response', 503);
   }
   const singleCandidateWarning = response.recommendations.length === 1
     && response.warnings.some(message => typeof message === 'string' && message.includes('Only one feasible candidate'));
+  // The model may deliberately emit a null score when a single feasible candidate remains.
   for (const item of response.recommendations) {
     const start = /^\d{2}:00$/.test(item.start_time) ? Number(item.start_time.slice(0, 2)) : -1;
     const end = /^\d{2}:00$/.test(item.end_time) ? Number(item.end_time.slice(0, 2)) : -1;
@@ -259,12 +264,14 @@ function validateServiceResponse(response, durationMinutes) {
   return response;
 }
 
+/** Call SchedulaML and validate its ranked candidate response. @param {object} context @param {object} meeting @param {number} limit @returns {Promise<object>} @throws {Error} */
 async function requestRecommendations(context, meeting, limit) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), env.SCHEDULAML_TIMEOUT_MS);
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (env.SCHEDULAML_API_KEY) headers['X-SchedulaML-Key'] = env.SCHEDULAML_API_KEY;
+    // Keep identity and persistence in Express; the model receives only normalized scheduling inputs.
     const response = await fetch(`${env.SCHEDULAML_URL.replace(/\/$/, '')}/rank`, {
       method: 'POST', headers, signal: controller.signal,
       body: JSON.stringify({ context, meeting, limit })
@@ -279,6 +286,7 @@ async function requestRecommendations(context, meeting, limit) {
   }
 }
 
+/** Recommend meeting times using an owned schedule and its preferences. @param {string} userId @param {string} scheduleId @param {object} body @returns {Promise<object>} @throws {Error} */
 async function recommend(userId, scheduleId, body) {
   if (!env.SMART_SCHEDULE_ENABLED) throw errorWithStatus('Smart scheduling is currently unavailable', 503);
   const { meeting, limit } = validateMeeting(body);
@@ -286,6 +294,7 @@ async function recommend(userId, scheduleId, body) {
   return requestRecommendations(context, meeting, limit);
 }
 
+/** Recommend meeting times from schedules shared with a team. @param {string} userId @param {string} teamId @param {object} body @returns {Promise<object>} @throws {Error} */
 async function recommendForTeam(userId, teamId, body) {
   if (!env.SMART_SCHEDULE_ENABLED) throw errorWithStatus('Smart scheduling is currently unavailable', 503);
   const { meeting, limit } = validateMeeting(body);

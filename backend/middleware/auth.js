@@ -5,6 +5,11 @@ const { pool } = require('../config/database');
 /**
  * Express Middleware to verify JWT authentication token from request headers.
  * Populates req.user with decoded token data (e.g. user_id) on success.
+ * @param {object} req Express request
+ * @param {object} res Express response
+ * @param {Function} next Express next callback
+ * @returns {void}
+ * @throws {Error} Database errors are returned as a safe 500 response.
  */
 const authenticateToken = (req, res, next) => {
   if (!JWT_SECRET) {

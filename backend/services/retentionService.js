@@ -2,7 +2,9 @@ const { pool } = require('../config/database');
 const retention = require('../config/adminRetention');
 const auditService = require('./auditService');
 
+/** Prune expired diagnostics records inside a coordinated transaction. @returns {Promise<object|null>} @throws {Error} */
 async function pruneExpired() {
+  // A transaction-scoped lock and run claim keep multiple API workers from pruning together.
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -38,6 +40,7 @@ async function pruneExpired() {
   }
 }
 
+/** Start the daily diagnostics retention job and its initial run. @returns {NodeJS.Timeout} */
 function startRetentionJob() {
   const timer = setInterval(() => {
     pruneExpired().catch(error => console.error('Retention job failed:', error.message));

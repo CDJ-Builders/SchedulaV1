@@ -3,6 +3,7 @@ const { pool } = require('../config/database');
 const SECRET_KEY = /(password|token|secret|authorization|cookie|hash|credential|api.?key)/i;
 const MAX_STRING_LENGTH = 4000;
 
+/** Remove sensitive fields and bound audit payloads before persistence. @param {*} value @returns {*} */
 function redact(value) {
   if (Array.isArray(value)) return value.map(redact);
   if (value && typeof value === 'object') {
@@ -15,6 +16,7 @@ function redact(value) {
   return undefined;
 }
 
+/** Record an audit event in the caller's transaction. @param {object} client @param {object|null} req @param {object} event @returns {Promise<object>} @throws {Error} */
 async function record(client, req, { action, resource, resourceId = null, before = null, after = null }) {
   const queryable = client || pool;
   const user = req?.user || { user_id: null, role: 'system' };
@@ -36,6 +38,7 @@ async function record(client, req, { action, resource, resourceId = null, before
   );
 }
 
+/** List audit events using validated filters and pagination. @param {object} [filters] @returns {Promise<object>} @throws {Error} */
 async function list(filters = {}) {
   const conditions = [];
   const values = [];

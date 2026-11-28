@@ -1,4 +1,8 @@
-/** Weekly schedule builder backed by the schedules JSONB context. */
+/**
+ * Purpose: weekly schedule builder and recommendation dialog.
+ * Loaded by builder.html after api.js and shared UI scripts; requires APP_API, APP_UTILS, and APP_CONFIG.
+ * Provides schedule editing globals used by builder controls.
+ */
 const SCHEDULE_TYPES = Object.freeze({ WEEKLY: 'weekly' });
 const scheduleType = SCHEDULE_TYPES.WEEKLY;
 const eventsList = document.getElementById('scheduledList');
@@ -41,10 +45,6 @@ let activeScheduleId = 'new';
 let events = [];
 let smartScheduleLoading = false;
 let editingBlockIndex = null;
-
-function tokenHeaders() {
-  return { Authorization: `Bearer ${localStorage.getItem('token')}` };
-}
 
 function setMessage(message, isError = false) {
   builderMessage.textContent = message;
@@ -155,6 +155,7 @@ function chooseRecommendation(item, rank) {
   else showBuilderNotice(message, 'Time selected');
 }
 
+/** Render ranked model suggestions in the builder dialog. @param {object} data @returns {void} */
 function renderScheduleRecommendations(data) {
   resetSmartScheduleResults();
   const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];
@@ -248,6 +249,7 @@ function findBlockConflict(block, otherBlocks) {
   ) || null;
 }
 
+/** Find overlapping blocks in a proposed weekly schedule. @param {Array<object>} blocks @returns {object|null} */
 function findScheduleConflict(blocks) {
   for (let index = 0; index < blocks.length; index += 1) {
     const conflict = findBlockConflict(blocks[index], blocks.slice(0, index));
@@ -324,22 +326,14 @@ function renderEvents() {
 }
 
 async function requestJson(url, options = {}) {
-  let response;
-  try {
-    response = await fetch(`${window.APP_CONFIG.API_BASE}${url}`, {
-      ...options,
-      headers: { 'Content-Type': 'application/json', ...tokenHeaders(), ...(options.headers || {}) }
-    });
-  } catch (error) {
-    throw new Error('Unable to reach the schedule server. Make sure the backend is running and try again.');
-  }
-  const data = response.status === 204 ? null : await response.json();
-  if (!response.ok) {
-    const retryAfter = response.headers.get('Retry-After');
-    const message = data?.error || 'Request failed';
-    throw new Error(retryAfter ? `${message} Retry in ${retryAfter} seconds.` : message);
-  }
-  return data;
+  return window.APP_API.request(url, options, {
+    networkMessage: 'Unable to reach the schedule server. Make sure the backend is running and try again.',
+    errorMessage: function ({ response, data }) {
+      const retryAfter = response.headers.get('Retry-After');
+      const message = data?.error || 'Request failed';
+      return retryAfter ? `${message} Retry in ${retryAfter} seconds.` : message;
+    }
+  });
 }
 
 function parseConfiguration(configuration) {
@@ -366,6 +360,7 @@ function selectSchedule(id) {
   renderEvents();
 }
 
+/** Load the user's schedules and select the active builder schedule. @returns {Promise<void>} @throws {Error} */
 async function loadBuilderSchedules() {
   schedules = await requestJson('/schedules');
   scheduleSelector.innerHTML = '<option value="new">+ Create new schedule</option>';

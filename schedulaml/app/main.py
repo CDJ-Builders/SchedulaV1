@@ -20,6 +20,7 @@ STATE: dict[str, Any] = {}
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    """Load the verified model bundle for the lifetime of the API process."""
     features, predictor, config, schema = load_models()
     STATE.update(features=features, predictor=predictor, config=config, schema=schema, scorer=selected_scorer())
     yield
@@ -31,6 +32,7 @@ app = FastAPI(title="Schedula MindLab", version="1.1.0", lifespan=lifespan)
 
 @app.middleware("http")
 async def limit_request_size(request: Request, call_next):
+    """Reject oversized request bodies before endpoint parsing."""
     raw_length = request.headers.get("content-length")
     if raw_length:
         try:
@@ -42,6 +44,7 @@ async def limit_request_size(request: Request, call_next):
 
 
 def check_key(supplied: str | None) -> None:
+    """Require the configured service key when private API authentication is enabled."""
     expected = os.getenv("SCHEDULAML_API_KEY")
     if expected and not hmac.compare_digest(supplied or "", expected):
         raise HTTPException(status_code=401, detail="Invalid service credentials")
@@ -49,6 +52,7 @@ def check_key(supplied: str | None) -> None:
 
 @app.post("/rank", response_model=RankResponse)
 def rank_endpoint(payload: RankRequest, x_schedulaml_key: str | None = Header(default=None)):
+    """Validate, map, and score a recommendation request."""
     check_key(x_schedulaml_key)
     started = time.perf_counter()
     try:
@@ -64,6 +68,7 @@ def rank_endpoint(payload: RankRequest, x_schedulaml_key: str | None = Header(de
 
 @app.get("/health")
 def health_endpoint(x_schedulaml_key: str | None = Header(default=None)):
+    """Report API and model readiness for health checks."""
     check_key(x_schedulaml_key)
     if not STATE:
         raise HTTPException(status_code=503, detail="Model artifacts are not loaded")
@@ -72,6 +77,7 @@ def health_endpoint(x_schedulaml_key: str | None = Header(default=None)):
 
 @app.get("/version")
 def version_endpoint(x_schedulaml_key: str | None = Header(default=None)):
+    """Report the loaded model version and artifact metadata."""
     check_key(x_schedulaml_key)
     if not STATE:
         raise HTTPException(status_code=503, detail="Model artifacts are not loaded")

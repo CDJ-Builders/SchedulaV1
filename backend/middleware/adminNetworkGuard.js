@@ -4,6 +4,7 @@ function normalizeAddress(address) {
   return String(address || '').replace(/^::ffff:/i, '');
 }
 
+/** Enforce the configured admin origin and optional IP allowlist. @param {object} req @param {object} res @param {Function} next @returns {void} */
 function adminNetworkGuard(req, res, next) {
   res.set({
     'Cache-Control': 'no-store',

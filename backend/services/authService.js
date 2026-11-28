@@ -114,6 +114,7 @@ async function login(email, password) {
   };
 }
 
+/** Rotate a refresh token and issue a fresh access token. @param {string} refreshToken @returns {Promise<object>} @throws {Error} */
 async function refresh(refreshToken) {
   let decoded;
   try {
@@ -171,6 +172,7 @@ async function logout(refreshToken) {
   }
 }
 
+/** Start a password reset flow for an account. @param {string} email @returns {Promise<object>} @throws {Error} */
 async function forgotPassword(email) {
   const result = await pool.query(
     `SELECT id, email FROM users WHERE LOWER(email::text) = LOWER($1) AND deleted_at IS NULL`,
@@ -192,6 +194,7 @@ async function forgotPassword(email) {
   await sendResetPinEmail(result.rows[0].email, pin);
 }
 
+/** Replace a password after validating its reset PIN. @param {string} resetPin @param {string} email @param {string} password @returns {Promise<object>} @throws {Error} */
 async function resetPassword(resetPin, email, password) {
   if (!isValidPassword(password)) {
     const error = new Error('Password must be at least 6 characters and include a number, an uppercase letter, and a lowercase letter.');

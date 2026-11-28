@@ -28,6 +28,7 @@ function configurationError(message) {
   return error;
 }
 
+/** Validate and normalize a persisted weekly schedule configuration. @param {Array<object>} configuration @returns {Array<object>} @throws {Error} */
 function normalizeConfiguration(configuration) {
   if (!Array.isArray(configuration) || !configuration.length) {
     throw configurationError('configuration must contain at least one weekly block');
@@ -134,6 +135,7 @@ function validateEvent(event) {
   }
 }
 
+/** List schedules owned by a user. @param {string} userId @returns {Promise<Array<object>>} @throws {Error} */
 async function listSchedules(userId) {
   const result = await pool.query(
     `SELECT s.id, s.owner_user_id, s.group_id, s.title, s.timezone, s.color,
@@ -152,6 +154,7 @@ async function listSchedules(userId) {
   return result.rows;
 }
 
+/** Create a schedule for a user. @param {string} userId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function createSchedule(userId, input) {
   const title = typeof input.title === 'string' ? input.title.trim() : '';
   if (!title) {
@@ -169,6 +172,7 @@ async function createSchedule(userId, input) {
   return result.rows[0];
 }
 
+/** Update a schedule owned by a user. @param {string} userId @param {string} scheduleId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function updateSchedule(userId, scheduleId, input) {
   const configuration = Object.prototype.hasOwnProperty.call(input, 'configuration')
     ? normalizeConfiguration(input.configuration)
@@ -202,6 +206,7 @@ async function updateSchedule(userId, scheduleId, input) {
   return result.rows[0];
 }
 
+/** Soft-delete a schedule owned by a user. @param {string} userId @param {string} scheduleId @returns {Promise<void>} @throws {Error} */
 async function deleteSchedule(userId, scheduleId) {
   const result = await pool.query(
     `UPDATE schedules SET deleted_at = CURRENT_TIMESTAMP
@@ -216,6 +221,7 @@ async function deleteSchedule(userId, scheduleId) {
   }
 }
 
+/** Create a dated event in an owned schedule. @param {string} userId @param {string} scheduleId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function createEvent(userId, scheduleId, input) {
   const event = getEventInput(input);
   validateEvent(event);
@@ -247,6 +253,7 @@ async function createEvent(userId, scheduleId, input) {
   return result.rows[0];
 }
 
+/** Update a dated event owned by a user. @param {string} userId @param {string} eventId @param {object} input @returns {Promise<object>} @throws {Error} */
 async function updateEvent(userId, eventId, input) {
   const event = getEventInput(input);
   validateEvent(event);
@@ -272,6 +279,7 @@ async function updateEvent(userId, eventId, input) {
   return result.rows[0];
 }
 
+/** Soft-delete a dated event owned by a user. @param {string} userId @param {string} eventId @returns {Promise<void>} @throws {Error} */
 async function deleteEvent(userId, eventId) {
   const result = await pool.query(
     `UPDATE events SET deleted_at = CURRENT_TIMESTAMP
@@ -286,7 +294,9 @@ async function deleteEvent(userId, eventId) {
   }
 }
 
+/** Find events whose time ranges overlap the requested interval. @param {string} userId @param {string|null} eventId @param {string} startAt @param {string} endAt @param {string|null} scheduleId @returns {Promise<Array<object>>} @throws {Error} */
 async function findConflicts(userId, eventId, startAt, endAt, scheduleId) {
+  // Half-open ranges treat adjacent events as non-overlapping while catching shared time.
   const result = await pool.query(
     `SELECT ${EVENT_COLUMNS}
        FROM events e
