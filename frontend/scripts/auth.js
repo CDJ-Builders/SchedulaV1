@@ -321,17 +321,43 @@ const signupLinkButton = document.getElementById('signup');
 const loginLinkButton = document.getElementById('login');
 const closeButton = document.querySelector('.close-btn');
 
+document.querySelectorAll('[data-password-toggle]').forEach(button => {
+  const input = document.getElementById(button.dataset.passwordToggle);
+  if (!input) return;
+  button.addEventListener('mousedown', event => event.preventDefault());
+  button.addEventListener('click', () => {
+    const wasFocused = document.activeElement === input;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const reveal = input.type === 'password';
+    input.type = reveal ? 'text' : 'password';
+    button.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+    button.setAttribute('aria-pressed', String(reveal));
+    button.querySelectorAll('svg').forEach((icon, index) => { icon.hidden = reveal ? index === 0 : index !== 0; });
+    if (start !== null && end !== null) input.setSelectionRange(start, end);
+    if (wasFocused) input.focus({ preventScroll: true });
+  });
+});
+
 // Login Event Trigger
+let loginRequestInFlight = false;
 if (loginButton) {
   loginButton.addEventListener('click', async () => {
+    if (loginRequestInFlight) return;
     const email = document.querySelector('input[type="email"]').value.trim();
-    const password = document.querySelector('input[type="password"]').value.trim();
+    const password = document.getElementById('login-password').value.trim();
 
     if (!email || !password) {
       alert('Please enter both email and password.');
       return;
     }
 
+    loginRequestInFlight = true;
+    loginButton.disabled = true;
+    loginButton.setAttribute('aria-busy', 'true');
+    loginButton.classList.add('is-processing');
+    loginButton.textContent = 'Checking...';
+    let loginSucceeded = false;
     try {
       const response = await fetch(`${window.APP_CONFIG.API_BASE}/login`, {
         method: 'POST',
@@ -345,12 +371,21 @@ if (loginButton) {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
         localStorage.setItem('user', JSON.stringify(data.user));
+        loginSucceeded = true;
         redirectWithToken(getPostLoginUrl(data.user));
       } else {
         alert(data.error);
       }
     } catch (error) {
       alert('Login failed');
+    } finally {
+      loginRequestInFlight = false;
+      if (!loginSucceeded) {
+        loginButton.disabled = false;
+        loginButton.removeAttribute('aria-busy');
+        loginButton.classList.remove('is-processing');
+        loginButton.textContent = 'Log in';
+      }
     }
   });
 }
@@ -358,6 +393,7 @@ if (loginButton) {
 // Signup Event Trigger
 let signupVerificationPending = false;
 let signupRequestInFlight = false;
+let signupVerified = false;
 if (signupButton) {
   signupButton.addEventListener('click', async () => {
     if (signupRequestInFlight) return;
@@ -380,6 +416,9 @@ if (signupButton) {
       if (!/^\d{6}$/.test(pin)) { showSignupMessage('Enter the 6-digit PIN sent to your email.', true); return; }
       signupRequestInFlight = true;
       signupButton.disabled = true;
+      signupButton.setAttribute('aria-busy', 'true');
+      signupButton.classList.add('is-processing');
+      signupButton.textContent = 'Checking PIN...';
       try {
         const verifyResponse = await fetch(`${window.APP_CONFIG.API_BASE}/verify-signup`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -396,9 +435,22 @@ if (signupButton) {
         localStorage.setItem('token', loginData.token);
         if (loginData.refreshToken) localStorage.setItem('refreshToken', loginData.refreshToken);
         localStorage.setItem('user', JSON.stringify(loginData.user));
-        redirectWithToken('./setup.html');
+        signupVerified = true;
+        const continueToSetup = () => redirectWithToken('./setup.html');
+        if (typeof window.successPopup === 'function') {
+          window.successPopup('Your email has been verified. Continue to set up your account.', 'Email verified', continueToSetup);
+        } else {
+          window.alert('Your email has been verified. Continue to set up your account.', 'Email verified');
+          continueToSetup();
+        }
       } catch (error) { showSignupMessage('Email verification failed: ' + error.message, true); }
-      finally { signupRequestInFlight = false; signupButton.disabled = false; }
+      finally {
+        signupRequestInFlight = false;
+        signupButton.classList.remove('is-processing');
+        signupButton.removeAttribute('aria-busy');
+        signupButton.disabled = signupVerified;
+        signupButton.textContent = signupVerified ? 'Verified' : 'Verify Email';
+      }
       return;
     }
 
@@ -422,6 +474,9 @@ if (signupButton) {
 
     signupRequestInFlight = true;
     signupButton.disabled = true;
+    signupButton.setAttribute('aria-busy', 'true');
+    signupButton.classList.add('is-processing');
+    signupButton.textContent = 'Sending PIN...';
     try {
       // Call signup endpoint
       const signupResponse = await fetch(`${window.APP_CONFIG.API_BASE}/signup`, {
@@ -445,7 +500,13 @@ if (signupButton) {
       showSignupMessage('We sent a 6-digit verification PIN to your email address.');
     } catch (error) {
       showSignupMessage('Signup failed: ' + error.message, true);
-    } finally { signupRequestInFlight = false; signupButton.disabled = false; }
+    } finally {
+      signupRequestInFlight = false;
+      signupButton.disabled = false;
+      signupButton.removeAttribute('aria-busy');
+      signupButton.classList.remove('is-processing');
+      signupButton.textContent = signupVerificationPending ? 'Verify Email' : 'Create Account';
+    }
   });
 }
 
@@ -462,21 +523,16 @@ if (forgotButton) {
 }
 
 // Helper to display premium inline success/error alerts
-function showMessage(text, isError = false) {
+function showMessage(text, isError = false, title, onClose) {
   if (isError) {
-    if (typeof window.errorPopup === 'function') window.errorPopup(text, 'Unable to reset password');
-    else window.alert(text, 'Unable to reset password', 'error');
+    if (typeof window.errorPopup === 'function') window.errorPopup(text, title || 'Unable to reset password');
+    else window.alert(text, title || 'Unable to reset password', 'error');
     return;
   }
-  const banner = document.getElementById('message-banner');
-  if (banner) {
-    banner.textContent = text;
-    banner.style.display = 'block';
-    banner.style.backgroundColor = '#e8f5e9';
-    banner.style.color = '#2e7d32';
-    banner.style.borderColor = '#c3e6cb';
-  } else {
-    alert(text);
+  if (typeof window.successPopup === 'function') window.successPopup(text, title || 'Success', onClose);
+  else {
+    window.alert(text, title || 'Success');
+    if (typeof onClose === 'function') onClose();
   }
 }
 
@@ -529,7 +585,7 @@ if (forgotSubmitBtn) {
         document.getElementById('forgot-title').textContent = 'Enter PIN';
         document.getElementById('forgot-subtitle').textContent = `A 6-digit verification PIN has been sent to ${email}.`;
 
-        showMessage('A 6-digit verification PIN has been sent to your email address.', false);
+        showMessage('A 6-digit verification PIN has been sent to your email address.', false, 'PIN sent');
 
         // Lock the email input field and switch views
         emailInput.disabled = true;
@@ -592,10 +648,12 @@ if (resetSubmitBtn) {
       });
       const data = await response.json();
       if (response.ok) {
-        showMessage('Your password has been successfully reset! Redirecting to login...', false);
-        setTimeout(() => {
-          window.location.href = './login.html';
-        }, 2000);
+        showMessage(
+          'Your password has been reset successfully. You can now sign in with your new password.',
+          false,
+          'Password reset',
+          () => { window.location.href = './login.html'; }
+        );
       } else {
         showMessage(data.error || 'Failed to reset password.', true);
         resetSubmitBtn.disabled = false;

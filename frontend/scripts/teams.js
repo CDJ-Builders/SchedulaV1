@@ -106,7 +106,19 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
  }
 
+ function updateProposalAvailability() {
+  var button = $('prop');
+  if (!button) return;
+  var memberCount = team && Array.isArray(team.members) ? team.members.length : 0;
+  var unavailable = memberCount < 2;
+  button.dataset.memberCount = String(memberCount);
+  button.disabled = unavailable;
+  button.setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+  button.title = unavailable ? 'At least two team members are required to make a proposal.' : '';
+ }
+
  function render() {
+  updateProposalAvailability();
   var bd = $('board'); bd.textContent = '';
   bd.classList.toggle('team-view-mode', viewMode === 'team');
   $('team-view-button').classList.toggle('is-active', viewMode === 'team');

@@ -76,6 +76,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openProposalDialog() {
     const select = $('team');
+    const proposeButton = $('prop');
+    const memberCount = Number(proposeButton && proposeButton.dataset.memberCount);
+    if (!proposeButton || proposeButton.disabled || !Number.isFinite(memberCount) || memberCount < 2) return;
     activeTeamId = select && select.value !== '__new_team__' ? select.value : null;
     if (!activeTeamId) return;
     proposalForm.reset();
@@ -275,6 +278,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   proposalForm.addEventListener('submit', async event => {
     event.preventDefault();
+    const memberCount = Number($('prop').dataset.memberCount);
+    if (!Number.isFinite(memberCount) || memberCount < 2) {
+      setProposalStatus('At least two team members are required to make a proposal.', true);
+      return;
+    }
     if (!activeTeamId || proposalRequest) return;
     if (!proposalForm.reportValidity()) return;
     const start = $('proposal-start').value;

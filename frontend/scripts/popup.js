@@ -22,7 +22,7 @@
    * @param {string} message - Dialogue description
    * @param {string} [title] - Header title override
    */
-  window.alert = function (message, title, tone) {
+  window.alert = function (message, title, tone, onClose) {
     let iconHtml = `<svg class="modal-svg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width: 24px; height: 24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>`;
     let defaultTitle = 'Notice';
     let typeClass = 'primary';
@@ -85,7 +85,10 @@
       if (overlay.dataset.closing === 'true') return;
       overlay.dataset.closing = 'true';
       overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
+      setTimeout(() => {
+        overlay.remove();
+        if (typeof onClose === 'function') onClose();
+      }, 300);
     };
 
     overlay.querySelector('#custom-alert-ok').addEventListener('click', close);
@@ -97,8 +100,8 @@
     });
   };
 
-  window.successPopup = function (message, title) {
-    window.alert(`Success: ${message}`, title || 'Success');
+  window.successPopup = function (message, title, onClose) {
+    window.alert(`Success: ${message}`, title || 'Success', null, onClose);
   };
 
   window.noticePopup = function (message, title) {

@@ -106,7 +106,8 @@
                             <strong id="team-proposal-review-count">0 Proposals to Review</strong>
                             <button class="key sm lav" type="button" id="team-proposal-review-open">Review</button>
                         </section>
-                        <button class="propose-button" type="button" id="prop">Propose</button>
+                        <button class="propose-button" type="button" id="prop" disabled aria-disabled="true"
+                            data-member-count="0" title="At least two team members are required to make a proposal.">Propose</button>
                     </div>
                 </div>
             </section>
@@ -336,8 +337,8 @@
     <script src="../frontend/scripts/footer.js"></script>
     <script src="../frontend/scripts/auth.js"></script>
     <script src="../frontend/scripts/teamPreferences.js"></script>
-    <script src="../frontend/scripts/teams.js"></script>
-    <script src="../frontend/scripts/teamProposals.js"></script>
+    <script src="../frontend/scripts/teams.js?v=20261128-team-proposal-members"></script>
+    <script src="../frontend/scripts/teamProposals.js?v=20261128-team-proposal-members"></script>
     <script src="../frontend/scripts/customDropdown.js"></script>
 </body>
 

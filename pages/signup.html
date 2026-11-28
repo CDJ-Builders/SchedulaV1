@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../frontend/css/main.css">
   <link rel="stylesheet" href="../frontend/css/background.css">
   <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
-  <link rel="stylesheet" href="../frontend/css/auth.css">
+  <link rel="stylesheet" href="../frontend/css/auth.css?v=20261128-auth-hitarea">
   <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
   <script src="../frontend/scripts/theme.js"></script>
 </head>
@@ -60,13 +60,25 @@
                 </span>
               </span>
             </div>
-            <input id="signup-password" type="password" name="password" placeholder="Create password" aria-label="Password" aria-describedby="password-requirements-tooltip" autocomplete="new-password" required>
+            <div class="password-input-wrap">
+              <input id="signup-password" type="password" name="password" placeholder="Create password" aria-label="Password" aria-describedby="password-requirements-tooltip" autocomplete="new-password" required>
+              <button class="password-visibility-toggle" type="button" data-password-toggle="signup-password" aria-label="Show password" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A10.8 10.8 0 0112 4c6.4 0 10 8 10 8a16 16 0 01-3.2 4.3M6.2 6.2C3.5 8 2 12 2 12s3.6 8 10 8a10.7 10.7 0 004.2-.9"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M2 12s3.6-8 10-8 10 8 10 8-3.6 8-10 8S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
 
-          <label class="field" id="signup-confirm-password-group">
-            <span>Confirm password</span>
-            <input id="signup-confirm-password" type="password" name="confirmPassword" placeholder="Repeat your password" aria-label="Confirm password" autocomplete="new-password" required>
-          </label>
+          <div class="field" id="signup-confirm-password-group">
+            <label for="signup-confirm-password">Confirm password</label>
+            <div class="password-input-wrap">
+              <input id="signup-confirm-password" type="password" name="confirmPassword" placeholder="Repeat your password" aria-label="Confirm password" autocomplete="new-password" required>
+              <button class="password-visibility-toggle" type="button" data-password-toggle="signup-confirm-password" aria-label="Show password" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A10.8 10.8 0 0112 4c6.4 0 10 8 10 8a16 16 0 01-3.2 4.3M6.2 6.2C3.5 8 2 12 2 12s3.6 8 10 8a10.7 10.7 0 004.2-.9"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M2 12s3.6-8 10-8 10 8 10 8-3.6 8-10 8S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <label class="field" id="signup-pin-group" style="display:none">
@@ -92,6 +104,6 @@
   <script src="../frontend/scripts/background.js"></script>
   <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js"></script>
-  <script src="../frontend/scripts/auth.js"></script>
+  <script src="../frontend/scripts/auth.js?v=20261128-auth-processing"></script>
 </body>
 </html>
