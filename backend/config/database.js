@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 require('./env');
+const logger = require('../utils/logger');
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -19,15 +20,15 @@ pool.on('error', (err) => {
 async function initDB() {
   await pool.query('SELECT 1');
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Database connection verified. Apply migrations before starting the API.');
+    logger.info('Database connection verified. Apply migrations before starting the API.');
   }
 }
 
 // Graceful shutdown
 const shutdown = () => {
-  console.log('Closing database pool...');
+  logger.info('Closing database pool...');
   pool.end(() => {
-    console.log('Database pool closed');
+    logger.info('Database pool closed');
     process.exit(0);
   });
 };

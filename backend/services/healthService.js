@@ -133,4 +133,4 @@ async function getHealth() {
   return { status: overall, checked_at: new Date().toISOString(), api, database, dependencies };
 }
 
-module.exports = { getHealth, numericStatus, worstStatus, probeSchedulaMl, probeSmtp };
+module.exports = { getHealth, numericStatus };

@@ -298,5 +298,5 @@ async function recommendForTeam(userId, teamId, body) {
 
 module.exports = {
   recommend, recommendForTeam, validateMeeting, validateServiceResponse, requestRecommendations,
-  markWeeklyBlock, buildContext, buildTeamContext, buildConsolidatedTeamContext
+  markWeeklyBlock, buildConsolidatedTeamContext
 };

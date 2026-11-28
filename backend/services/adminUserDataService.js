@@ -135,4 +135,4 @@ async function getUserConfiguration(req, userId) {
   });
 }
 
-module.exports = { listUsers, getUserConfiguration, redactConfiguredData };
+module.exports = { listUsers, getUserConfiguration };

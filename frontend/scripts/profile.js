@@ -25,15 +25,6 @@ async function api(url, options = {}) {
   return data;
 }
 
-function formatDate(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString([], {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  });
-}
-
 async function loadProfile() {
   const cachedUser = localStorage.getItem('user');
   if (cachedUser) {

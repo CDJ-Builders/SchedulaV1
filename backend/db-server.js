@@ -4,6 +4,7 @@ const path = require('path');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const logger = require('./utils/logger');
 
 // Load environment variables early (validates and warns on missing config)
 const env = require('./config/env');
@@ -44,7 +45,7 @@ app.use(helmet({
 
 // 2. Request logging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  logger.info(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
@@ -125,5 +126,5 @@ app.use(errorHandler);
 // --- Server Startup ---
 initDB().then(() => {
   startRetentionJob();
-  app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+  app.listen(env.PORT, () => logger.info(`Server running on port ${env.PORT}`));
 });

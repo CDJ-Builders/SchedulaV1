@@ -303,7 +303,6 @@ async function findConflicts(userId, eventId, startAt, endAt, scheduleId) {
 
 module.exports = {
   normalizeConfiguration,
-  normalizeBlockOverrides,
   listSchedules,
   createSchedule,
   updateSchedule,

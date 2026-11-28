@@ -47,4 +47,4 @@ function startRetentionJob() {
   return timer;
 }
 
-module.exports = { pruneExpired, startRetentionJob };
+module.exports = { startRetentionJob };
