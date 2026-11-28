@@ -66,6 +66,11 @@ router.put('/teams/:teamId/shared-schedule', asyncHandler(async (req, res) => {
   res.json({ team });
 }));
 
+router.put('/teams/:teamId/shared-schedule/details', asyncHandler(async (req, res) => {
+  const team = await teamsService.setSharedScheduleDetails(req.params.teamId, req.user.user_id, req.body?.show_details);
+  res.json({ team });
+}));
+
 router.put('/teams/:teamId', asyncHandler(async (req, res) => {
   res.json({ team: await teamsService.renameTeam(req.params.teamId, req.user.user_id, req.body || {}) });
 }));

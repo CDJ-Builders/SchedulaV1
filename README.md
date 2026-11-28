@@ -42,17 +42,15 @@ Deployment
 | Feature | Description & User Story | Status |
 | :--- | :--- | :---: |
 | **1: Smart Scheduling** | *Preference & Availability Detection:* Detects unavailable time ranges (`availability_blocks`), manages conflict detection via GiST ranges, and generates ML-powered slot recommendations via SchedulaML. | **Done** |
-| **2: Multi-Schedule Management** | *Team & User Based:* Manage personal and team schedules, duplicate templates, and avoid double-booking. | **In Progress** |
-| **3: Schedule Visualization & Customization** | Clean calendar grid, interactive block builder, customizable color palettes, and PNG export capabilities. | **Done** |
-| **4: Authentication** | Secure user registration, encrypted passwords via Blowfish `crypt()`, JWT session handling, and email PIN password resets. | **Done** |
-| **5: Authorization** | Role-based access control for standard users, group members/owners, and system administrators. | **Done** |
+| **2: Multi-Schedule & Team Management** | *Team & User Based:* Manage personal and team schedules (`teams.html`, `teams-settings.html`), propose meeting slots, review proposals, duplicate templates, and avoid double-booking. | **Done** |
+| **3: Schedule Visualization & Export** | Clean calendar grid, interactive block builder, customizable color palettes, Excel import/export (`scheduleExcel.js`), and high-resolution PNG/PDF export capabilities. | **Done** |
+| **4: Authentication** | Secure user registration with email verification, encrypted passwords via Blowfish `crypt()`, JWT session handling with idle timeout, and email PIN password resets. | **Done** |
+| **5: Authorization & Admin Console** | Role-based access control (`user`, `developer`, `super_admin`), step-up auth, audit logging, error diagnostics, and the dedicated Admin Console (`admin/`). | **Done** |
 
 ### Secondary Features
 | Feature | Description | Status |
 | :--- | :--- | :---: |
-| **6: Smart Deadlines & Reminders** | Flexible task deadlines and push/email notifications for upcoming meetings. | **To Do** |
-| **7: Streak Reward System** | Usage streaks to incentivize consistent deadline compliance and attendance. | **To Do** |
-| **8: Enhanced UI/UX** | Responsive layouts, dark mode support, accessible forms, and smooth CSS transitions. | **Done** |
+| **6: Enhanced UI/UX** | Responsive layouts, accessible forms, tactile skeuomorphic & glassmorphic design system, and smooth CSS transitions. | **Done** |
 
 ---
 
@@ -70,15 +68,23 @@ Deployment
 
 ```text
 schedula/
+├── admin/                        # Admin Operations Console (dashboard, users, audit, errors, health)
+│   ├── admin.css                 # Admin console styling
+│   ├── admin.js                  # Admin dashboard views & interactions
+│   ├── api.js                    # Admin API client
+│   ├── index.html                # Admin console entry point
+│   └── session.js                # Admin session & token state
 ├── backend/                      # Node.js Express API server & PostgreSQL services
-│   ├── config/                   # PostgreSQL connection pool & environment variable validation
-│   ├── middleware/               # JWT authentication, role guards, validation, and error handler
-│   ├── routes/                   # API routers (auth, user, schedules, admin)
-│   ├── services/                 # Business logic, SQL queries, & recommendation orchestration
+│   ├── config/                   # DB pool, env validation, retention & health thresholds
+│   ├── middleware/               # JWT auth, RBAC, step-up, network guard, metrics, validation
+│   ├── routes/                   # API routers (admin, auth, schedules, teams, user)
+│   ├── scripts/                  # DB setup, migrations, resets, super-admin & demo seeders
+│   ├── services/                 # Business logic (auth, schedules, teams, recommendations, admin, audit)
 │   ├── sql/
-│   │   └── migrations/           # Reversible SQL migrations (001_schedula_schema through 006)
-│   ├── test/                     # Backend test suite (recommendationService tests)
-│   ├── utils/                    # Password hashing, email helpers, async handlers
+│   │   ├── 1setup.sql            # Initial database setup script
+│   │   └── migrations/           # Reversible SQL migrations (001_schedula_schema through 015)
+│   ├── test/                     # Backend test suite (admin, plotterModel, recommendation, teams)
+│   ├── utils/                    # Async handler, crypto, email, helpers, password policy
 │   ├── db-server.js              # Express application bootstrap & route mounting
 │   └── package.json
 ├── schedulaml/                   # Python FastAPI machine learning inference service
@@ -92,34 +98,28 @@ schedula/
 │   │   └── 1.1.0/                # Versioned LightGBM & GradientBoosting model bundles & manifest
 │   ├── tests/                    # Pytest suite (adapter, regression, feature contract, scoring)
 │   ├── pyproject.toml / uv.lock  # Python dependency specifications
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── start.ps1                 # Python 3.13 launcher script
 ├── frontend/                     # Client stylesheets and interactive logic
-│   ├── css/                      # Modular stylesheets (admin, builder, chrome, dashboard, landing, plotter, profile)
-│   └── scripts/                  # Interactive logic (auth, footer, header, plotter, preferences, profile, schedules, etc.)
+│   ├── css/                      # Modular stylesheets (auth, builder, chrome, plotter, profile, teams, theme, etc.)
+│   └── scripts/                  # Interactive logic (auth, plotter, preferences, schedules, teams, timePicker, etc.)
 ├── pages/                        # Application views
 │   ├── builder.html              # Timetable builder & Smart Schedule recommendation dialog
 │   ├── forgot-password.html      # Password reset request page
 │   ├── home.html                 # User dashboard
 │   ├── login.html                # User login page
-│   ├── plotter.html              # Timetable visualization & PNG export page
+│   ├── plotter.html              # Timetable visualization & PNG/PDF export page
 │   ├── profile.html              # Profile editing, account settings & availability management
 │   ├── setup.html                # Initial onboarding & preferences setup page
-│   └── signup.html               # New user registration page
+│   ├── signup.html               # New user registration page
+│   ├── teams.html                # Team schedules, member availability & meeting proposals
+│   └── teams-settings.html       # Team management, invites & role administration
 ├── docs/                         # Comprehensive project documentation
-│   ├── plans/                    # Migration guides, audits, and integration plans
-│   │   ├── DB_UPDATE_INSTRUCTIONS.md
-│   │   ├── REFACTOR_AUDIT.md
-│   │   ├── SCHEDULAML_INTEGRATION_PLAN.md
-│   │   └── SCHEDULA_DB_PLAN.md
-│   ├── schemas/                  # Backend, database, and ML contract specifications
-│   │   ├── SCHEDULA_BACKEND_SCHEMA.md
-│   │   ├── SCHEDULA_DB_SCHEMA.md
-│   │   ├── schedulaml-feature-contract.md
-│   │   └── schedulaml-integration.md
-│   ├── scrum/                    # Agile SCRUM logs, requirements, and proposals
-│   │   ├── SchedulaProposal.md
-│   │   ├── SchedulaRequirements.md
-│   │   └── SchedulaSCRUM.md
+│   ├── admin/                    # Admin API, operations guide & recon notes (API.md, README.md, RECON.md)
+│   ├── plans/                    # Migration guides, audits & UI/UX plans (incl. UIUX_AUDIT/)
+│   ├── schemas/                  # Backend, DB, security & SchedulaML contract specifications
+│   ├── scrum/                    # Agile SCRUM logs, requirements & proposals
+│   ├── GRAPHIFY_CODEBASE_INDEX.md # Codebase knowledge graph summary
 │   └── TODO.md                   # Development backlog and task tracking
 ├── assets/                       # Static branding images, icons, and diagrams
 ├── index.html                    # Public landing page

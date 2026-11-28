@@ -86,7 +86,7 @@ function createTeamsService(db) {
     return membership;
   }
 
-  async function getTeam(teamId, userId) {
+  async function getTeam(teamId, userId, options = {}) {
     const team = await getMembership(teamId, userId);
     const memberRows = await db.query(
       'SELECT m.user_id, m.role, p.display_name, p.timezone, u.email ' +
@@ -120,7 +120,7 @@ function createTeamsService(db) {
     );
 
     const schedules = await db.query(
-      'SELECT s.owner_user_id, sc.context ' +
+      'SELECT s.owner_user_id, sc.context, sh.show_details ' +
       'FROM memberships m ' +
       "JOIN schedule_shares sh ON sh.shared_with_group_id = m.group_id AND sh.deleted_at IS NULL AND sh.permission = 'read' " +
       'JOIN schedules s ON s.id = sh.schedule_id AND s.owner_user_id = m.user_id AND s.deleted_at IS NULL AND s.group_id IS NULL ' +
@@ -141,6 +141,7 @@ function createTeamsService(db) {
         const start = timeToHour(block.start_time);
         const end = timeToHour(block.end_time);
         if (start === null || end === null || end <= start) return;
+        const showOwnerDetails = row.show_details === true;
         block.weekdays.forEach(day => {
           const key = shortDay(day);
           if (!key) return;
@@ -161,10 +162,10 @@ function createTeamsService(db) {
           members[index].busy[key].push([
             start,
             end,
-            block.title || (teamEvent ? 'Team event' : 'Shared block'),
-            teamEvent ? teamEvent.description || block.description || '' : block.description || '',
-            teamEvent ? 'team-proposal' : 'shared',
-            teamEvent ? teamEvent.modality || block.modality || '' : block.modality || ''
+            teamEvent ? block.title || teamEvent.title || 'Team commitment' : showOwnerDetails ? block.title || 'Busy' : 'Busy',
+            teamEvent ? teamEvent.description || block.description || '' : showOwnerDetails ? block.description || '' : '',
+            teamEvent ? 'commitment' : 'shared',
+            teamEvent ? teamEvent.modality || block.modality || '' : showOwnerDetails ? block.modality || '' : ''
           ]);
         });
       });
@@ -184,7 +185,7 @@ function createTeamsService(db) {
     });
 
     const sharedSchedule = await db.query(
-      'SELECT s.id FROM schedule_shares sh ' +
+      'SELECT s.id, sh.show_details FROM schedule_shares sh ' +
       'JOIN schedules s ON s.id = sh.schedule_id ' +
       "WHERE sh.shared_with_group_id = $1 AND sh.shared_with_user_id IS NULL AND sh.deleted_at IS NULL AND sh.permission = 'read' " +
       'AND s.owner_user_id = $2 AND s.group_id IS NULL AND s.deleted_at IS NULL ORDER BY sh.updated_at DESC LIMIT 1',
@@ -199,6 +200,7 @@ function createTeamsService(db) {
       isAdmin: team.role === 'owner' || team.role === 'admin',
       isCreator: team.owner_user_id === userId,
       sharedScheduleId: sharedSchedule.rows.length ? sharedSchedule.rows[0].id : null,
+      sharedScheduleDetails: sharedSchedule.rows.length ? sharedSchedule.rows[0].show_details === true : false,
       members,
       events,
       proposals: proposalRows.rows.map(row => ({
@@ -218,14 +220,14 @@ function createTeamsService(db) {
     };
   }
 
-  async function listTeams(userId) {
+  async function listTeams(userId, options = {}) {
     const result = await db.query(
       'SELECT g.id FROM groups g JOIN memberships m ON m.group_id = g.id ' +
       'WHERE m.user_id = $1 AND m.deleted_at IS NULL AND g.deleted_at IS NULL ORDER BY g.name, g.id',
       [userId]
     );
     const teams = [];
-    for (const row of result.rows) teams.push(await getTeam(row.id, userId));
+    for (const row of result.rows) teams.push(await getTeam(row.id, userId, options));
     return teams;
   }
 
@@ -338,6 +340,29 @@ function createTeamsService(db) {
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
+    return getTeam(teamId, userId);
+  }
+
+  async function setSharedScheduleDetails(teamId, userId, showDetails) {
+    if (typeof showDetails !== 'boolean') throw httpError(400, 'show_details must be a boolean.');
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      await getMembership(teamId, userId, client);
+      const updated = await client.query(
+        'UPDATE schedule_shares sh SET show_details = $3, updated_at = CURRENT_TIMESTAMP ' +
+        'FROM schedules s WHERE s.id = sh.schedule_id AND s.owner_user_id = $2 ' +
+        'AND s.deleted_at IS NULL AND s.group_id IS NULL ' +
+        'AND sh.shared_with_group_id = $1 AND sh.shared_with_user_id IS NULL ' +
+        "AND sh.permission = 'read' AND sh.deleted_at IS NULL RETURNING sh.id",
+        [teamId, userId, showDetails]
+      );
+      if (!updated.rowCount) throw httpError(409, 'Share one of your schedules with this team before changing its detail visibility.');
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => {});
       throw error;
     } finally { client.release(); }
     return getTeam(teamId, userId);
@@ -569,7 +594,7 @@ function createTeamsService(db) {
     return { title, description, weekday: input.weekday, start, end, modality: input.modality };
   }
 
-  async function addProposalToSharedSchedule(client, teamId, userId, teamName, proposal, rejectConflicts = false) {
+  async function addProposalToSharedSchedule(client, teamId, userId, teamName, proposal, rejectConflicts = false, proposalId = null) {
     const sharedSchedule = await client.query(
       'SELECT s.id, COALESCE(sc.context, \'[]\'::jsonb) AS configuration ' +
       'FROM schedule_shares sh JOIN schedules s ON s.id = sh.schedule_id ' +
@@ -630,15 +655,22 @@ function createTeamsService(db) {
     }
     const scheduledBlock = alreadySavedBlock || {
       title: proposal.title,
-      description: proposal.description || 'Team Scheduled at ' + teamName,
+      description: proposal.description || 'Commitment for ' + teamName,
       weekdays: [proposal.weekday],
       start_time: startTime,
       end_time: endTime,
       modality: proposal.modality
     };
     scheduledBlock.team_event = {
+      type: 'commitment',
+      proposal_id: proposalId,
       team_id: teamId,
       team_name: teamName,
+      title: proposal.title,
+      description: proposal.description || scheduledBlock.description,
+      weekday: proposal.weekday,
+      start_time: startTime,
+      end_time: endTime,
       modality: proposal.modality
     };
     if (!alreadySaved) configuration.push(scheduledBlock);
@@ -663,7 +695,7 @@ function createTeamsService(db) {
         [teamId, userId, proposal.title, proposal.description || null, proposal.weekday, proposal.start, proposal.end, proposal.modality]
       );
       proposalId = result.rows[0].id;
-      await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true);
+      await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true, proposalId);
       await client.query(
         "INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,'accept')",
         [proposalId, userId]
@@ -710,7 +742,7 @@ function createTeamsService(db) {
       if (response === 'decline') {
         await client.query('DELETE FROM team_proposals WHERE id = $1 AND group_id = $2', [proposalId, teamId]);
       } else {
-        scheduleId = await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true);
+        scheduleId = await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true, proposal.id);
         await client.query(
           'INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,$3)',
           [proposalId, userId, response]
@@ -725,7 +757,7 @@ function createTeamsService(db) {
   }
 
   return {
-    listTeams, getTeam, createTeam, joinTeam, setSharedSchedule, renameTeam, regenerateCode,
+    listTeams, getTeam, createTeam, joinTeam, setSharedSchedule, setSharedScheduleDetails, renameTeam, regenerateCode,
     changeMemberRole, removeMember, leaveTeam, deleteTeam, listMemberPreferences,
     createProposal, respondToProposal
   };

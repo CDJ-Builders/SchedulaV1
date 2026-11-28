@@ -3,6 +3,45 @@
  * @description Manages user authentication, route guards, token extraction, navigation updates, and login/signup flows.
  */
 
+const SCHEDULA_HANDOFF_PREFIX = 'schedula-auth-handoff:';
+let bootstrappedToken = null;
+
+function storeSessionHandoff(token, user) {
+  if (token) {
+    bootstrappedToken = token;
+    try { localStorage.setItem('token', token); } catch { /* Keep the in-memory token for this page. */ }
+  }
+  if (user) {
+    try { localStorage.setItem('user', typeof user === 'string' ? user : JSON.stringify(user)); } catch { /* User display data is optional. */ }
+  }
+}
+
+function consumeSessionHandoff() {
+  try {
+    const handoff = window.name;
+    if (handoff.startsWith(SCHEDULA_HANDOFF_PREFIX)) {
+      window.name = '';
+      const session = JSON.parse(handoff.slice(SCHEDULA_HANDOFF_PREFIX.length));
+      storeSessionHandoff(session.token, session.user);
+    }
+  } catch {
+    if (String(window.name || '').startsWith(SCHEDULA_HANDOFF_PREFIX)) window.name = '';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    storeSessionHandoff(urlToken, params.get('user'));
+    params.delete('token');
+    params.delete('user');
+    const cleanSearch = params.toString();
+    const cleanUrl = `${window.location.pathname}${cleanSearch ? `?${cleanSearch}` : ''}${window.location.hash}`;
+    try { window.history.replaceState(null, document.title, cleanUrl); } catch { /* Continue auth; the usual same-origin case is replaceable. */ }
+  }
+}
+
+consumeSessionHandoff();
+
 // Centralized fetch wrapper to intercept and refresh expired tokens
 (function () {
   const originalFetch = window.fetch;
@@ -154,43 +193,27 @@
   };
 })();
 
-/**
- * Retrieves the session token from either URL search parameters or standard local storage.
- * URL-based extraction is required for dynamic protocol sandboxing (e.g. file:// protocols crossing directory scopes).
- * @returns {string|null} The current session token
- */
+/** @returns {string|null} The current session token */
 function getToken() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlToken = urlParams.get('token');
-  if (urlToken) {
-    localStorage.setItem('token', urlToken);
-    const urlUser = urlParams.get('user');
-    if (urlUser) {
-      try {
-        localStorage.setItem('user', decodeURIComponent(urlUser));
-      } catch (e) {
-        console.error('Failed to parse cached user data from URL parameters:', e);
-      }
-    }
-    return urlToken;
-  }
-  return localStorage.getItem('token');
+  try { return localStorage.getItem('token') || bootstrappedToken; }
+  catch { return bootstrappedToken; }
 }
 
 /**
- * Redirects to a target page while propagating security tokens if running under local sandboxed file protocols.
+ * Redirects without putting credentials into the address bar.
  * @param {string} targetUrl - Target path of the page to redirect to
  */
 function redirectWithToken(targetUrl) {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
+  let token = bootstrappedToken;
+  let user = null;
+  try {
+    token = localStorage.getItem('token') || token;
+    user = localStorage.getItem('user');
+  } catch { /* Use the in-memory token when file storage is unavailable. */ }
   if (window.location.protocol === 'file:' && token) {
-    const separator = targetUrl.includes('?') ? '&' : '?';
-    const params = `token=${encodeURIComponent(token)}` + (user ? `&user=${encodeURIComponent(user)}` : '');
-    window.location.href = targetUrl + separator + params;
-  } else {
-    window.location.href = targetUrl;
+    window.name = SCHEDULA_HANDOFF_PREFIX + JSON.stringify({ token, user });
   }
+  window.location.href = targetUrl;
 }
 window.redirectWithToken = redirectWithToken;
 

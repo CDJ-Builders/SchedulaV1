@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE schedule_shares
+  ADD COLUMN show_details BOOLEAN NOT NULL DEFAULT FALSE;
+
+COMMIT;

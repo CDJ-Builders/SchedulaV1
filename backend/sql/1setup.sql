@@ -511,6 +511,10 @@ CREATE TABLE IF NOT EXISTS pending_signups (
 
 CREATE INDEX IF NOT EXISTS idx_pending_signups_expiry ON pending_signups (expires_at);
 
+-- Schema changes from 015_shared_schedule_detail_visibility.up.sql
+ALTER TABLE schedule_shares
+  ADD COLUMN show_details BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- The preference backup in migration 003 is upgrade-only; it is not part of the final schema.
 DROP TABLE IF EXISTS preferences_backup;
 
@@ -548,5 +552,7 @@ INSERT INTO schema_migrations (version, name, checksum) VALUES ('012', '012_admi
 INSERT INTO schema_migrations (version, name, checksum) VALUES ('013', '013_admin_diagnostics.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
 
 INSERT INTO schema_migrations (version, name, checksum) VALUES ('014', '014_email_verified_signup.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
+
+INSERT INTO schema_migrations (version, name, checksum) VALUES ('015', '015_shared_schedule_detail_visibility.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
 
 COMMIT;

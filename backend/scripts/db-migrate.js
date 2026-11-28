@@ -56,7 +56,7 @@ async function verifyCurrentSchema(client) {
     team_events: ['id', 'group_id', 'created_by_user_id', 'title', 'weekday', 'start_time', 'end_time', 'modality', 'created_at', 'updated_at'],
     team_proposals: ['id', 'group_id', 'proposed_by_user_id', 'title', 'description', 'weekday', 'start_time', 'end_time', 'modality', 'status', 'created_at', 'updated_at'],
     proposal_responses: ['id', 'proposal_id', 'user_id', 'response', 'responded_at'],
-    schedule_shares: ['id', 'schedule_id', 'shared_with_user_id', 'shared_with_group_id', 'permission', 'created_at', 'updated_at', 'deleted_at'],
+    schedule_shares: ['id', 'schedule_id', 'shared_with_user_id', 'shared_with_group_id', 'permission', 'show_details', 'created_at', 'updated_at', 'deleted_at'],
     invitations: ['id', 'group_id', 'invited_by_user_id', 'email', 'token_hash', 'expires_at', 'accepted_at', 'created_at', 'updated_at', 'deleted_at'],
     refresh_tokens: ['id', 'user_id', 'token_hash', 'session_id', 'last_activity_at', 'expires_at', 'revoked_at', 'created_at', 'updated_at', 'deleted_at'],
     password_reset_tokens: ['id', 'user_id', 'token_hash', 'expires_at', 'used_at', 'created_at', 'updated_at', 'deleted_at']

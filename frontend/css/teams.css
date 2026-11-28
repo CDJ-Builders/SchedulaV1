@@ -1229,11 +1229,134 @@ body.schedula-background.teams-page .team-shared-import:hover:not(:disabled) { t
 body.schedula-background.teams-page .team-shared-import:active:not(:disabled) { transform:translateY(2px); }
 body.schedula-background.teams-page .propose-button { margin-left:auto; margin-right:6px; flex:none; }
 
+/* Commitments are confirmed proposal blocks, distinct from imported busy time. */
+body.schedula-background.teams-page .team-block.commitment {
+  min-height:36px;
+  padding:5px 8px;
+  border:1px solid #287c72;
+  border-left:4px solid #176b61;
+  border-radius:7px;
+  background:linear-gradient(110deg,#c4f0e3 0%,#dcf8ee 100%);
+  color:#123f3a;
+  box-shadow:0 2px 5px rgba(23,107,97,.16);
+}
+body.schedula-background.teams-page .team-block.commitment b { font-weight:900; }
+body.schedula-background.teams-page .board.team-view-mode .team-block.commitment {
+  border-color:#a45b12;
+  border-left-color:#82420b;
+  background:linear-gradient(110deg,#ffe0a3 0%,#fff1d4 100%);
+  color:#51300c;
+  box-shadow:0 2px 6px rgba(130,66,11,.2);
+}
+body.schedula-background.teams-page .member-week-block.commitment {
+  left:2px;
+  right:2px;
+  z-index:2;
+  padding:5px 6px;
+  border-left-width:4px;
+  transform:scaleY(1.04);
+  transform-origin:center;
+}
+
 @media(max-width:600px) {
   body.schedula-background.teams-page .dock { align-items:stretch; padding:14px 16px!important; }
   body.schedula-background.teams-page .team-shared-manager { flex:1 1 100%; }
+  body.schedula-background.teams-page .team-shared-controls { flex-wrap:wrap; }
   body.schedula-background.teams-page .team-proposal-actions { align-self:flex-end; margin-top:0; }
   body.schedula-background.teams-page .team-shared-controls select { flex:1; width:auto; }
+  body.schedula-background.teams-page .team-schedule-visibility { flex:1 1 auto; }
   body.schedula-background.teams-page .propose-button { align-self:flex-end; margin-right:6px; }
+}
+
+body.schedula-background.teams-page .board.team-view-mode {
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+body.schedula-background.teams-page .board.team-view-mode .team-table {
+  width:max(100%,840px);
+  height:auto;
+  min-height:100%;
+  grid-template-rows:72px repeat(var(--team-member-count, 1), minmax(112px, auto));
+}
+body.schedula-background.teams-page .board.team-view-mode .team-table-header {
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+body.schedula-background.teams-page .team-schedule-visibility {
+  min-height:40px;
+  padding:0 13px;
+  border:1px solid #8a6717;
+  border-radius:11px;
+  background:linear-gradient(180deg,#fff4cc 0%,#f8df91 52%,#edca68 100%);
+  color:#493609;
+  font:800 12px/1 "Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 3px 0 #8a6717,0 6px 10px rgba(42,18,69,.12);
+  cursor:pointer;
+}
+body.schedula-background.teams-page .team-schedule-visibility:hover { transform:translateY(-1px); }
+body.schedula-background.teams-page .team-schedule-visibility:focus-visible { outline:3px solid #d2a62b; outline-offset:3px; }
+
+/* Member view follows Plotter's dynamic 1px-per-minute timetable scale. */
+body.schedula-background.teams-page .board.member-view-mode {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+body.schedula-background.teams-page .member-timetable {
+  width: max(100%, 840px);
+  min-height: 100%;
+  background: #fff;
+}
+body.schedula-background.teams-page .member-timetable .team-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  grid-template-columns: 64px repeat(7, minmax(0, 1fr));
+  height: 48px;
+  background: #f7f3fa;
+}
+body.schedula-background.teams-page .member-timetable-body {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: stretch;
+}
+body.schedula-background.teams-page .member-timetable .member-time-axis {
+  position: relative;
+  height: var(--member-timeline-height, 900px);
+  display: block;
+  border-right: 1px solid #eceaf1;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 59px, #eceaf1 59px, #eceaf1 60px);
+}
+body.schedula-background.teams-page .member-timetable .member-time-axis span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding: 2px 5px 0 0;
+  color: #716a79;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: right;
+  transform: translateY(-1px);
+}
+body.schedula-background.teams-page .member-timetable-grid {
+  display: flex;
+  height: var(--member-timeline-height, 900px);
+  min-width: 0;
+  overflow: hidden;
+  background: #b596c8;
+}
+body.schedula-background.teams-page .member-timetable .member-day-column {
+  flex: 1 1 0;
+  height: 100%;
+  border-left: 1px solid rgba(255,255,255,.65);
+  background-color: rgba(255,255,255,.32);
+  background-image: linear-gradient(to bottom, rgba(98,41,138,.22) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(98,41,138,.08) 1px, transparent 1px);
+  background-size: 100% 60px, 100% 30px;
+}
+body.schedula-background.teams-page .member-timetable .member-week-block {
+  box-sizing: border-box;
+  overflow: hidden;
 }
 

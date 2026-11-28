@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', async function () {
  var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
  var $ = function (id) { return document.getElementById(id); };
  var TEAMS = [], team = null, viewMode = 'team', selectedMember = null, personalSchedules = [];
- // Match Builder's visible schedule window so member view does not hide the
- // early and evening blocks present in the consolidated team schedule.
+ // Keep an empty member timetable useful while populated views size to data.
  var FROM = 7, TO = 22;
  var memberSlider = $('member-slider');
  var statusTimer = null, statusHideTimer = null;
@@ -163,6 +162,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   updateProposalAvailability();
   var bd = $('board'); bd.textContent = '';
   bd.classList.toggle('team-view-mode', viewMode === 'team');
+  bd.classList.toggle('member-view-mode', viewMode === 'member');
   $('team-view-button').classList.toggle('is-active', viewMode === 'team');
   $('team-view-button').setAttribute('aria-pressed', viewMode === 'team' ? 'true' : 'false');
   $('member-view-button').classList.toggle('is-active', viewMode === 'member');
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async function () {
    if (selected) {
     selectedMember = selected.id;
     bd.setAttribute('aria-label', displayName(selected) + "'s weekly timetable");
-    var timetable = el('div', 'team-table single-member member-timetable');
+    var timetable = el('div', 'member-timetable');
     var timetableHeader = el('div', 'team-table-header');
     timetableHeader.appendChild(el('div', 'member-heading', displayName(selected)));
     ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(function (label) {
@@ -183,37 +183,59 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
     timetable.appendChild(timetableHeader);
 
-    var timetableRow = el('div', 'team-table-row member-timetable-row');
+    var timetableRow = el('div', 'member-timetable-body');
     var axis = el('div', 'member-time-axis team-member-cell');
-    for (var hour = FROM; hour < TO; hour++) {
-     var hourLabel = hour < 12 ? hour + ' AM' : (hour === 12 ? '12 PM' : hour - 12 + ' PM');
-     axis.appendChild(el('span', '', hourLabel));
+    var dayBlocks = {};
+    var earliestMinute = 24 * 60, latestMinute = 0, hasBlocks = false;
+    DAYS.forEach(function (shortDay) {
+     var blocks = sortBlocksByTime((selected.busy[shortDay] || []).map(blockFromBusy)
+      .concat(blocksForDay(shortDay)));
+     dayBlocks[shortDay] = blocks;
+     blocks.forEach(function (blockData) {
+      earliestMinute = Math.min(earliestMinute, Math.floor(blockData.s * 60));
+      latestMinute = Math.max(latestMinute, Math.ceil(blockData.e * 60));
+      hasBlocks = true;
+     });
+    });
+    var timelineStart = hasBlocks ? Math.max(0, Math.floor(earliestMinute / 60) * 60 - 60) : FROM * 60;
+    var timelineEnd = hasBlocks ? Math.min(24 * 60, Math.ceil(latestMinute / 60) * 60 + 60) : TO * 60;
+    var timelineHeight = Math.max(60, timelineEnd - timelineStart);
+    timetable.style.setProperty('--member-timeline-height', timelineHeight + 'px');
+    for (var minute = timelineStart; minute < timelineEnd; minute += 60) {
+     var hour = Math.floor(minute / 60) % 24;
+     var hourLabel = (hour % 12 || 12) + (hour < 12 ? ' AM' : ' PM');
+     var tick = el('span', '', hourLabel);
+     tick.style.top = (minute - timelineStart) + 'px';
+     axis.appendChild(tick);
     }
     timetableRow.appendChild(axis);
+    var timetableGrid = el('div', 'member-timetable-grid');
     DAYS.forEach(function (shortDay) {
      var fullDay = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'}[shortDay];
      var column = el('div', 'member-day-column team-day-cell');
      column.setAttribute('aria-label', fullDay);
-     var blocks = sortBlocksByTime((selected.busy[shortDay] || []).map(blockFromBusy)
-      .concat(blocksForDay(shortDay)));
-     blocks.forEach(function (blockData) {
-      if (blockData.e <= FROM || blockData.s >= TO) return;
+     dayBlocks[shortDay].forEach(function (blockData) {
+      var blockStart = Math.max(timelineStart, Math.floor(blockData.s * 60));
+      var blockEnd = Math.min(timelineEnd, Math.ceil(blockData.e * 60));
+      if (blockEnd <= blockStart) return;
       var block = el('div', 'team-block member-week-block ' + blockData.kind);
-      if (blockData.kind === 'team-proposal') block.title = [blockData.title, blockData.description, blockData.modality, rng(blockData.s, blockData.e)].filter(Boolean).join(' · ');
-      block.style.top = ((Math.max(blockData.s, FROM) - FROM) / (TO - FROM) * 100) + '%';
-      block.style.height = ((Math.min(blockData.e, TO) - Math.max(blockData.s, FROM)) / (TO - FROM) * 100) + '%';
+      if (blockData.kind === 'commitment') block.title = ['Commitment', blockData.title, blockData.description, blockData.modality, rng(blockData.s, blockData.e)].filter(Boolean).join(' · ');
+      block.style.top = (blockStart - timelineStart) + 'px';
+      block.style.height = Math.max(12, blockEnd - blockStart) + 'px';
       block.appendChild(el('b', '', blockData.title));
       appendBlockDetails(block, blockData);
       column.appendChild(block);
      });
-     timetableRow.appendChild(column);
+     timetableGrid.appendChild(column);
     });
+    timetableRow.appendChild(timetableGrid);
     timetable.appendChild(timetableRow);
     bd.appendChild(timetable);
    }
   } else {
    bd.setAttribute('aria-label', 'Team schedules for ' + team.members.map(displayName).join(', '));
    var table = el('div', 'team-table');
+   table.style.setProperty('--team-member-count', String(team.members.length));
    var header = el('div', 'team-table-header');
    header.appendChild(el('div', 'member-heading', 'Team member'));
    ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(function (label) {
@@ -222,6 +244,10 @@ document.addEventListener('DOMContentLoaded', async function () {
    table.appendChild(header);
    team.members.forEach(function (member) {
     var row = el('div', 'team-table-row');
+    var busiestDayCount = Math.max.apply(null, DAYS.map(function (day) {
+     return (member.busy[day] || []).length + blocksForDay(day).length;
+    }));
+    row.style.minHeight = Math.max(112, busiestDayCount * 40 + 20) + 'px';
     var memberCell = el('div', 'team-member-cell');
     var memberName = el('span', 'team-member-name');
     memberName.appendChild(el('span', 'team-member-label', displayName(member)));
@@ -235,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async function () {
      if (!blocks.length) cell.appendChild(el('span', 'team-empty', 'No blocks added'));
      blocks.forEach(function (blockData) {
       var block = el('div', 'team-block ' + blockData.kind);
-      if (blockData.kind === 'team-proposal') block.title = [blockData.title, blockData.description, blockData.modality, rng(blockData.s, blockData.e)].filter(Boolean).join(' · ');
+      if (blockData.kind === 'commitment') block.title = ['Commitment', blockData.title, blockData.description, blockData.modality, rng(blockData.s, blockData.e)].filter(Boolean).join(' · ');
       block.appendChild(el('b', '', blockData.title));
       appendBlockDetails(block, blockData);
       cell.appendChild(block);
@@ -285,10 +311,14 @@ document.addEventListener('DOMContentLoaded', async function () {
       });
       var teamId = team.id;
       await refreshTeams(teamId);
-      if (!($('team-proposal-review-dialog').open)) return;
-      $('team-proposal-review-status').textContent = choice[0] === 'accept'
-       ? 'Added to your shared schedule.' : 'Proposal rejected and removed for everyone.';
-      showStatus(choice[0] === 'accept' ? 'Weekly block added to your shared schedule.' : 'Proposal rejected for everyone.');
+      if ($('team-proposal-review-dialog').open) {
+       $('team-proposal-review-status').textContent = choice[0] === 'accept'
+        ? 'Added to your shared schedule.' : 'Proposal rejected and removed for everyone.';
+       showStatus(choice[0] === 'accept' ? 'Weekly block added to your shared schedule.' : 'Proposal rejected for everyone.');
+      }
+      if (choice[0] === 'accept') {
+       popupSuccess('The proposed block was added to your shared schedule.', 'Proposal accepted');
+      }
      } catch (error) {
       if (choice[0] === 'accept' && /^schedule conflict:/i.test(error.message)) {
        $('team-proposal-review-status').hidden = true;
@@ -386,6 +416,16 @@ document.addEventListener('DOMContentLoaded', async function () {
    memberSlider.appendChild(button);
   });
  }
+ function syncScheduleDetailsButton() {
+  var button = $('toggle-team-schedule-visibility');
+  if (!button) return;
+  var hasSharedSchedule = Boolean(team && team.sharedScheduleId);
+  var detailsVisible = Boolean(team && team.sharedScheduleDetails);
+  button.disabled = !hasSharedSchedule;
+  button.setAttribute('aria-pressed', detailsVisible ? 'true' : 'false');
+  button.textContent = detailsVisible ? 'Hide Details' : 'Show Details';
+  button.title = hasSharedSchedule ? '' : 'Share a personal schedule with this team first.';
+ }
  async function refreshTeams(preferredId) {
   try {
    TEAMS = await loadTeams();
@@ -405,6 +445,7 @@ document.addEventListener('DOMContentLoaded', async function () {
    $('main-content').hidden = false;
    fill();
    fillMembers();
+   syncScheduleDetailsButton();
    updateSettingsLink();
    render();
    renderSharedScheduleOptions();
@@ -416,6 +457,33 @@ document.addEventListener('DOMContentLoaded', async function () {
  }
  $('team-view-button').onclick = function () { viewMode = 'team'; render(); };
  $('member-view-button').onclick = function () { viewMode = 'member'; render(); };
+ $('toggle-team-schedule-visibility').onclick = async function () {
+  if (!team || !team.sharedScheduleId) {
+   showStatus('Share a personal schedule with this team before showing its details.', true);
+   return;
+  }
+  var showDetails = !team.sharedScheduleDetails;
+  if (showDetails) {
+   var approved = await popupConfirm(
+    'Your shared schedule titles, descriptions, and modalities will be visible to this team. Each member controls whether their own schedule details are shown.',
+    'Show your schedule details?',
+    'warning'
+   );
+   if (!approved) return;
+  }
+  var button = this;
+  button.disabled = true;
+  try {
+   await api('/teams/' + encodeURIComponent(team.id) + '/shared-schedule/details', {
+    method:'PUT', body:JSON.stringify({ show_details:showDetails })
+   });
+   await refreshTeams(team.id);
+  } catch (error) {
+   showStatus(error.message, true);
+  } finally {
+   syncScheduleDetailsButton();
+  }
+ };
  $('show-member-preferences').onclick = function () { window.showTeamPreferences(team.id, team.name); };
 
  // Create and join use the authenticated Teams API.
@@ -488,6 +556,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     method:'PUT', body:JSON.stringify({ schedule_id:scheduleId })
    });
    team = result.team;
+   syncScheduleDetailsButton();
    render();
    renderSharedScheduleOptions();
    popupSuccess(scheduleId ? 'Your saved schedule is now shared with the team.' : 'Your schedule is no longer shared with the team.', 'Shared schedule updated');
