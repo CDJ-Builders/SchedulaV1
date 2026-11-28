@@ -21,19 +21,13 @@ Time management significantly influences academic and professional performance (
 ---
 
 ## 🎯 Agile SCRUM & Sprint Planning
-
-### Sprint 7 Goal
-Super Admin Finalization
-
 ### Sprint 8 Goal 
 Quality of Life Fixes
+Dark Mode UI
+Mobile UI
 
 ### Sprint 9 Goal
 Deployment
-
-### Sprint 10 Goal
-Dark Mode UI
-Mobile UI
 
 ### Team Roles & Responsibilities
 - **Product Owner:** Jimenez, Jian Jowel *(Manages backlog prioritization and user alignment)*
