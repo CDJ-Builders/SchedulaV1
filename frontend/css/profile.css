@@ -3,12 +3,12 @@
    ═══════════════════════════════════════════════════════════════ */
 
 body.pf {
-  --bg: #ffffff;
+  --bg: #f8fafc;
   --panel: #ffffff;
   --surface: #f4ecfa;
   --input-bg: #ffffff;
   --panel-glass: #ffffff;
-  --glass: #ffffff;
+  --glass: rgba(255, 255, 255, .72);
   --panel-border-glass: #ffffff;
   --border: rgba(42, 18, 69, .26);
   --text: #2a1245;
@@ -37,15 +37,20 @@ body.pf::after {
 
 /* ─── Profile Header Alignment ───────────────────────────────── */
 body.pf .top {
-  width: var(--app-chrome-width, min(1200px, calc(100% - 48px)));
-  max-width: var(--app-chrome-max, 1200px);
-  margin: 28px auto 24px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
   align-self: center;
 }
 
+body.pf > .page {
+  padding: 18px 32px 24px;
+  gap: 18px;
+}
+
 body.pf .page-content {
-  width: var(--app-chrome-width, min(1200px, calc(100% - 48px)));
-  max-width: var(--app-chrome-max, 1200px);
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 0 56px;
   background: transparent;
@@ -53,6 +58,10 @@ body.pf .page-content {
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+@media (max-width: 800px) {
+  body.pf > .page { padding: 12px 18px 24px; }
 }
 
 /* ─── Skeuomorphic Keys & Buttons ────────────────────────────── */
@@ -1017,7 +1026,22 @@ body.pf .profile-save-preferences[hidden] { display: none !important; }
 
 @media (max-width: 600px) {
   body.pf .profile-settings-layout { margin-top: 18px; }
-  body.pf .profile-carousel-actions { right: 14px; left: 14px; gap: 8px; }
-  body.pf .profile-save-preferences { min-width: 0; padding-inline: 12px; }
+  body.pf .profile-step-panel { padding-bottom: 22px; }
+  body.pf .profile-carousel-actions {
+    position: static;
+    width: 100%;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 10px;
+    margin: 18px 0 4px;
+    padding: 0 12px;
+  }
+  body.pf .profile-nav-arrow { width: 44px; height: 44px; }
+  body.pf .profile-save-preferences {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding-inline: 8px;
+    white-space: nowrap;
+  }
   body.pf #profile-preferences .preference-check-grid { grid-template-columns: 1fr; }
 }

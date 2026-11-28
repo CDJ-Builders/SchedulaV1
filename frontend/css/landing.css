@@ -10,11 +10,11 @@
 }
 
 .hero-root {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
   margin: 0;
   padding: 0;
 
@@ -263,7 +263,7 @@
   font-family: inherit;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 140ms ease;
   line-height: 34px;
 }
 
@@ -290,7 +290,7 @@
   font-family: inherit;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 140ms ease;
   line-height: 34px;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
@@ -388,7 +388,7 @@
   font-family: inherit;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 140ms ease;
   letter-spacing: 0.01em;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
@@ -417,7 +417,7 @@
   font-family: inherit;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 140ms ease;
   letter-spacing: 0.01em;
 }
 
@@ -607,18 +607,18 @@
     box-shadow: 0 10px 24px rgba(42,18,69,.25), inset 0 1px 0 rgba(255,255,255,.85);
     cursor: grab;
     user-select: none;
-    touch-action: none;
-    transition: top .45s cubic-bezier(.3,.9,.3,1), height .45s cubic-bezier(.3,.9,.3,1),
-      box-shadow .15s, transform .15s;
-    animation: drop .6s cubic-bezier(.2,.9,.3,1.15) backwards;
-    animation-delay: calc(var(--i) * 90ms + 150ms);
+    touch-action: pan-y;
+    transition: top 180ms cubic-bezier(.77,0,.175,1), box-shadow 140ms cubic-bezier(.23,1,.32,1), transform 140ms cubic-bezier(.23,1,.32,1);
+    animation: drop 280ms cubic-bezier(.23,1,.32,1) backwards;
+    animation-delay: calc(min(var(--i), 5) * 40ms);
   }
   .block:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .block .grip { touch-action: none; cursor: grab; }
   .block.drag {
     z-index: 5;
     cursor: grabbing;
-    transform: translateY(-4px);
-    transition: box-shadow .15s, transform .15s;
+    transform: translateY(-2px);
+    transition: box-shadow 120ms cubic-bezier(.23,1,.32,1), transform 120ms cubic-bezier(.23,1,.32,1);
     box-shadow: 0 20px 38px rgba(42,18,69,.4);
   }
   .block.clash { border-color: #c2255c; box-shadow: 0 0 0 2px rgba(194,37,92,.55), 0 10px 24px rgba(42,18,69,.25); }
@@ -678,8 +678,8 @@
   }
   .landing-copy > .site-footer--hero .site-footer-link { width: 100%; }
   @keyframes drop {
-    from { opacity: 0; transform: translateY(-34px) rotate(-1.5deg); }
-    to { opacity: 1; transform: translateY(0) rotate(0); }
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   @keyframes up {
     from { opacity: 0; transform: translateY(10px); }
@@ -767,6 +767,106 @@ background: linear-gradient(to bottom, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.01))
 .hero-btn-ghost:hover {
 background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.03));
   border-color: rgba(124, 58, 237, 0.25);
+}
+
+.theme-toggle-landing { display: none; }
+
+@media (max-width: 600px) {
+  body.hero-root .hero-header {
+    min-height: 58px;
+    padding: 8px 16px;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  body.hero-root .hero-header .hero-nav,
+  body.hero-root .hero-header .theme-toggle-header { display: none !important; }
+  body.hero-root .hero-header .hero-brand-group {
+    margin: 0;
+    justify-content: center;
+    gap: 8px;
+  }
+  body.hero-root .hero-header .hero-brand {
+    margin: 0;
+    gap: 8px;
+  }
+  body.hero-root .hero-header .hero-logo { width: 25px; height: 25px; }
+  body.hero-root .hero-header .hero-brand-text {
+    display: inline;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  body.hero-root .landing-page {
+    box-sizing: border-box;
+    width: min(100% - 36px, 560px);
+    min-height: calc(100dvh - 70px);
+    padding: 22px 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  body.hero-root .landing-copy {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-height: calc(100dvh - 150px);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  body.hero-root .landing-content {
+    width: 100%;
+    align-self: center;
+  }
+  body.hero-root .landing-title { width: 100%; text-align: center; }
+  body.hero-root .landing-lede { margin: 20px auto 24px; text-align: center; }
+  body.hero-root .landing-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+    gap: 8px;
+  }
+  body.hero-root .landing-actions > .key {
+    min-width: 0;
+    padding-inline: 8px;
+    font-size: .82rem;
+  }
+  body.hero-root .theme-toggle-landing {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  body.hero-root .landing-copy > .site-footer--hero {
+    position: relative;
+    width: 100%;
+    margin: auto 0 0;
+  }
+  body.hero-root .landing-copy > .site-footer--hero .site-footer-inner {
+    padding: 12px 14px;
+    gap: 6px;
+  }
+  body.hero-root .landing-copy > .site-footer--hero .site-footer-nav {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  body.hero-root .landing-copy > .site-footer--hero .site-footer-link {
+    width: auto;
+    font-size: .72rem;
+  }
+
+  body.hero-root .schedule-demo { margin-top: 0; }
 }
 
 .hero-cta-secondary {

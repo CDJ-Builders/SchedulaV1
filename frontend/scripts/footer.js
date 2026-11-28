@@ -11,6 +11,37 @@
 
   const assetBase = script.src.replace(/frontend\/scripts\/footer\.js.*$/, '');
 
+  const PRIMARY_NAV_ICONS = {
+    home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/><path d="M8 21v-6h8v6"/>',
+    builder: '<rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M8 2v4M16 2v4M3 9h18M8 13h3M13 13h3M8 17h3"/>',
+    plotter: '<path d="M4 20V5M4 20h17"/><path d="m7 16 4-5 3 2 5-7"/><circle cx="7" cy="16" r="1"/><circle cx="11" cy="11" r="1"/><circle cx="14" cy="13" r="1"/><circle cx="19" cy="6" r="1"/>',
+    teams: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1zM16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 4 5v1h-4"/>',
+  };
+
+  function decoratePrimaryNavLink(link) {
+    const href = (link.getAttribute('href') || '').split(/[?#]/, 1)[0];
+    const page = href.split('/').pop().replace(/\.html?$/i, '').toLowerCase();
+    const iconMarkup = PRIMARY_NAV_ICONS[page];
+    if (!iconMarkup || link.querySelector('.primary-nav-icon')) return;
+
+    const label = link.textContent.trim();
+    link.replaceChildren();
+
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('class', 'primary-nav-icon');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    icon.innerHTML = iconMarkup;
+
+    const text = document.createElement('span');
+    text.className = 'nav-label';
+    text.textContent = label;
+
+    link.append(icon, text);
+    link.setAttribute('aria-label', label);
+  }
+
   function loadStylesheet() {
     if (document.querySelector('link[data-site-footer]')) return;
     const link = document.createElement('link');
@@ -109,8 +140,9 @@
     const close = () => {
       if (overlay.dataset.closing === 'true') return;
       overlay.dataset.closing = 'true';
+      overlay.classList.add('is-closing');
       overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
+      setTimeout(() => overlay.remove(), 150);
     };
 
     overlay.querySelector('#footer-modal-close').addEventListener('click', close);
@@ -174,7 +206,43 @@
 
   }
 
+  function addAccessibleMobileChrome() {
+    const main = document.querySelector('main');
+    if (main && !main.id) main.id = 'main-content';
+    if (main && !document.querySelector('.skip-link')) {
+      const skip = document.createElement('a');
+      skip.className = 'skip-link';
+      skip.href = `#${main.id}`;
+      skip.textContent = 'Skip to main content';
+      document.body.prepend(skip);
+    }
+
+    const desktopNav = document.querySelector('.app-shell-header .nav');
+    if (!desktopNav) return;
+    const links = [...desktopNav.querySelectorAll('a[href]')];
+    links.forEach(decoratePrimaryNavLink);
+    const existingMobileNav = document.querySelector('.mobile-primary-nav');
+    if (existingMobileNav) {
+      existingMobileNav.querySelectorAll('a[href]').forEach(decoratePrimaryNavLink);
+      // A previously rendered mobile bar still needs the body class that
+      // enables its fixed layout and the matching content clearance.
+      document.body.classList.add('has-mobile-nav');
+      return;
+    }
+    if (links.length < 4) return;
+    const mobileNav = document.createElement('nav');
+    mobileNav.className = 'mobile-primary-nav';
+    mobileNav.setAttribute('aria-label', 'Primary navigation');
+    links.forEach((link) => {
+      const item = link.cloneNode(true);
+      mobileNav.appendChild(item);
+    });
+    document.body.appendChild(mobileNav);
+    document.body.classList.add('has-mobile-nav');
+  }
+
   loadStylesheet();
+  addAccessibleMobileChrome();
 
   // All current pages load this script at the end of body. Inject now so the
   // footer and its layout class exist before the browser's first full paint.

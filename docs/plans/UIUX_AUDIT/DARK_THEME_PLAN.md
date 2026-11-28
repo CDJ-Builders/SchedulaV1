@@ -1,13 +1,13 @@
 # Schedula dark theme implementation plan
 
-**Status:** Planning only; no product code changed  
+**Status:** Binary Light/Dark implementation underway; remaining review items are tracked in [`tools/PROGRESS.md`](../../../tools/PROGRESS.md)
 **Date:** 2026-11-28  
 **Scope:** Public landing page and signed-in student frontend, including authentication, profile/setup, Builder, Plotter, Teams, shared chrome, dialogs, and footer. Admin is excluded.  
 **Depends on:** [Frontend review and mobile UI/UX plan](FRONTEND_REVIEW_AND_MOBILE_PLAN.md)
 
 ## Goal
 
-Add a complete, accessible dark theme while preserving Schedula's recognizable plum/lavender palette, Bricolage Grotesque, and raised-key interaction. Users can switch between **Light** and **Dark**. The selected theme persists across pages and reloads, and the correct theme appears before the page is painted.
+Add a complete, accessible dark theme with a muted charcoal/graphite base and restrained gray-lavender accents, while preserving Bricolage Grotesque and the raised-key interaction. Users can switch between **Light** and **Dark**. The selected theme persists across pages and reloads, and the correct theme appears before the page is painted.
 
 The theme will be built on shared semantic custom properties. Page CSS will consume those properties instead of defining parallel light-only palettes. This is a public frontend project; do not include or alter `frontend/admin`.
 
@@ -44,22 +44,22 @@ Token names are a contract proposal; inventory actual use before finalizing and 
 
 | Semantic role | Light direction | Dark direction |
 |---|---|---|
-| `--page` | Existing warm/off-white page base | Plum-tinted near-black, starting near `#140e18` |
-| `--surface` | White or very light lavender surface | Raised plum surface, starting near `#241828` |
-| `--surface-raised` | Elevated white/lavender | A lighter plum surface with a clear step from page |
-| `--surface-inset` | Pale lavender/neutral input well | Deep plum input well, visibly inset from raised surface |
-| `--ink` | Existing deep plum, near `#2a1245` | Soft white, starting near `#f6f1f8` |
-| `--muted` | Existing secondary text with AA contrast | Soft lavender-gray, starting near `#cbb9d4` |
-| `--accent` | Existing purple, near `#62298a` | Lightened purple/lavender accent, starting near `#c4a3d4` |
-| `--accent-strong` | Deep purple action/edge | Purple tuned for readable text or edge; do not assume the same value works for both |
-| `--lavender` | Existing lavender, near `#b596c8` | Recognizable pale lavender for highlights and current state |
-| `--line` | Plum-tinted low contrast border | Lavender-tinted border with enough contrast to define controls |
-| `--key-face` / `--key-edge` | Existing raised key appearance | Preserve the raised-key depth using a distinct face, inset highlight, and colored edge |
-| `--shadow` / `--shadow-raised` | Plum-tinted shadows | Dark plum shadow; avoid relying on shadow alone to separate surfaces |
-| `--focus-ring` | High-contrast purple/lavender outline | High-contrast lavender outline, visible over every surface |
+| `--page` | Existing warm/off-white page base | Neutral charcoal, near `#151719` |
+| `--surface` | White or very light lavender surface | Graphite surface, near `#1e2023` |
+| `--surface-raised` | Elevated white/lavender | Slightly lighter graphite, near `#282b2f` |
+| `--surface-inset` | Pale lavender/neutral input well | Deep neutral input well, near `#191b1e` |
+| `--ink` | Existing deep plum, near `#2a1245` | Soft neutral white, near `#eceef0` |
+| `--muted` | Existing secondary text with AA contrast | Muted neutral gray, near `#a9adb3` |
+| `--accent` | Existing purple, near `#62298a` | Desaturated gray-lavender accent, near `#b6acbf` |
+| `--accent-strong` | Deep purple action/edge | Soft gray-lavender for restrained emphasis |
+| `--lavender` | Existing lavender, near `#b596c8` | Use sparingly; current states should be muted and legible |
+| `--line` | Plum-tinted low contrast border | Neutral graphite border with enough contrast to define controls |
+| `--key-face` / `--key-edge` | Existing raised key appearance | Preserve raised depth with graphite faces and neutral edges |
+| `--shadow` / `--shadow-raised` | Plum-tinted shadows | Neutral black shadow; avoid relying on shadow alone to separate surfaces |
+| `--focus-ring` | High-contrast purple/lavender outline | Muted high-contrast neutral/lavender ring, visible over every surface |
 | `--danger`, `--warning`, `--success` | Existing semantic feedback tuned for light | Re-tuned colors with readable text, icon, and border pairings |
 | `--particle` | Light-theme decorative particle color | Dark-theme decorative particle color |
-| `--overlay` | Translucent plum overlay | Translucent near-black/plum overlay |
+| `--overlay` | Translucent plum overlay | Translucent neutral near-black overlay |
 
 The starting hex values are palette direction, not approved final values. Check every foreground/background pair, including button labels, disabled text, validation messages, selected schedule blocks, and diagram/grid content. Do not blindly map every white literal to `--surface`: some are highlights, translucent overlays, chart blocks, or key bevels with distinct roles.
 
@@ -107,7 +107,7 @@ Admin styles and markup are explicitly outside this work. Avoid adding global th
 ### Phase 2 — Dark palette and component states
 
 1. Add `[data-theme="dark"]` semantic values and set `color-scheme: dark` only when resolved dark is active; keep native form controls legible.
-2. Tune base page, surfaces, text, borders, and focus ring. Keep the dark base plum-tinted rather than pure black.
+2. Tune base page, surfaces, text, borders, and focus ring around neutral charcoal/graphite; use muted gray-lavender only for restrained state accents.
 3. Migrate keys, fields, cards, dialogs, dropdowns, toasts, tables/lists, schedule canvases, and page-specific panels.
 4. Tune schedule and team visualization colors as a set. Use borders/labels/pattern or shape cues so adjacent events and free/busy states remain distinct without color alone.
 5. Review imagery, logos, favicon, grid lines, decorative accents, and particle colors on both backgrounds.
@@ -169,7 +169,7 @@ Admin styles and markup are explicitly outside this work. Avoid adding global th
 
 - Light and Dark choices persist and apply correctly on every in-scope page.
 - The resolved theme is applied before first paint; no light flash on a saved Dark preference and no dark flash on saved Light.
-- Light retains the existing brand appearance; Dark uses plum-tinted surfaces and recognizable lavender accents.
+- Light retains the existing brand appearance; Dark uses neutral charcoal/graphite surfaces and restrained gray-lavender accents.
 - Text and relevant control/state boundaries meet WCAG AA contrast targets. Schedule/team meaning never depends on color alone.
 - Keys preserve their recognizable face/edge/press treatment in both modes, with visible focus and usable disabled states.
 - Auth, Builder, Plotter, Teams, Profile/setup, landing, dialogs, and shared chrome have no mixed-theme surfaces.

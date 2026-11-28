@@ -33,14 +33,6 @@
   --app-chrome-width: min(var(--app-chrome-max), calc(100% - 2 * var(--app-chrome-gutter)));
 }
 
-/* Global transitions and page reset */
-body, header, main, section, div, input, select, button, span, h1, h2, h3, p, a {
-  transition: background-color 200ms cubic-bezier(0.23, 1, 0.32, 1), 
-              border-color 200ms cubic-bezier(0.23, 1, 0.32, 1), 
-              color 200ms cubic-bezier(0.23, 1, 0.32, 1), 
-              box-shadow 200ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -48,6 +40,7 @@ body, header, main, section, div, input, select, button, span, h1, h2, h3, p, a 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   color: var(--text);
   background: radial-gradient(circle at top, var(--radial-glow), transparent 30%),
@@ -69,6 +62,7 @@ body::before {
 .page-shell {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 32px;
@@ -139,7 +133,7 @@ body::before {
   color: var(--text);
   border: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 140ms ease, background-color 180ms ease, border-color 180ms ease;
   padding: 0;
   flex-shrink: 0;
 }
@@ -160,7 +154,7 @@ body::before {
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 140ms ease, background-color 180ms ease, border-color 180ms ease;
   line-height: 36px;
 }
 
@@ -231,7 +225,7 @@ body::before {
   display: grid;
   place-items: center;
   z-index: 10;
-  transition: all 0.2s ease;
+  transition: transform 140ms ease, background-color 180ms ease, border-color 180ms ease;
 }
 
 .close-btn:hover {

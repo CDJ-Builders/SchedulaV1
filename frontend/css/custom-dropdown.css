@@ -213,7 +213,7 @@
   border: 2px solid var(--plum, #2a1245);
   border-radius: 14px;
   padding: 8px;
-  z-index: 1050;
+  z-index: 30;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -225,7 +225,7 @@
 
 .custom-dropdown-menu--dialog {
   position:fixed;
-  z-index:2147483647;
+  z-index:45;
   min-width:0;
   max-width:calc(100vw - 24px);
 }

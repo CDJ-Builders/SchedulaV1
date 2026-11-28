@@ -3,64 +3,55 @@
 
 (function () {
   const STORAGE_KEY = 'schedula-theme';
-  const savedTheme = localStorage.getItem(STORAGE_KEY);
-
-  // Default to light theme while dark mode is under maintenance
-  const initialTheme = 'light';
-  document.documentElement.setAttribute('data-theme', initialTheme);
+  let currentTheme = 'light';
+  try {
+    const savedTheme = localStorage.getItem(STORAGE_KEY);
+    if (savedTheme === 'dark' || savedTheme === 'light') currentTheme = savedTheme;
+  } catch { /* Storage can be unavailable in private browsing. */ }
+  document.documentElement.dataset.theme = currentTheme;
 
   // SVG Definitions for Moon and Sun
   const moonSvg = `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2a1245" stroke-width="2" class="theme-icon-svg" style="width: 20px; height: 20px; color: #2a1245;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="theme-icon-svg" style="width: 20px; height: 20px;">
       <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
     </svg>
   `;
 
   const sunSvg = `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2a1245" stroke-width="2" class="theme-icon-svg" style="width: 20px; height: 20px; color: #2a1245;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="theme-icon-svg" style="width: 20px; height: 20px;">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M4.22 4.22l1.58 1.58m12.4 12.4l1.58 1.58M3 12h2.25m13.5 0H21M4.22 19.78l1.58-1.58m12.4-12.4l1.58-1.58M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
     </svg>
   `;
 
-  // Function to update all toggle button contents
+  // Function to update all toggle button contents.
   function updateToggleButtons(theme) {
     const toggles = document.querySelectorAll('.theme-toggle');
     toggles.forEach(toggle => {
       toggle.innerHTML = theme === 'light' ? moonSvg : sunSvg;
       toggle.querySelectorAll('svg, svg *').forEach(icon => {
         icon.setAttribute('fill', 'none');
-        icon.setAttribute('stroke', '#2a1245');
+        icon.setAttribute('stroke', 'currentColor');
       });
       toggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
       toggle.setAttribute('title', theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+      toggle.setAttribute('aria-pressed', String(theme === 'dark'));
       toggle.dataset.themeIcon = theme;
     });
   }
 
   // Toggle Theme Function
   window.toggleTheme = function () {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-
-    // Temporarily warn that dark mode is under maintenance
-    if (currentTheme === 'light') {
-      const msg = '⚠️ Dark mode is currently under maintenance. Please continue using light mode for the best experience.';
-      if (typeof window.alert === 'function') {
-        window.alert(msg, 'Under Maintenance');
-      }
-      return;
-    }
-
-    const newTheme = 'light';
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
     document.documentElement.classList.add('theme-transitioning');
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem(STORAGE_KEY, newTheme);
-    updateToggleButtons(newTheme);
-    window.setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 220);
+    document.documentElement.dataset.theme = currentTheme;
+    try { localStorage.setItem(STORAGE_KEY, currentTheme); } catch { /* Keep the current-page choice. */ }
+    updateToggleButtons(currentTheme);
+    document.dispatchEvent(new CustomEvent('schedula:themechange', { detail: { theme: currentTheme } }));
+    window.setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 180);
   };
 
   // Wire up theme toggles when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     updateToggleButtons(currentTheme);
 
     // Dynamic delegate click event to allow dynamically created headers/buttons to work

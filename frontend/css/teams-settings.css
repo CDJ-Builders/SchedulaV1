@@ -98,7 +98,6 @@ body.has-site-footer > .teams-settings-page { width:100%; }
 .settings-creator-crown { width:20px; height:20px; flex:none; display:grid; place-items:center; border-radius:6px; background:#efe2f7; color:#62298a; }
 .settings-creator-crown svg { width:14px; height:14px; fill:#62298a; stroke:#2a1245; stroke-width:1; stroke-linecap:round; stroke-linejoin:round; }
 .settings-person-actions { flex:none; display:flex; align-items:center; gap:7px; }
-.settings-role-button { min-height:32px; padding:0 10px; font-size:11px; }
 .settings-role-button { min-height:36px; padding:0 11px; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:12px; white-space:nowrap; }
 .settings-role-icon { width:14px; height:14px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .role-permission-note { margin:0; padding:11px 13px; border-radius:11px; background:#f6f0fa; color:#5e4b6d; font-size:12px; font-weight:700; }

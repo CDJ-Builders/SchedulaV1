@@ -233,6 +233,32 @@ h1 span {
   .home-schedule-table .day .well { border-radius:12px; }
 }
 
+@media (max-width: 700px) {
+  .hero { gap: 22px; }
+  .hero > div:first-child {
+    width: 100%;
+    min-height: 42vh;
+    min-height: 42dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  #home-greeting {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    font-size: clamp(3.4rem, 14vw, 5rem);
+    line-height: .84;
+    letter-spacing: -.055em;
+    text-wrap: balance;
+    text-align: center;
+  }
+  .hero .lede { max-width: 34ch; margin: 20px auto 0; text-align: center; }
+  .hero .cta { display: none; }
+}
+
 @media (max-width: 520px) {
   .key:not(.sm):not(.icon) { flex: 1 1 100%; }
 }

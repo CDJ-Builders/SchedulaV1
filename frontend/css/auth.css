@@ -596,9 +596,7 @@ h1 span {
   .auth-page .app-shell-header .auth-brand-text { display: inline; }
   .auth-page .page-shell { padding: 12px 18px 52px; }
   .auth-page .login-card { width: 100%; border-radius: 18px; }
-  .auth-page .auth-visual { min-height: 190px; padding: 28px 24px; }
-  .auth-page .auth-visual h1 { font-size: 44px; }
-  .auth-page .auth-visual-copy { font-size: 15px; }
+  .auth-page .auth-visual { display: none; }
   .auth-page .card-content { padding: 30px 24px 34px; }
   .auth-page .card-content h1 { font-size: 36px; }
 }

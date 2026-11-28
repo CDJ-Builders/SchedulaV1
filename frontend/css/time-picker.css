@@ -6,7 +6,7 @@
 .time-picker-chevron { width:16px; height:16px; flex:none; stroke:var(--plum,#2a1245); transition:transform .2s cubic-bezier(.2,.9,.3,1.2); }
 .time-picker-trigger.is-open .time-picker-chevron { transform:rotate(180deg); }
 .time-picker-popover { position:absolute; z-index:30; top:calc(100% + 8px); left:0; box-sizing:border-box; display:grid; grid-template-columns:1fr; gap:12px; width:min(360px,calc(100vw - 32px)); min-width:min(260px,calc(100vw - 32px)); padding:16px; border:1px solid rgba(98,41,138,.2); border-radius:16px; background:var(--surface-white,#fff); box-shadow:0 12px 30px rgba(42,18,69,.2); }
-.time-picker-popover--floating { position:fixed; inset:auto; z-index:2147483000; margin:0; overflow-y:auto; }
+.time-picker-popover--floating { position:fixed; inset:auto; z-index:45; margin:0; overflow-y:auto; }
 .time-picker-popover[hidden] { display:none; }
 .time-picker-heading { color:var(--text,#2a1245); font-size:14px; font-weight:800; }
 .time-picker-controls { display:grid; grid-template-columns:minmax(50px,1fr) 10px minmax(50px,1fr) 58px; align-items:center; gap:7px; }

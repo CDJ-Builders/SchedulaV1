@@ -181,12 +181,14 @@ body.schedula-background.teams-page .member-slide:focus-visible {
 body.schedula-background.teams-page.no-team-mode {
   min-height: 100vh;
   min-height: 100svh;
+  min-height: 100dvh;
   overflow-x: hidden;
 }
 
 body.schedula-background.teams-page.no-team-mode .page {
   min-height: calc(100vh - 120px);
   min-height: calc(100svh - 120px);
+  min-height: calc(100dvh - 120px);
 }
 
 body.schedula-background.teams-page.no-team-mode #main-content .teams-toolbar,
@@ -251,7 +253,7 @@ body.schedula-background.teams-page .no-team-close {
   place-items: center;
   border: 1px solid rgba(42,18,69,.45);
   border-radius: 50%;
-  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  background: #f2e8fa;
   color: #2a1245;
   font: 700 25px/1 "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   box-shadow: inset 0 1px 0 #fff, 0 3px 0 var(--purple), 0 6px 10px rgba(42,18,69,.18);
@@ -283,7 +285,7 @@ body.schedula-background.teams-page .no-team-action {
   gap: 4px;
   border: 1px solid rgba(42,18,69,.62);
   border-radius: 18px;
-  background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
+  background: #f2e8fa;
   color: #2a1245;
   font: 800 clamp(24px, 3.6vw, 38px)/1.1 "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98,41,138,.18), 0 5px 0 var(--purple), 0 10px 14px rgba(42,18,69,.2);
@@ -874,7 +876,7 @@ body.schedula-background.teams-page .member-week-zone { display:block; margin-to
 body.schedula-background.teams-page .dock { height:auto; min-height:78px; padding:16px 20px; display:flex; align-items:center; justify-content:center; border:1px solid #e6dcef; border-top:0; border-radius:0 0 18px 18px; background:#fff; box-shadow:0 5px 0 rgba(98,41,138,.14); }
 body.schedula-background.teams-page .propose-button { width:min(260px,100%); height:44px; border:1px solid rgba(42,18,69,.58); border-radius:12px; background:linear-gradient(180deg,#d9c2ec 0%,#bb99d2 48%,#a27cb7 100%); color:#2a1245; font:800 14px/1 "Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif; box-shadow:inset 0 1px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(42,18,69,.18),0 4px 0 #4a1d6d,0 8px 12px rgba(42,18,69,.18); cursor:pointer; }
 body.schedula-background.teams-page #dlg .cta { justify-content:flex-end; }
-body.schedula-background.teams-page .team-status { position:fixed; top:16px; left:50%; z-index:99999; max-width:calc(100vw - 32px); margin:0; padding:8px 13px; transform:translate(-50%,-7px); border:1px solid #e2d5eb; border-radius:11px; background:#fff; color:#5a2580; font-size:12px; font-weight:700; line-height:1.25; text-align:center; box-shadow:0 2px 0 rgba(98,41,138,.1),0 8px 20px rgba(42,18,69,.14); opacity:0; pointer-events:none; }
+body.schedula-background.teams-page .team-status { position:fixed; top:16px; left:50%; z-index:50; max-width:calc(100vw - 32px); margin:0; padding:8px 13px; transform:translate(-50%,-7px); border:1px solid #e2d5eb; border-radius:11px; background:#fff; color:#5a2580; font-size:12px; font-weight:700; line-height:1.25; text-align:center; box-shadow:0 2px 0 rgba(98,41,138,.1),0 8px 20px rgba(42,18,69,.14); opacity:0; pointer-events:none; }
 body.schedula-background.teams-page .team-status.is-visible { animation:team-status-enter 180ms ease-out forwards; }
 body.schedula-background.teams-page .team-status[hidden] { display:none; }
 body.schedula-background.teams-page .team-status.is-error { border-color:#e9c1ca; background:#fff5f6; color:#922b46; }
@@ -953,7 +955,7 @@ body.schedula-background.teams-page .no-team-heading {
 body.schedula-background.teams-page .no-team-mark {
   width:58px; height:58px; display:grid; place-items:center;
   border:2px solid #26103b; border-radius:12px;
-  background:linear-gradient(180deg,#62298a 0%,#4a1d6d 52%,#32134d 100%); color:#fff;
+  background:#62298a; color:#fff;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.34),inset 0 -3px 0 rgba(0,0,0,.24),
     0 2px 0 rgba(255,255,255,.8),0 5px 0 #1d0d31,0 10px 15px rgba(42,18,69,.24);
 }
@@ -984,7 +986,7 @@ body.schedula-background.teams-page .no-team-action::before {
 body.schedula-background.teams-page .no-team-action > * { position:relative; z-index:1; }
 body.schedula-background.teams-page .no-team-action-icon {
   width:48px; height:48px; padding:8px; flex:none; border:2px solid #26103b;
-  border-radius:10px; background:linear-gradient(180deg,#62298a 0%,#4a1d6d 52%,#32134d 100%); color:#fff;
+  border-radius:10px; background:#62298a; color:#fff;
   fill:none!important; stroke:#fff!important; stroke-width:2.3; stroke-linecap:square; stroke-linejoin:miter;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.2),0 3px 0 #1d0d31,0 6px 9px rgba(42,18,69,.2);
 }
@@ -1358,5 +1360,206 @@ body.schedula-background.teams-page .member-timetable .member-day-column {
 body.schedula-background.teams-page .member-timetable .member-week-block {
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* Mobile schedule layout: keep the week readable and swipeable. */
+@media (max-width: 700px) {
+  body.schedula-background.teams-page .page {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    min-height: 100dvh;
+    padding: 10px 14px calc(100px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+
+  body.schedula-background.teams-page .wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  body.schedula-background.teams-page .teams-page-title h1 {
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    line-height: 1;
+    text-wrap: balance;
+  }
+  body.schedula-background.teams-page .teams-page-title p {
+    margin-top: 8px;
+    font-size: 1rem;
+  }
+
+  body.schedula-background.teams-page .teams-toolbar {
+    width: 100%;
+    height: auto;
+    margin: 18px 0 12px;
+    display: grid;
+    gap: 10px;
+  }
+  body.schedula-background.teams-page .team-toolbar-left {
+    width: 100%;
+    display: grid;
+    gap: 8px;
+  }
+  body.schedula-background.teams-page .team-view-switch {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  body.schedula-background.teams-page .team-view-option {
+    min-height: 44px;
+    min-width: 0;
+  }
+  body.schedula-background.teams-page .member-slider {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  body.schedula-background.teams-page .team-name-control {
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+  }
+  body.schedula-background.teams-page .team-name-control .team-select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    font-size: 15px;
+  }
+  body.schedula-background.teams-page .preferences-button,
+  body.schedula-background.teams-page .team-settings {
+    min-height: 44px;
+    height: 44px;
+  }
+
+  body.schedula-background.teams-page .team-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  body.schedula-background.teams-page .board {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    height: min(58dvh, 520px);
+    min-height: 320px;
+    overflow: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    touch-action: pan-x pan-y;
+  }
+  body.schedula-background.teams-page .board.team-view-mode {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible !important;
+    background: transparent;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    gap: 10px;
+    background: transparent;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-table-header { display: none; }
+  body.schedula-background.teams-page .board.team-view-mode .team-table-row {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    min-height: 0 !important;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(88px, auto);
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #e7dced;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(42,18,69,.07);
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-member-cell {
+    position: static;
+    grid-column: 1 / -1;
+    min-height: 40px;
+    padding: 4px 2px 9px;
+    flex-direction: row;
+    align-items: center;
+    border: 0;
+    border-bottom: 1px solid #eee7f3;
+    background: transparent;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-day-cell {
+    min-height: 88px;
+    padding: 8px;
+    border: 1px solid #eee7f3;
+    border-radius: 10px;
+    background: #fcfaff;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-day-cell::before {
+    display: block;
+    margin-bottom: 7px;
+    color: #5a2580;
+    content: attr(aria-label);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-empty {
+    margin: 0;
+    text-align: left;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-block {
+    overflow-wrap: anywhere;
+    font-size: 10px;
+  }
+  body.schedula-background.teams-page .board.team-view-mode .team-block b,
+  body.schedula-background.teams-page .board.team-view-mode .team-block small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Member timetable remains a scrollable week grid in its own view. */
+  body.schedula-background.teams-page .member-timetable { width: max(100%, 760px); }
+  body.schedula-background.teams-page .dock {
+    min-height: 0;
+    padding: 12px !important;
+    align-items: stretch;
+    gap: 12px;
+  }
+  body.schedula-background.teams-page .team-shared-manager { flex-basis: 100%; }
+  body.schedula-background.teams-page .team-shared-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  body.schedula-background.teams-page .team-shared-controls select {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+  }
+  body.schedula-background.teams-page .team-shared-import,
+  body.schedula-background.teams-page .team-schedule-visibility {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+  body.schedula-background.teams-page .team-proposal-actions {
+    width: 100%;
+    align-self: stretch;
+    justify-content: space-between;
+  }
+  body.schedula-background.teams-page .team-proposal-actions .propose-button {
+    min-height: 44px;
+  }
 }
 

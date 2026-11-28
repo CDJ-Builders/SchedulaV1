@@ -7,9 +7,11 @@
   <meta name="description"
     content="Build conflict-free academic schedules, visualize your semester at a glance, and optimize your courses. Fast, minimal, and student-first.">
   <link rel="icon" type="image/png" href="./favicon.png">
-  <link rel="stylesheet" href="./frontend/css/landing.css">
+  <link rel="stylesheet" href="./frontend/css/landing.css?v=20261128-mobile-centered-brand-2">
   <link rel="stylesheet" href="./frontend/css/chrome.css" data-schedula-header data-site-footer>
   <link rel="stylesheet" href="./frontend/css/popup.css" data-schedula-popup>
+  <link rel="stylesheet" href="./frontend/css/dark-theme.css?v=20261128-mobile-clear-header">
+  <link rel="stylesheet" href="./frontend/css/responsive-chrome.css">
   <script src="./frontend/scripts/theme.js"></script>
 </head>
 
@@ -37,12 +39,16 @@
 
   <main class="landing-page" id="main-content">
     <section class="landing-copy" aria-labelledby="landing-title">
-      <h1 class="landing-title" id="landing-title"><span>Build your</span><span>daily blocks</span></h1>
-      <p class="landing-lede">Add your classes and meetings, see clashes the moment they happen, and share the plan
-        with your team.</p>
-      <div class="landing-actions">
-        <button class="key" id="get-started-btn" type="button">Create Account</button>
-        <button class="key lav" id="login-hero-btn" type="button">Log In</button>
+      <div class="landing-content">
+        <h1 class="landing-title" id="landing-title"><span>Build your</span><span>daily blocks</span></h1>
+        <p class="landing-lede">Add your classes and meetings, see clashes the moment they happen, and share the plan
+          with your team.</p>
+        <div class="landing-actions">
+          <button class="key" id="get-started-btn" type="button">Create Account</button>
+          <button class="key lav" id="login-hero-btn" type="button">Log In</button>
+          <button class="hero-cta-secondary theme-toggle theme-toggle-landing" type="button"
+            aria-label="Toggle theme"></button>
+        </div>
       </div>
     </section>
 
@@ -188,6 +194,7 @@
         if (!element || event.button > 0 || (event.pointerType === 'touch' && !event.target.closest('.grip'))) return;
         const block = find(element), rowPixels = element.parentNode.clientHeight / 10;
         const y0 = event.clientY, start0 = block.st;
+        let nextSt = start0;
         last = block;
         element.setPointerCapture(event.pointerId);
         element.classList.add('drag');
@@ -195,9 +202,14 @@
         event.preventDefault();
         const move = (current) => {
           const next = Math.max(START, Math.min(END - block.d, Math.round((start0 + (current.clientY - y0) / rowPixels * 60) / STEP) * STEP));
-          if (next !== block.st) { block.st = next; place(block); render(); }
+          nextSt = next;
+          element.style.transform = `translateY(${current.clientY - y0}px)`;
         };
-        const up = () => {
+        const up = (finishEvent) => {
+          if (finishEvent.type === 'pointerup') block.st = nextSt;
+          element.style.transform = '';
+          place(block);
+          render();
           element.classList.remove('drag');
           element.removeEventListener('pointermove', move);
           element.removeEventListener('pointerup', up);
@@ -226,41 +238,8 @@
     document.getElementById('get-started-btn').addEventListener('click', () => goTo('./pages/signup.html'));
     document.getElementById('login-hero-btn').addEventListener('click', () => goTo('./pages/login.html'));
 
-    (() => {
-      const canvas = document.getElementById('particleCanvas'), context = canvas.getContext('2d');
-      let particles = [], animationFrame = 0;
-      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-      const reset = (particle) => Object.assign(particle, {
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-        speed: Math.random() / 5 + 0.1, opacity: 0.7,
-        fadeStart: Date.now() + Math.random() * 600 + 100, fadingOut: false
-      });
-      const init = () => {
-        particles = Array.from({ length: Math.floor(canvas.width * canvas.height / 7000) }, () => {
-          const particle = {};
-          reset(particle);
-          return particle;
-        });
-      };
-      const draw = () => {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        const now = Date.now();
-        particles.forEach((particle) => {
-          particle.y -= particle.speed;
-          if (particle.y < 0) { reset(particle); return; }
-          if (!particle.fadingOut && now > particle.fadeStart) particle.fadingOut = true;
-          if (particle.fadingOut) particle.opacity -= 0.008;
-          if (particle.opacity <= 0) { reset(particle); return; }
-          context.fillStyle = 'rgba(200, 180, 255, ' + particle.opacity + ')';
-          context.fillRect(particle.x, particle.y, 0.6, Math.random() * 2 + 1);
-        });
-        animationFrame = requestAnimationFrame(draw);
-      };
-      const onResize = () => { resize(); cancelAnimationFrame(animationFrame); init(); animationFrame = requestAnimationFrame(draw); };
-      resize(); init(); animationFrame = requestAnimationFrame(draw);
-      window.addEventListener('resize', onResize);
-    })();
   </script>
+  <script src="./frontend/scripts/background.js"></script>
 </body>
 
 </html>

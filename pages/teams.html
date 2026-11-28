@@ -12,10 +12,12 @@
     <link rel="stylesheet" href="../frontend/css/background.css">
     <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
     <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
-    <link rel="stylesheet" href="../frontend/css/teams.css?v=20261128-member-plotter-timetable">
+    <link rel="stylesheet" href="../frontend/css/teams.css?v=20261128-mobile-team-cards-3">
     <link rel="stylesheet" href="../frontend/css/time-picker.css?v=20261128-dialog-time-picker-interaction-1">
     <link rel="stylesheet" href="../frontend/css/team-preferences.css">
     <link rel="stylesheet" href="../frontend/css/custom-dropdown.css?v=20261128-dropdown-footer-layer">
+    <link rel="stylesheet" href="../frontend/css/dark-theme.css?v=20261128-no-team-title-1">
+    <link rel="stylesheet" href="../frontend/css/responsive-chrome.css">
     <script src="../frontend/scripts/theme.js"></script>
 </head>
 
@@ -88,7 +90,7 @@
             </section>
 
             <section class="team-content" aria-label="Team availability">
-                <div class="board" role="table" id="board"></div>
+                <div class="board" role="table" tabindex="0" aria-label="Scrollable team availability comparison" id="board"></div>
                 <div class="dock">
                     <div class="team-shared-manager">
                         <label for="team-shared-schedule">Manage shared schedule</label>
@@ -356,7 +358,7 @@
     <script src="../frontend/scripts/popup.js"></script>
     <script src="../frontend/scripts/background.js"></script>
     <script src="../frontend/scripts/header.js"></script>
-    <script src="../frontend/scripts/footer.js"></script>
+    <script src="../frontend/scripts/footer.js?v=20261128-nav-icons"></script>
     <script src="../frontend/scripts/auth.js"></script>
     <script src="../frontend/scripts/teamPreferences.js"></script>
     <script src="../frontend/scripts/teams.js?v=20261128-proposal-accept-success"></script>

@@ -1,6 +1,6 @@
 # Schedula public frontend review and mobile UI/UX plan
 
-**Status:** Planning only; no product code changed  
+**Status:** Implementation underway; remaining review items are tracked in [`tools/PROGRESS.md`](../../../tools/PROGRESS.md)
 **Date:** 2026-11-27  
 **Scope:** Public landing page and signed-in student pages. Admin is excluded.  
 **Implementation constraints:** Keep Bricolage Grotesque, the plum/lavender family, the physical key interaction, vanilla CSS/JavaScript, existing routes, and current product behavior unless a separate product decision approves a change.
@@ -30,7 +30,7 @@ The audit identifies the right architectural priorities: shared semantic tokens,
 - The phrase “landing should call that script” needs a concrete integration decision: `background.js` currently also adds app background classes/lines and logout handling. Either make its responsibilities safe on landing and load it there, or extract a particle-only initializer. Avoid duplicating whole-page background setup.
 - Dark-mode acceptance should include focus, disabled, validation, dialog, chart/block, and browser-native form-control states. Body text AA alone is not enough for a usable theme.
 - The inline loop is not merely a duplicate visual effect: it owns landing-specific canvas drawing. Before deleting it, confirm the shared renderer supports the landing canvas and its lifecycle.
-- Removing `teamDialogs.js` is plausible but should follow a repository-wide reference search and test/import check. This is a cleanup task, not a prerequisite for mobile UI.
+- `teamDialogs.js` had no HTML, runtime, import, or test references and was removed during the consistency audit.
 - Review the “no hover open/close animation” recommendation against actual control behavior and keyboard focus. Desktop hover affordances should remain, but be gated to hover-capable fine pointers; touch should use explicit active/focus feedback.
 - Keep the requested work focused on public/student frontend pages. Admin stays out of scope, including its stylesheet and theme.
 
@@ -42,6 +42,7 @@ The audit identifies the right architectural priorities: shared semantic tokens,
 4. **Keep content in normal document flow.** The landing page and application pages should scroll when content exceeds the viewport. Use fixed positioning only for intentionally persistent controls, with safe-area padding.
 5. **Make every touch action dependable.** Aim for 44 by 44 CSS pixel targets, clear pressed/focus states, and no hover-only behavior. Prevent gesture conflicts between page scrolling, horizontal calendar navigation, and block dragging.
 6. **Preserve accessible operation.** Keyboard navigation, visible focus, labels, status announcements, reduced motion, contrast, and zoom/reflow are release criteria.
+7. **Make motion quality a release goal.** Use purposeful, coherent animation to clarify state changes and add character to occasional moments. Frequent scheduling actions stay immediate; motion must be interruptible, use transform/opacity where possible, and respect reduced-motion preferences.
 
 ## 3. Mobile information architecture
 
@@ -121,13 +122,15 @@ The audit identifies the right architectural priorities: shared semantic tokens,
 
 ## 6. Shared visual system and motion work
 
+Motion quality is a first-class product goal alongside responsive layout and theme consistency. Use the physical key press for frequent action feedback, crisp transitions for hover/focus, and more expressive but brief movement for occasional dialogs and the landing demonstration. Avoid animating routine navigation, keyboard-driven schedule edits, or repeated list updates. Each animation should explain location, state, or response; keep enter/exit behavior cohesive and make reduced motion a supported presentation mode.
+
 ### Tokens and components
 
 - Inventory public CSS values and computed styles before moving declarations. Establish semantic tokens for page/surface/text/muted/border/accent/raised-key face/edge/shadow/focus/overlay/particle colors, plus spacing, radii, layer levels, and motion durations.
 - Keep light values visually equivalent during token migration. Fold duplicated auth tokens into the shared theme only after checking computed styles on every auth route.
 - Keep the raised key's inset highlight, colored lower edge, and translate-on-press. Centralize its shared face and state rules; leave dimensions/placement to page components.
 - Convert hard-coded SVG strokes to `currentColor` where their meaning is foreground color.
-- Add dark theme only after the public surfaces use semantic tokens. Support explicit light/dark/system choice, no-flash initialization, persisted choice, and system changes while set to system. Use the suggested plum-tinted dark palette as a starting proposal, then check actual contrast and brand recognition.
+- Add dark theme only after the public surfaces use semantic tokens. Support persisted binary Light/Dark choice and no-flash initialization. Use a muted charcoal/graphite base with restrained gray-lavender accents, then check actual contrast and brand recognition.
 
 ### Motion/performance
 
@@ -145,7 +148,7 @@ The audit identifies the right architectural priorities: shared semantic tokens,
 | 1. Responsive shell | Make landing scroll; use viewport-safe shells; define compact app navigation, safe-area spacing, and page gutters. | No header wrap or page-wide horizontal overflow at 320–390px; primary navigation/action remains reachable. |
 | 2. High-use app workflows | Implement Home, Builder, and Plotter mobile layouts and non-drag alternatives. | Add/edit/move/inspect schedule blocks and navigate the week using touch, keyboard, and screen reader friendly controls. |
 | 3. Teams and account flows | Adapt team comparison/settings, profile/setup, and auth forms and dialogs. | Main workflows fit mobile, sheets behave with virtual keyboards, and availability has a non-color-only representation. |
-| 4. Shared tokens and motion | Consolidate public tokens/key style, narrow transitions, unify reduced-motion behavior and particle loop. | Light mode remains visually stable; no duplicated particle animation; reduced-motion stops decorative motion. |
+| 4. Shared tokens and motion | Consolidate public tokens/key style, narrow transitions, unify reduced-motion behavior and particle loop, and tune the motion language across keys, overlays, dropdowns, and the landing demo. | Light mode remains visually stable; no duplicated particle animation; transitions feel consistent and purposeful; reduced-motion stops decorative motion. |
 | 5. Dark theme | Add semantic dark values, three-way preference behavior, and page-by-page tuning. | All in-scope screens/states render in both themes; contrast/focus/forms/dialogs verified; stored and system behavior works. |
 | 6. Accessibility and polish | Correct page metadata gaps, skip links, focus order, touch targets, accessible names, stacking, and final responsive details. | Acceptance checklist below passes at supported widths, zoom, keyboard, touch, and reduced motion. |
 
@@ -176,12 +179,15 @@ Order within the supplied technical roadmap should be adjusted so the mobile she
 - Bricolage Grotesque, plum/lavender accents, and the physical key remain recognizable across landing, auth, and signed-in pages.
 - Shared keys and common surfaces use the same tokens; page-specific layouts remain understandable and maintainable.
 - No unintended layout/color/shadow transitions occur when opening menus, forms, or schedule panels.
+- Frequent schedule actions respond immediately; occasional overlays have clear, interruptible enter/exit motion; the landing demo uses a brief one-time entrance sequence.
+- Motion uses a consistent easing/duration vocabulary and does not cause layout work on every drag frame.
 
-## 9. Follow-up checks before implementation
+## 9. Remaining validation after implementation
 
-- Search all HTML references before deleting `frontend/scripts/teamDialogs.js`; check test/import paths, not just runtime script tags.
+- [x] Search the repository for `frontend/scripts/teamDialogs.js`; no runtime, import, or test references existed, so remove the dead file.
 - Confirm whether `background.js` is intended to be loaded on the landing page; if so, isolate particle setup from app-only decorations/logout behavior or guard each responsibility explicitly.
 - Confirm actual drag code and browser behavior before selecting pointer capture/touch-action rules for Home and Builder.
 - Confirm supported mobile browser/device range and whether a PWA/offline requirement exists; this plan assumes a responsive web app, not a native app or PWA project.
-- Confirm the intended setting model for theme: system/light/dark. The supplied audit recommends it; the current toggle is binary-shaped in presentation.
+- [x] Use the requested binary Light/Dark theme setting; Light is the default and the selected mode persists.
+- [ ] Complete visual page-state review for consistent page backgrounds, shared navigation, and control dimensions across desktop/mobile and both themes.
 

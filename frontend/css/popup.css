@@ -18,7 +18,7 @@
 .custom-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100000;
+  z-index: 40;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +27,7 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   opacity: 0;
-  transition: opacity 180ms ease;
+  transition: opacity 180ms cubic-bezier(.23,1,.32,1);
 }
 
 .custom-modal-overlay.active {
@@ -50,12 +50,17 @@
   color: #2a1245;
   text-align: center;
   transform: translateY(10px) scale(.98);
-  transition: transform 180ms ease;
+  transition: transform 200ms cubic-bezier(.23,1,.32,1), opacity 200ms cubic-bezier(.23,1,.32,1);
+  opacity: 0;
 }
 
 .custom-modal-overlay.active .custom-modal {
   transform: translateY(0) scale(1);
+  opacity: 1;
 }
+
+.custom-modal-overlay.is-closing { transition-duration: 140ms; }
+.custom-modal-overlay.is-closing .custom-modal { transition-duration: 140ms; }
 
 /* Status icons and message content */
 .custom-modal-icon {

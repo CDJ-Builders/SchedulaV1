@@ -84,11 +84,12 @@
     const close = () => {
       if (overlay.dataset.closing === 'true') return;
       overlay.dataset.closing = 'true';
+      overlay.classList.add('is-closing');
       overlay.classList.remove('active');
       setTimeout(() => {
         overlay.remove();
         if (typeof onClose === 'function') onClose();
-      }, 300);
+      }, 150);
     };
 
     overlay.querySelector('#custom-alert-ok').addEventListener('click', close);
@@ -162,12 +163,13 @@
     const close = (confirmed) => {
       if (overlay.dataset.closing === 'true') return;
       overlay.dataset.closing = 'true';
+      overlay.classList.add('is-closing');
       overlay.classList.remove('active');
       setTimeout(() => {
         overlay.remove();
         if (confirmed && typeof onConfirm === 'function') onConfirm();
         if (!confirmed && typeof onCancel === 'function') onCancel();
-      }, 300);
+      }, 150);
     };
 
     overlay.querySelector('#custom-confirm-ok').addEventListener('click', () => close(true));

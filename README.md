@@ -1,6 +1,6 @@
 # Schedula: Build Your Daily Blocks
 
-[![Build Status](https://img.shields.io/badge/Status-v1.12%20Quality%20Fixes-violet.svg)](#sprint-planning--agile-scrum)
+[![Build Status](https://img.shields.io/badge/Status-v1.14%20UI%20UX-violet.svg)](#sprint-planning--agile-scrum)
 [![Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20FastAPI%20%7C%20PostgreSQL%20%7C%20Vanilla%20JS-blue.svg)](#technology-stack)
 [![ML Engine](https://img.shields.io/badge/SchedulaML-v1.1.0-green.svg)](#technology-stack)
 
@@ -21,10 +21,6 @@ Time management significantly influences academic and professional performance (
 ---
 
 ## 🎯 Agile SCRUM & Sprint Planning
-### Sprint 8 Goal 
-Quality of Life Fixes
-Dark Mode UI
-Mobile UI
 
 ### Sprint 9 Goal
 Deployment

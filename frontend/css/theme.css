@@ -3,6 +3,28 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
+  --dur-press: 110ms;
+  --dur-ui: 180ms;
+  --dur-surface: 240ms;
+  --page: #fff;
+  --surface: #fff;
+  --surface-raised: #fff;
+  --surface-inset: #f8f6fa;
+  --ink: #2a1245;
+  --muted-ink: #655b70;
+  --line: rgba(42,18,69,.18);
+  --accent: #62298a;
+  --accent-strong: #4a1d6d;
+  --focus-ring: #62298a;
+  --key-face: #f2e8fa;
+  --key-edge: #62298a;
+  --particle: rgba(124,58,237,.55);
+  --shadow-tint: rgba(42,18,69,.22);
+  --skeleton-base: #e8dff0;
+  --skeleton-highlight: #f7f3fa;
   --lav: #b596c8;
   --plum: #2a1245;
   --purple: #62298a;
@@ -47,9 +69,10 @@
 }
 
 body {
-  min-height: 100svh;
-  background: #fff;
-  color: var(--plum);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--page);
+  color: var(--ink);
   font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   font-optical-sizing: auto;
   font-size: 18px;
@@ -61,14 +84,15 @@ body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 28px 32px 56px;
-  min-height: 100svh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 24px;
 }
 
 :focus-visible {
-  outline: 3px solid var(--purple);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -163,7 +187,7 @@ body {
   cursor: pointer;
   color: var(--plum);
   text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
-  transition: transform .08s, box-shadow .08s;
+  transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-press) var(--ease-out), background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
   background: linear-gradient(180deg, #fff 0%, #f2e8fa 48%, #e0cfee 100%);
   box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(98, 41, 138, .18), 0 5px 0 var(--purple), 0 10px 14px rgba(42, 18, 69, .34);
 }
@@ -173,12 +197,12 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -3px 0 rgba(42, 18, 69, .2), 0 5px 0 #4a1d6d, 0 10px 14px rgba(42, 18, 69, .34);
 }
 
-.key:hover:not(:disabled) {
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .key:hover:not(:disabled) { transform: translateY(-1px); }
 }
 
 .key:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow: inset 0 2px 5px rgba(42, 18, 69, .35), 0 1px 0 var(--purple), 0 2px 4px rgba(42, 18, 69, .3);
 }
 
@@ -376,7 +400,7 @@ body {
   display: block;
   height: 38px;
   border-radius: 10px;
-  background: linear-gradient(100deg, #e8dff0 25%, #f7f3fa 42%, #e8dff0 60%);
+  background: linear-gradient(100deg, var(--skeleton-base) 25%, var(--skeleton-highlight) 42%, var(--skeleton-base) 60%);
   background-size: 220% 100%;
   animation: scheduleSkeletonShimmer 1.15s ease-in-out infinite;
 }

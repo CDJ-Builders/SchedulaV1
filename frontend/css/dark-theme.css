@@ -1,0 +1,1045 @@
+/* Public Schedula dark theme. Loaded after page styles; admin is intentionally excluded. */
+:root {
+  --page: #f8fafc;
+  --surface: #fff;
+  --surface-raised: #fff;
+  --surface-inset: #f8f6fa;
+  --ink: #2a1245;
+  --muted-ink: #655b70;
+  --line: rgba(42,18,69,.18);
+  --accent: #62298a;
+  --accent-strong: #4a1d6d;
+  --focus-ring: #62298a;
+  --key-face: #f2e8fa;
+  --key-edge: #62298a;
+  --particle: rgba(124,58,237,.55);
+  --shadow-tint: rgba(42,18,69,.22);
+  --overlay: rgba(42,18,69,.62);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #151719;
+  --surface: #1e2023;
+  --surface-raised: #282b2f;
+  --surface-inset: #191b1e;
+  --ink: #eceef0;
+  --muted-ink: #a9adb3;
+  --line: #3d4147;
+  --accent: #b6acbf;
+  --accent-strong: #cbc3d2;
+  --focus-ring: #c0b7c8;
+  --key-face: #34363a;
+  --key-edge: #5b5e64;
+  --particle: rgba(190, 190, 198, .3);
+  --shadow-tint: rgba(0, 0, 0, .48);
+  --skeleton-base: #292c30;
+  --skeleton-highlight: #383c41;
+  --overlay: rgba(5, 6, 8, .78);
+}
+
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] body.schedula-background,
+:root[data-theme="dark"] body.hero-root {
+  color: var(--ink) !important;
+  background-color: var(--page) !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(190,190,198,.055), transparent 48%) !important;
+}
+
+:root[data-theme="dark"] .schedula-background,
+:root[data-theme="dark"] .hero-root {
+  --bg: var(--page);
+  --fg: var(--ink);
+  --text: var(--ink);
+  --muted: var(--muted-ink);
+  --border: rgba(190,193,198,.2);
+  --glass: rgba(30,32,35,.92);
+  --panel: var(--surface);
+  --surface-white: var(--surface);
+}
+
+:root[data-theme="dark"] body.pf,
+:root[data-theme="dark"] body.setup-page,
+:root[data-theme="dark"] body.auth-page {
+  --bg: var(--page);
+  --panel: var(--surface);
+  --surface: var(--surface-raised);
+  --input-bg: var(--surface-inset);
+  --panel-glass: var(--surface);
+  --glass: var(--surface);
+  --panel-border-glass: var(--line);
+  --border: var(--line);
+  --text: var(--ink);
+  --muted: var(--muted-ink);
+  --bezel: var(--surface);
+  --edge: var(--key-edge);
+  --well: #1d1f22;
+  --bezel-shadow: inset 0 0 0 1px rgba(210,212,216,.1), 0 8px 24px var(--shadow-tint);
+  --auth-card: var(--surface);
+  --auth-card-edge: var(--line);
+  --auth-input: var(--surface-inset);
+  --auth-input-edge: var(--line);
+  --auth-heading: var(--ink);
+  --auth-muted: var(--muted-ink);
+  --auth-plum: var(--ink);
+  --auth-accent: var(--accent);
+}
+
+:root[data-theme="dark"] body :is(h1,h2,h3,h4,h5,h6,p,label,span,li,dt,dd,th,td,legend,small,strong,b,em),
+:root[data-theme="dark"] .app-shell-header :is(.brand,.acct-name,svg,svg *),
+:root[data-theme="dark"] .site-footer,
+:root[data-theme="dark"] .auth-page {
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] body :is(.muted,.subtitle,.lede,.description,.help-text,.field-hint,.site-footer-copy,.site-footer-link) {
+  color: var(--muted-ink) !important;
+}
+
+:root[data-theme="dark"] body :is(.card,.login-card,.well,.lane,.settings-card,.profile-card,.page-panel,.plotter-workspace,.team-panel,.team-proposals,.team-proposal,.member-preference-card,.custom-modal,.team-dialog,.preferences-dialog,.team-proposal-review-dialog,.team-smart-schedule-dialog,.no-team-dialog,.schedule-card,.schedule-list,.schedule-import-panel) {
+  color: var(--ink) !important;
+  background-color: var(--surface) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.1), 0 8px 24px var(--shadow-tint) !important;
+}
+
+/* Legacy page components use many one-off class names; theme card-like surfaces by role. */
+:root[data-theme="dark"] body :is([class*="-card"],[class$="card"],[class*="-panel"],[class$="panel"],[class*="-dialog"],[class*="-popover"],[class*="-dropdown"],[class*="-list-item"],[class*="-message"],[class*="-well"],[class*="-lane"]) {
+  color: var(--ink) !important;
+  background-color: var(--surface) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 6px 20px var(--shadow-tint);
+}
+
+/* Generic dialog surface matching also catches nested header/content/footer wrappers. */
+:root[data-theme="dark"] body :is([class*="-dialog-header"],[class*="-dialog-content"],[class*="-dialog-footer"]) {
+  color: inherit !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] body :is(.days,.dock,.schedules-header-container,.plotter-tabs,.plotter-options-box,.plotter-schedule-list,.block-editor,.block-editor-fields,.block-edit-details,.block-empty-hint,.preference-group,.preference-check-grid label,.profile-select-group.preference-radio-group,.profile-step,.pf-tile,.tool .ic,.availability-list > *,#availability-list > *,#no-teams-message,.team-dialog-mark,.team-settings-content,.team-shared-manager,.team-proposal-review,.team-table,.team-row,.team-cell,.team-day-cell,.team-free-cell,.team-busy-cell,.member-timetable,.member-timetable-grid,.member-timetable-row,.member-day-column,.member-week,.member-week-body,.member-week-header,.member-week-block,.blk,.free,.wells,.smart-schedule-options,.smart-schedule-option,.smart-schedule-results,.smart-schedule-model,.events-empty-state,.events-panel-heading) {
+  color: var(--ink) !important;
+  background-color: var(--surface) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 5px 16px var(--shadow-tint);
+}
+
+:root[data-theme="dark"] body :is(.preference-group,.preference-check-grid label,.profile-select-group.preference-radio-group,.tool .ic) {
+  background-color: var(--surface-raised) !important;
+}
+
+:root[data-theme="dark"] body :is(.team-status.is-error,.preferences-message.is-error,.team-smart-schedule-warnings,.warning-message) {
+  background-color: #392f20 !important;
+  color: #ffe5b0 !important;
+  border-color: #756342 !important;
+}
+
+:root[data-theme="dark"] body :is(.custom-dropdown-btn,.time-picker-step,.preferences-close,.settings-preferences-button,.settings-back,.team-view-option,.plotter-tab,.export-menu,.free-count,.group-code,.role-permission-note,#no-teams-message) {
+  color: var(--ink) !important;
+  background-color: var(--surface-raised) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .export-menu button {
+  color: var(--ink) !important;
+  background: transparent !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .export-menu button:hover,
+:root[data-theme="dark"] body .plotter-workspace .export-menu button:focus-visible {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+}
+
+:root[data-theme="dark"] body :is(input,select,textarea,.custom-dropdown,.dropdown-trigger,.custom-select,.time-picker-input) {
+  color: var(--ink) !important;
+  background-color: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.28) !important;
+  color-scheme: dark;
+}
+:root[data-theme="dark"] body select.field,
+:root[data-theme="dark"] body .field select,
+:root[data-theme="dark"] body select.settings-team-select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23b9bdc3' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") !important;
+}
+
+:root[data-theme="dark"] body input::placeholder,
+:root[data-theme="dark"] body textarea::placeholder { color: #a9adb3 !important; opacity: 1; }
+
+:root[data-theme="dark"] body :is(.app-shell-header,.auth-header,.site-footer,.top,.header-tools,.tools,.acct,.dropdown-menu,.custom-dropdown-menu,.custom-modal-overlay,.custom-modal,.toast,.team-status,.popup,.popover,.time-picker-popover) {
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] body :is(.site-footer,.acct,.dropdown-menu,.custom-dropdown-menu,.custom-modal,.toast,.team-status,.popup,.popover,.time-picker-popover) {
+  background-color: var(--surface) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.auth-page .auth-header {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+:root[data-theme="dark"] body .custom-modal-overlay { background-color: var(--overlay) !important; }
+
+/* Popup content contains legacy literal plum text colors; rebind the whole modal palette. */
+:root[data-theme="dark"] {
+  --popup-bg: var(--surface);
+  --popup-bg-light: var(--surface-raised);
+  --popup-text: var(--ink);
+  --popup-text-light: var(--ink);
+  --popup-muted: var(--muted-ink);
+  --popup-muted-light: var(--muted-ink);
+  --popup-border: var(--line);
+  --popup-border-light: var(--line);
+}
+:root[data-theme="dark"] body :is(.custom-modal,.schedule-excel-modal) {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(.custom-modal-title,.custom-modal-body,.schedule-excel-heading h2,.schedule-excel-heading p,.schedule-excel-dropzone,.schedule-excel-filename,.schedule-excel-status,.schedule-excel-summary h3,.schedule-excel-issues) {
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] body :is(.schedule-excel-close,.schedule-excel-dropzone,.schedule-excel-summary) {
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body .schedule-excel-dropzone.is-dragging,
+:root[data-theme="dark"] body .schedule-excel-dropzone:focus-within {
+  background: #303337 !important;
+  border-color: var(--accent) !important;
+}
+
+:root[data-theme="dark"] body :is(.key,.btn-primary,.button.primary,.auth-back-btn,.hero-cta-primary,.hero-cta-secondary,.custom-modal-btn,.team-dialog-actions button,.team-proposal-actions button) {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg, #3b3e43 0%, #303337 52%, #27292d 100%) !important;
+  border-color: #656970 !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -3px 0 rgba(0,0,0,.22), 0 4px 0 var(--key-edge), 0 8px 14px var(--shadow-tint) !important;
+}
+
+/* Builder and Plotter action roles: green commits, muted purple creation/generation. */
+:root[data-theme="dark"] body :is(#smart-schedule-btn,#save-schedule-btn,#edit-block-save,#save-profile-btn,#save-preferences-btn,#setup-next-btn,#btn-export),
+:root[data-theme="dark"] body button.btn-save {
+  color: #f2fff7 !important;
+  -webkit-text-fill-color: #f2fff7 !important;
+  background: linear-gradient(180deg,#4c9b70,#28734d) !important;
+  border-color: #72b386 !important;
+  text-shadow: 0 -1px 0 rgba(12,54,31,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18), 0 4px 0 #1b5134, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(#smart-schedule-btn,#save-schedule-btn,#edit-block-save,#save-profile-btn,#save-preferences-btn,#setup-next-btn,#btn-export):active:not(:disabled),
+:root[data-theme="dark"] body button.btn-save:active:not(:disabled) {
+  background: linear-gradient(180deg,#28734d,#1d5c3c) !important;
+  border-color: #72b386 !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #1b5134 !important;
+}
+:root[data-theme="dark"] body :is(#schedule-excel-btn,#add-event-btn,#btn-generate) {
+  color: #f6f2f8 !important;
+  -webkit-text-fill-color: #f6f2f8 !important;
+  background: linear-gradient(180deg,#716879,#5c5363 54%,#49414f) !important;
+  border-color: #9a8fa2 !important;
+  text-shadow: 0 -1px 0 rgba(24,20,28,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.2), 0 4px 0 #39333e, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(#smart-schedule-generate,#team-smart-schedule-generate) {
+  color: #f2fff7 !important;
+  -webkit-text-fill-color: #f2fff7 !important;
+  background: linear-gradient(180deg,#4c9b70,#28734d) !important;
+  border-color: #72b386 !important;
+  text-shadow: 0 -1px 0 rgba(12,54,31,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18), 0 4px 0 #1b5134, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(#smart-schedule-generate,#team-smart-schedule-generate):hover:not(:disabled),
+:root[data-theme="dark"] body :is(#smart-schedule-generate,#team-smart-schedule-generate):focus-visible {
+  color: #f2fff7 !important;
+  background: linear-gradient(180deg,#57a77c,#318158) !important;
+  border-color: #84c297 !important;
+}
+:root[data-theme="dark"] body :is(#smart-schedule-generate,#team-smart-schedule-generate):active:not(:disabled) {
+  background: linear-gradient(180deg,#28734d,#1d5c3c) !important;
+  border-color: #72b386 !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #1b5134 !important;
+}
+:root[data-theme="dark"] body :is(#smart-schedule-generate,#team-smart-schedule-generate):disabled {
+  opacity: .56;
+  cursor: not-allowed;
+}
+:root[data-theme="dark"] body #smart-schedule-btn,
+:root[data-theme="dark"] body #team-smart-schedule-generate {
+  color: #f2fff7 !important;
+  -webkit-text-fill-color: #f2fff7 !important;
+  background: linear-gradient(180deg,#4c9b70,#28734d) !important;
+  border-color: #72b386 !important;
+  text-shadow: 0 -1px 0 rgba(12,54,31,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18), 0 4px 0 #1b5134, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body #smart-schedule-btn:hover:not(:disabled),
+:root[data-theme="dark"] body #smart-schedule-btn:focus-visible,
+:root[data-theme="dark"] body #team-smart-schedule-generate:hover:not(:disabled),
+:root[data-theme="dark"] body #team-smart-schedule-generate:focus-visible {
+  background: linear-gradient(180deg,#57a77c,#318158) !important;
+  border-color: #84c297 !important;
+}
+:root[data-theme="dark"] body #smart-schedule-btn:active:not(:disabled),
+:root[data-theme="dark"] body #team-smart-schedule-generate:active:not(:disabled) {
+  background: linear-gradient(180deg,#28734d,#1d5c3c) !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #1b5134 !important;
+}
+:root[data-theme="dark"] body :is(.smart-schedule-model,.team-smart-schedule-model) {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 3px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(.smart-schedule-model-label,.team-smart-schedule-model-label,.team-smart-schedule-model strong) {
+  color: var(--ink) !important;
+}
+
+/* Keep one continuous border around shared navigation keys in Dark mode. */
+:root[data-theme="dark"] body .app-shell-header :is(.nav .key,.key.icon,.header-button,.theme-toggle) {
+  border: 1px solid #77717d !important;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(245,246,248,.1), 0 3px 0 #44474d, 0 6px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .app-shell-header .nav [aria-current="page"],
+:root[data-theme="dark"] body .app-shell-header .key.icon[aria-current="page"] {
+  border-color: #bcb5c3 !important;
+  transform: none !important;
+  box-shadow: inset 0 0 0 1px rgba(20,21,23,.42), inset 0 2px 5px rgba(20,21,23,.28), 0 2px 0 #77717d !important;
+}
+
+:root[data-theme="dark"] body :is(.key.lav,.key[aria-current="page"],.nav [aria-current="page"],.theme-toggle:hover) {
+  color: #f1eef3 !important;
+  background: linear-gradient(180deg, #68636d 0%, #57535c 54%, #48454c 100%) !important;
+  border-color: #aaa2b0 !important;
+}
+:root[data-theme="dark"] body :is(.custom-dropdown-btn.variant-key-white,.custom-dropdown-btn.variant-key-lavender,.settings-preferences-button,.preferences-close) {
+  background: linear-gradient(180deg,#3b3e43 0%,#303337 52%,#27292d 100%) !important;
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] body .btn-select {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg, #3b3e43 0%, #303337 52%, #27292d 100%) !important;
+  border-color: #656970 !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -3px 0 rgba(0,0,0,.22), 0 4px 0 var(--key-edge), 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .btn-select.selected {
+  background: linear-gradient(180deg, #68636d 0%, #57535c 54%, #48454c 100%) !important;
+  border-color: #aaa2b0 !important;
+  box-shadow: inset 0 2px 5px rgba(20,21,23,.28), 0 2px 0 #77717d !important;
+}
+:root[data-theme="dark"] body :is(.custom-dropdown-btn[aria-expanded="true"],.team-view-option.is-active,.plotter-tab[aria-selected="true"]) {
+  background: linear-gradient(180deg,#68636d 0%,#57535c 54%,#48454c 100%) !important;
+  color: #f1eef3 !important;
+}
+
+:root[data-theme="dark"] body :is(button,a,input,select,textarea):focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 1px;
+}
+
+:root[data-theme="dark"] body :is(.hero-header,.site-footer--static) {
+  background-color: rgba(27,29,32,.94) !important;
+  border-color: var(--line) !important;
+}
+@media (max-width: 600px) {
+  :root[data-theme="dark"] body.hero-root .hero-header {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+:root[data-theme="dark"] body :is(.field span,.page-title,.page-title-text,.team-dialog h2,.preferences-dialog h2) { color: var(--ink) !important; }
+:root[data-theme="dark"] body svg,
+:root[data-theme="dark"] body svg * { stroke: currentColor !important; }
+:root[data-theme="dark"] body :is(.auth-page,.page-shell,.page-content,.page,.hero,.landing-page,.landing-copy,.schedule-demo) { color: var(--ink) !important; }
+:root[data-theme="dark"] body .auth-theme-btn { color: var(--ink) !important; background: var(--surface-raised) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] body :is(.day,.tool,.block,.schedule-block,.team-block,.team-member-card,.team-card,.proposal-card,.profile-step,.settings-people-list li,.no-team-dialog) { background-color: var(--surface-raised) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] body :is(.tool,.block,.schedule-block,.team-block) :is(span,b,strong,small,time) { color: inherit !important; }
+:root[data-theme="dark"] body :is(.login-card,.card-content,.auth-visual,.auth-visual-copy,.auth-brand,.auth-brand-text,.auth-back-btn) { color: var(--ink) !important; }
+:root[data-theme="dark"] body :is(.separator,.card-footer,.form-actions,.team-proposal-form-actions) { border-color: var(--line) !important; }
+:root[data-theme="dark"] body :is(.hero-root .schedule-demo,.landing-page .schedule-demo,.schedule-demo .well,.schedule-demo .lane) { background-color: var(--surface) !important; }
+:root[data-theme="dark"] body :is(.team-status.is-error,#message-banner.error,.error-message) { background: #3a202d !important; color: #ffd8e1 !important; border-color: #9a526b !important; }
+:root[data-theme="dark"] body :is(.team-status.is-success,.success-message) { background: #20362c !important; color: #d0f0d9 !important; border-color: #4f8b65 !important; }
+:root[data-theme="dark"] body :is(.well,.lane,.schedule-grid,.plotter-grid,.team-board,.board,.timetable-grid,.plotter-canvas-wrapper) { background-color: #1d1f22 !important; }
+:root[data-theme="dark"] body .day-col { border-color: rgba(200,202,207,.18) !important; }
+:root[data-theme="dark"] body :is(.plotter-tabs,.dock,.days,.preference-group,.preference-check-grid label,.profile-select-group.preference-radio-group,.pf-tile,.tool .ic) { background-clip: padding-box; }
+:root[data-theme="dark"] body :is(.well,.lane,.board,.day-columns-grid,.plotter-canvas-wrapper,.plotter-workspace,.team-board) {
+  border-color: var(--line) !important;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.1), 0 8px 24px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .home-schedule-table .day .well {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .home-schedule-table .day .lane {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .home-schedule-table .home-tool-panel {
+  border: 1px solid #555960 !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 5px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.team-table-header,.member-week-header,.team-member-cell) {
+  color: var(--ink) !important;
+  background-color: var(--surface-raised) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08);
+}
+:root[data-theme="dark"] body.teams-page :is(.team-table-header > div,.member-week-header > div,.member-heading) {
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] body.teams-page .member-timetable .team-table-header .member-heading {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.team-table-header .member-timezone,.member-time-axis,.member-time-axis span) {
+  color: var(--muted-ink) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-member-name { color: var(--ink) !important; }
+:root[data-theme="dark"] body.teams-page :is(.team-member-role,.team-empty) { color: var(--muted-ink) !important; }
+:root[data-theme="dark"] body.teams-page :is(.team-member-cell,.team-table-header > div,.member-week-header > div) {
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.team-view-mode {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(210,212,216,.08), 0 8px 24px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.team-view-mode .team-table,
+:root[data-theme="dark"] body.teams-page .board.team-view-mode .team-table-row {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(210,212,216,.05), 0 4px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.team-view-mode .team-day-cell {
+  color: var(--ink) !important;
+  background: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.team-view-mode .team-day-cell::before {
+  color: var(--muted-ink) !important;
+}
+:root[data-theme="dark"] body .time-picker-trigger,
+:root[data-theme="dark"] body .time-picker-step,
+:root[data-theme="dark"] body .time-picker-wheel-toggle,
+:root[data-theme="dark"] body .time-picker-period button {
+  color: var(--ink) !important;
+  background: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 2px 0 rgba(0,0,0,.22) !important;
+}
+:root[data-theme="dark"] body .time-picker-trigger {
+  min-height: 48px;
+  border-width: 1px;
+}
+:root[data-theme="dark"] body :is(.time-picker-step:hover,.time-picker-step:focus-visible,.time-picker-wheel-toggle:hover,.time-picker-wheel-toggle:focus-visible,.time-picker-wheel-field.is-expanded .time-picker-wheel-toggle) {
+  background: var(--surface-raised) !important;
+  border-color: var(--accent) !important;
+}
+:root[data-theme="dark"] body .time-picker-wheel {
+  border-color: var(--line) !important;
+  background: linear-gradient(180deg,rgba(190,190,198,.07),transparent 30%,transparent 70%,rgba(190,190,198,.07)) !important;
+}
+:root[data-theme="dark"] body .time-picker-wheel-option { color: var(--muted-ink) !important; }
+:root[data-theme="dark"] body .time-picker-wheel-option[aria-selected="true"],
+:root[data-theme="dark"] body .time-picker-period button[aria-checked="true"] {
+  color: var(--ink) !important;
+  background: #3b3e43 !important;
+  border-color: #72767d !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.1) !important;
+}
+:root[data-theme="dark"] body .time-picker-save {
+  color: #f8f3fb !important;
+  background: linear-gradient(180deg,#4c9b70,#28734d) !important;
+  border-color: #72b386 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 #1b5134 !important;
+}
+:root[data-theme="dark"] body .time-picker-chevron { stroke: currentColor !important; }
+:root[data-theme="dark"] body :is(.team-smart-schedule-option,.team-proposal-review,.team-proposal,.team-member,.team-member-row,.plotter-schedule-item,.plotter-options-box) { background-color: var(--surface-raised) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] body.auth-page .password-requirements-trigger {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.auth-page .password-requirements-trigger:focus-visible {
+  outline-color: var(--focus-ring) !important;
+}
+:root[data-theme="dark"] body.auth-page .password-requirements-tooltip {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 5px 16px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .settings-people-list li {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 5px 16px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(.team-block,.blk,.member-week-block) { background-image: none !important; }
+:root[data-theme="dark"] body .settings-creator-crown { background: #383a3f !important; color: var(--accent-strong) !important; }
+:root[data-theme="dark"] body :is(.settings-action-button.success,.settings-role-button.promote,.team-dialog-actions .success) { color: #e1f8e7 !important; background: linear-gradient(180deg,#386c4b,#254c34) !important; border-color: #72b386 !important; }
+:root[data-theme="dark"] body :is(.settings-action-button.danger,.settings-role-button.demote,.settings-role-button.remove,.team-dialog-actions .danger) { color: #ffe3ea !important; background: linear-gradient(180deg,#7f3450,#542237) !important; border-color: #c36c88 !important; }
+:root[data-theme="dark"] body .team-smart-schedule-open { background: linear-gradient(180deg,#8bd2a4,#4d9567) !important; color: #102719 !important; border-color: #8bd2a4 !important; }
+:root[data-theme="dark"] body.schedula-background.teams-page dialog.no-team-dialog {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.12), 0 18px 48px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page dialog.no-team-dialog h1#no-team-title {
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  text-shadow: none !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page .no-team-dialog :is(.no-team-mark,.no-team-action-icon) {
+  background: #34363a !important;
+  background-image: none !important;
+  border-color: #5b5e64 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 #202226, 0 6px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page .no-team-dialog .no-team-action {
+  color: var(--ink) !important;
+  background: #282b2f !important;
+  background-image: none !important;
+  border-color: #5b5e64 !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 3px 0 #202226, 0 7px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page .no-team-dialog .no-team-action:hover {
+  background: #34373b !important;
+  background-image: none !important;
+  border-color: #858991 !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page .no-team-dialog .no-team-action:active {
+  background: #242629 !important;
+  background-image: none !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #202226 !important;
+}
+:root[data-theme="dark"] body.schedula-background.teams-page .no-team-dialog .no-team-close {
+  color: var(--ink) !important;
+  background: #34363a !important;
+  background-image: none !important;
+  border-color: #5b5e64 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 #202226, 0 6px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.pf input[type="radio"]:checked,
+:root[data-theme="dark"] body.pf input[type="checkbox"]:checked {
+  background: linear-gradient(180deg,#b8b2bc,#77717d) !important;
+}
+:root[data-theme="dark"] body .btn-remove-inline { color: var(--ink) !important; }
+:root[data-theme="dark"] body :is(.hline,.vline) { background: rgba(190,193,198,.12); }
+:root[data-theme="dark"] body :is(.particleCanvas) { opacity: .38; }
+:root[data-theme="dark"] body :is(.site-footer-link:hover,.site-footer-link:focus-visible) { color: var(--ink) !important; }
+
+/* Builder surfaces and status states need explicit dark mappings. */
+:root[data-theme="dark"] body .events-list .event-day-heading {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#303337,#282b2f) !important;
+  border: 1px solid var(--line) !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 2px 0 #191b1e !important;
+}
+:root[data-theme="dark"] body .events-list .event-day-heading::before {
+  background: var(--accent) !important;
+  border-color: rgba(246,241,248,.38) !important;
+  box-shadow: 0 0 0 2px rgba(196,163,212,.12) !important;
+}
+:root[data-theme="dark"] body :is(.save-schedule-container,.schedules-header-container) {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 0 0 1px rgba(210,212,216,.08), 0 6px 18px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .save-schedule-wrapper { color: var(--ink) !important; }
+:root[data-theme="dark"] body .events-list > .event-card {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: 0 3px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .event-block {
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .events-list > .event-card {
+  background: var(--surface-raised) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: 0 3px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .schedules-header-container {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+/* The broad legacy [class*="-dropdown"] rule also matches dropdown text and SVG children. */
+:root[data-theme="dark"] body :is(.custom-dropdown-label,.custom-dropdown-arrow,.custom-dropdown-check) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .event-modality-label,
+:root[data-theme="dark"] body .plotter-workspace .block-overflow-indicator {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes > label {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes > label:hover {
+  background: #303337 !important;
+  border-color: #656970 !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes input[type="checkbox"] {
+  background: var(--surface-inset) !important;
+  border-color: #777c83 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes input[type="checkbox"]:checked {
+  background: #5a5660 !important;
+  border-color: #bcb5c3 !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes input[type="checkbox"]:checked::after {
+  border-color: #f1eef3 !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-color {
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .color-picker-group {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .color-picker-group legend,
+:root[data-theme="dark"] body .plotter-workspace .custom-color-row > label,
+:root[data-theme="dark"] body .plotter-workspace .gradient-toggle,
+:root[data-theme="dark"] body .plotter-workspace .plotter-font-picker > label {
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .color-swatch {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.2) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .color-swatch.is-selected {
+  border-color: #f1eef3 !important;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent) !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .color-picker-group input[type="color"],
+:root[data-theme="dark"] body .plotter-workspace .hex-input,
+:root[data-theme="dark"] body .plotter-workspace .plotter-font-select {
+  color: var(--ink) !important;
+  background-color: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .plotter-font-select {
+  color-scheme: dark;
+}
+:root[data-theme="dark"] body .plotter-workspace .gradient-toggle input {
+  accent-color: var(--accent-strong);
+}
+:root[data-theme="dark"] body .plotter-workspace .options-title,
+:root[data-theme="dark"] body .plotter-workspace .plotter-tab-panel > h2 {
+  color: var(--ink) !important;
+}
+
+/* Text groupings should read as content, not nested cards or fields. */
+:root[data-theme="dark"] body :is(.page-panel,.page-panel > .card-title,.page-panel > .card-header,.page-panel > .card-body,.page-panel > .panel-title,.page-panel > .panel-header,.page-panel > .panel-body) {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0;
+}
+:root[data-theme="dark"] body :is(.card-title,.card-header,.card-body,.card-footer,.panel-title,.panel-header,.panel-body,.panel-footer) {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body :is(.events-panel-heading,.events-panel-heading > h2,.card > h2,.card > h3,.page-panel > h2,.page-panel > h3) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body :is(.card,.page-panel,.plotter-workspace) label:not(:has(input,select,textarea,button)) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes > label,
+:root[data-theme="dark"] body .plotter-workspace .options-checkboxes > label:hover {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body :is(.arrow,.dropdown-arrow,.select-arrow,.chevron) {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body.pf .profile-nav-arrow,
+:root[data-theme="dark"] body.setup-page .profile-nav-arrow {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#3b3e43 0%,#303337 52%,#27292d 100%) !important;
+  border: 1px solid #656970 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -2px 0 rgba(0,0,0,.2), 0 4px 0 #4b4e54, 0 8px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.pf .profile-nav-arrow:hover:not(:disabled),
+:root[data-theme="dark"] body.setup-page .profile-nav-arrow:hover:not(:disabled) {
+  background: linear-gradient(180deg,#4a4d53,#36393e) !important;
+  border-color: #858991 !important;
+}
+:root[data-theme="dark"] body.pf .profile-nav-arrow:active:not(:disabled),
+:root[data-theme="dark"] body.setup-page .profile-nav-arrow:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #4b4e54 !important;
+}
+
+/* Profile onboarding carousel surfaces and progress follow the muted Dark palette. */
+:root[data-theme="dark"] body.setup-page .setup-shell {
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -3px 0 rgba(255,255,255,.025), 0 8px 0 #34373b, 0 22px 48px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-progress-dot {
+  background: #3b3e43 !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.3) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-progress-dot.active {
+  background: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(190,190,198,.12) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-kicker {
+  color: #c5becd !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-slide h1 {
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-lede {
+  color: var(--muted-ink) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-carousel-actions {
+  border-color: var(--line) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-nav-btn {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#3b3e43 0%,#303337 52%,#27292d 100%) !important;
+  border-color: #656970 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -2px 0 rgba(0,0,0,.2), 0 4px 0 #4b4e54, 0 8px 12px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-nav-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg,#4a4d53,#36393e) !important;
+  border-color: #858991 !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-nav-btn:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #4b4e54 !important;
+}
+:root[data-theme="dark"] body.setup-page .setup-nav-btn:focus-visible,
+:root[data-theme="dark"] body.setup-page #setup-next-btn:focus-visible {
+  outline-color: var(--focus-ring) !important;
+}
+
+/* Plotter blocks are intentionally absent from the generic dark surface/text rules above:
+   their per-block inline fill and font colors are chosen by the user. */
+:root[data-theme="dark"] body :is(.unsaved-blocks-tip,.unadded-block-tip) {
+  color: #ffe5b0 !important;
+  background: #392f20 !important;
+  border: 1px solid #756342 !important;
+  box-shadow: inset 0 1px 0 rgba(255,235,190,.06), 0 2px 0 rgba(0,0,0,.18) !important;
+}
+:root[data-theme="dark"] body .unsaved-blocks-tip span {
+  color: #24180b !important;
+  background: #e3b85e !important;
+  box-shadow: 0 2px 0 #756342 !important;
+}
+:root[data-theme="dark"] body .unadded-block-mark {
+  color: #ffe5b0 !important;
+  background: #756342 !important;
+  box-shadow: 0 2px 0 #54482f !important;
+}
+:root[data-theme="dark"] body :is(.btn-remove-inline,.btn-delete-schedule) {
+  color: #ffe3ea !important;
+  background: linear-gradient(180deg,#7f3450,#542237) !important;
+  border-color: #c36c88 !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -2px 0 rgba(0,0,0,.2), 0 4px 0 #3d1928, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body :is(.btn-remove-inline,.btn-delete-schedule):hover:not(:disabled) {
+  background: linear-gradient(180deg,#93435f,#653047) !important;
+  border-color: #d68aa0 !important;
+}
+:root[data-theme="dark"] body .btn-remove-inline img,
+:root[data-theme="dark"] body .btn-delete-schedule svg { filter: brightness(0) invert(1) !important; }
+:root[data-theme="dark"] body .btn-remove-inline:active:not(:disabled),
+:root[data-theme="dark"] body .btn-delete-schedule:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.32), 0 1px 0 #3d1928 !important;
+}
+
+/* Save actions stay green in both themes, including buttons that also use .btn-primary or .key. */
+:root[data-theme="dark"] body button.btn-save,
+:root[data-theme="dark"] body button.btn-save:hover:not(:disabled),
+:root[data-theme="dark"] body button.btn-save:focus-visible {
+  color: #f2fff7 !important;
+  -webkit-text-fill-color: #f2fff7 !important;
+  background: linear-gradient(180deg,#4c9b70,#28734d) !important;
+  border-color: #72b386 !important;
+  text-shadow: 0 -1px 0 rgba(12,54,31,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18), 0 4px 0 #1b5134, 0 8px 14px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body button.btn-save:active:not(:disabled) {
+  color: #f2fff7 !important;
+  background: linear-gradient(180deg,#28734d,#1d5c3c) !important;
+  border-color: #72b386 !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #1b5134 !important;
+}
+
+/* Teams controls need explicit contrast because their light-theme component rules are highly specific. */
+:root[data-theme="dark"] body.teams-page .team-view-switch {
+  background: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-view-option {
+  color: var(--muted-ink) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] body.teams-page .team-view-option.is-active {
+  color: #f3eff5 !important;
+  background: linear-gradient(180deg,#68636d,#514d55) !important;
+  border-color: #96909c !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 0 #39363d !important;
+}
+:root[data-theme="dark"] body.teams-page .team-view-option:not(.is-active):hover {
+  color: var(--ink) !important;
+  background: var(--surface-raised) !important;
+}
+:root[data-theme="dark"] body.teams-page .member-slider {
+  background: var(--surface-inset) !important;
+  border-color: var(--line) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.28) !important;
+  scrollbar-color: #74717a var(--surface-inset) !important;
+}
+:root[data-theme="dark"] body.teams-page .member-slide {
+  color: var(--muted-ink) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+:root[data-theme="dark"] body.teams-page .member-slide[aria-pressed="true"] {
+  color: #f3eff5 !important;
+  background: linear-gradient(180deg,#68636d,#514d55) !important;
+  border-color: #96909c !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 0 #39363d !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.preferences-button,.team-settings) {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#3b3e43 0%,#303337 52%,#27292d 100%) !important;
+  border-color: #656970 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 3px 0 #4b4e54, 0 6px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .teams-settings-page .settings-view-button {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#3b3e43 0%,#303337 52%,#27292d 100%) !important;
+  border-color: #656970 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 3px 0 #4b4e54, 0 6px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body .teams-settings-page .settings-view-button:hover {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#4a4d53,#36393e) !important;
+  border-color: #858991 !important;
+}
+:root[data-theme="dark"] body .teams-settings-page .settings-view-button:active {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.3), 0 1px 0 #4b4e54 !important;
+}
+:root[data-theme="dark"] body .teams-settings-page .settings-view-button:focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 2px;
+}
+:root[data-theme="dark"] body.teams-page :is(.preferences-button,.team-settings):hover:not(:disabled) {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg,#4a4d53,#36393e) !important;
+  border-color: #858991 !important;
+}
+:root[data-theme="dark"] body.teams-page .team-settings svg { color: var(--ink) !important; stroke: currentColor !important; }
+:root[data-theme="dark"] body.teams-page .team-shared-manager > label {
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.team-shared-import,.team-schedule-visibility) {
+  color: #f3eff5 !important;
+  background: linear-gradient(180deg,#68636d,#514d55) !important;
+  border-color: #96909c !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 3px 0 #39363d, 0 6px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.team-shared-import,.team-schedule-visibility):hover:not(:disabled) {
+  background: linear-gradient(180deg,#77717d,#5a5660) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-schedule-visibility {
+  color: #f8edcf !important;
+  background: linear-gradient(180deg,#67552f,#51421f 56%,#403416) !important;
+  border-color: #927b46 !important;
+  box-shadow: inset 0 1px 0 rgba(255,244,210,.14), 0 3px 0 #302710, 0 6px 10px var(--shadow-tint) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-schedule-visibility:hover:not(:disabled) {
+  color: #fff5d9 !important;
+  background: linear-gradient(180deg,#78633a,#5d4b27) !important;
+  border-color: #aa9156 !important;
+}
+
+/* Distinguish busy time, shared team blocks, commitments, and proposals on both Teams views. */
+:root[data-theme="dark"] body.teams-page .team-block:not(.team):not(.shared):not(.commitment):not(.team-proposal) {
+  color: #f0f2f4 !important;
+  background: linear-gradient(135deg,#39434f,#2d343d) !important;
+  border: 1px solid #667586 !important;
+  border-left: 5px solid #9aaabd !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-block.team {
+  color: #f2eafa !important;
+  background: linear-gradient(135deg,#51405f,#3d3248) !important;
+  border: 1px solid #827092 !important;
+  border-left: 5px solid #b49acb !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-block.shared {
+  color: #effaff !important;
+  background: linear-gradient(135deg,#3b6075,#2d4a5b) !important;
+  border: 1px solid #759db2 !important;
+  border-left: 5px solid #9acde2 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-block.commitment {
+  color: #e8f7ec !important;
+  background: linear-gradient(135deg,#2c563f,#203d2f) !important;
+  border: 1px solid #5f9a73 !important;
+  border-left: 5px solid #8cc99e !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .team-block.team-proposal {
+  color: #fff2d6 !important;
+  background: linear-gradient(135deg,#5a482d,#40331f) !important;
+  border: 1px solid #9b8050 !important;
+  border-left: 5px solid #d0ad68 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page :is(.team-block,.team-block b,.team-block small) {
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Member View only: mirror Team View's per-kind palette on timed blocks. */
+:root[data-theme="dark"] body.teams-page .member-timetable .member-week-block:not(.team):not(.shared):not(.commitment):not(.team-proposal) {
+  color: #f0f2f4 !important;
+  background: #39434f !important;
+  border: 1px solid #667586 !important;
+  border-left: 5px solid #9aaabd !important;
+}
+:root[data-theme="dark"] body.teams-page .member-timetable .member-week-block.team {
+  color: #f2eafa !important;
+  background: #51405f !important;
+  border: 1px solid #827092 !important;
+  border-left: 5px solid #b49acb !important;
+}
+:root[data-theme="dark"] body.teams-page .member-timetable .member-week-block.shared {
+  color: #effaff !important;
+  background: #3b6075 !important;
+  border: 1px solid #759db2 !important;
+  border-left: 5px solid #9acde2 !important;
+}
+:root[data-theme="dark"] body.teams-page .member-timetable .member-week-block.commitment {
+  color: #e8f7ec !important;
+  background: #2c563f !important;
+  border: 1px solid #5f9a73 !important;
+  border-left: 5px solid #8cc99e !important;
+}
+:root[data-theme="dark"] body.teams-page .member-timetable .member-week-block.team-proposal {
+  color: #fff2d6 !important;
+  background: #5a482d !important;
+  border: 1px solid #9b8050 !important;
+  border-left: 5px solid #d0ad68 !important;
+}
+
+/* The board's Member View is rendered dynamically; scope its final paint to that view state. */
+:root[data-theme="dark"] body.teams-page .board.member-view-mode .member-timetable .member-week-block:not(.team):not(.shared):not(.commitment):not(.team-proposal) {
+  color: #f3f6fa !important;
+  background: linear-gradient(135deg,#39434f,#2d343d) !important;
+  border: 1px solid #667586 !important;
+  border-left: 5px solid #9aaabd !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.member-view-mode .member-timetable .member-week-block.team {
+  color: #f5edfb !important;
+  background: linear-gradient(135deg,#51405f,#3d3248) !important;
+  border: 1px solid #827092 !important;
+  border-left: 5px solid #b49acb !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.member-view-mode .member-timetable .member-week-block.shared {
+  color: #effaff !important;
+  background: linear-gradient(135deg,#3b6075,#2d4a5b) !important;
+  border: 1px solid #759db2 !important;
+  border-left: 5px solid #9acde2 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.member-view-mode .member-timetable .member-week-block.commitment {
+  color: #eaf8ed !important;
+  background: linear-gradient(135deg,#2c563f,#203d2f) !important;
+  border: 1px solid #5f9a73 !important;
+  border-left: 5px solid #8cc99e !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+:root[data-theme="dark"] body.teams-page .board.member-view-mode .member-timetable .member-week-block.team-proposal {
+  color: #fff5de !important;
+  background: linear-gradient(135deg,#5a482d,#40331f) !important;
+  border: 1px solid #9b8050 !important;
+  border-left: 5px solid #d0ad68 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.28) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root.theme-transitioning body,
+  :root.theme-transitioning body :is(.app-shell-header,.auth-header,.site-footer,.card,.login-card,.well,.lane,.field input,.field select,.field textarea,.key,.button,.custom-modal,.team-dialog,.preferences-dialog,.mobile-primary-nav),
+  :root.theme-transitioning body :is(.app-shell-header,.auth-header,.site-footer,.card,.login-card,.well,.lane,.field input,.field select,.field textarea,.key,.button,.custom-modal,.team-dialog,.preferences-dialog,.mobile-primary-nav)::before {
+    transition-property: color, background-color, border-color, fill, stroke !important;
+    transition-duration: 180ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body :is(.hline,.vline,.hline::after,.vline::after) { animation: none !important; }
+  body .particleCanvas { display: none !important; }
+}
+
