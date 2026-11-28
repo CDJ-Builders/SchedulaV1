@@ -28,6 +28,16 @@ window.APP_CONFIG = (() => {
 
 // 2. Shared Helper Operations
 window.APP_UTILS = {
+  getElement(id) {
+    return document.getElementById(id);
+  },
+
+  escapePopup(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+  },
+
   /**
    * Encodes standard characters to protect dynamic HTML insertions against XSS.
    */

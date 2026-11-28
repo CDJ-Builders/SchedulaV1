@@ -12,10 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let proposalRequest = null;
   let proposalConflictConfirmationPending = false;
 
-  function escapePopup(value) {
-    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
-  }
-
   function confirmProposalConflict(message) {
     return new Promise(resolve => {
       const dialog = $('team-proposal-conflict-dialog');
@@ -34,31 +30,16 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function api(path, options = {}) {
-    let response;
-    try {
-      response = await fetch(window.APP_CONFIG.API_BASE + path, {
-        ...options,
-        headers: Object.assign({
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + localStorage.getItem('token')
-        }, options.headers || {})
-      });
-    } catch (error) {
-      if (error.name === 'AbortError') throw error;
-      throw new Error('Unable to reach the Schedula server.');
-    }
-    const rawBody = response.status === 204 ? '' : await response.text().catch(() => '');
-    let data = {};
-    try { data = rawBody ? JSON.parse(rawBody) : {}; } catch { }
-    if (!response.ok) {
-      const missingRecommendationRoute = response.status === 404 && /\/recommendations(?:\?|$)/.test(path);
-      const error = new Error(data.error || (missingRecommendationRoute
-        ? 'The team recommendation route is not loaded by the backend yet. Restart or redeploy the backend, then retry.'
-        : 'The request could not be completed (HTTP ' + response.status + ').'));
-      error.status = response.status;
-      throw error;
-    }
-    return data;
+    return window.APP_API.request(path, options, {
+      networkMessage: 'Unable to reach the Schedula server.',
+      emptyResponse: {},
+      errorMessage: function ({ response, data }) {
+        const missingRecommendationRoute = response.status === 404 && /\/recommendations(?:\?|$)/.test(path);
+        return data.error || (missingRecommendationRoute
+          ? 'The team recommendation route is not loaded by the backend yet. Restart or redeploy the backend, then retry.'
+          : 'The request could not be completed (HTTP ' + response.status + ').');
+      }
+    });
   }
 
   function setProposalStatus(message, isError = false) {
@@ -67,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     proposalStatus.classList.toggle('is-error', isError);
   }
 
-  function updateProposalAvailability() {
+  function updateTeamProposalFormAvailability() {
     const button = $('team-proposal-submit');
     if (!button) return [];
     const start = $('proposal-start').value;
@@ -130,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!activeTeamId) return;
     proposalForm.reset();
     setProposalStatus('');
-    updateProposalAvailability();
+    updateTeamProposalFormAvailability();
     proposalDialog.showModal();
     $('proposal-title').focus();
   }
@@ -169,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     $('prop').focus();
   }
 
-  function renderRecommendations(data) {
+  function renderTeamRecommendations(data) {
     resetRecommendations();
     const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];
     if (data.model && typeof data.model.name === 'string' && typeof data.model.version === 'string') {
@@ -212,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
           $('proposal-start').value = item.start_time;
           $('proposal-end').value = item.end_time;
           setProposalStatus('Recommended time selected. Review the weekly block before proposing it.');
-          updateProposalAvailability();
+          updateTeamProposalFormAvailability();
           smartDialog.close();
           $('proposal-start').focus();
         });
@@ -264,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         signal: controller.signal,
         body: JSON.stringify({ meeting: { duration_minutes: durationHours * 60, modality, type }, limit: 5 })
       });
-      if (recommendationRequest === controller) renderRecommendations(data);
+      if (recommendationRequest === controller) renderTeamRecommendations(data);
     } catch (error) {
       if (error.name !== 'AbortError' && recommendationRequest === controller) {
         setSmartStatus(error.message + ' Please retry.', true);
@@ -286,8 +267,8 @@ document.addEventListener('DOMContentLoaded', function () {
   $('team-proposal-close').addEventListener('click', cancelProposal);
   $('team-proposal-cancel').addEventListener('click', cancelProposal);
   ['proposal-weekday', 'proposal-start', 'proposal-end'].forEach(id => {
-    $(id).addEventListener('input', updateProposalAvailability);
-    $(id).addEventListener('change', updateProposalAvailability);
+    $(id).addEventListener('input', updateTeamProposalFormAvailability);
+    $(id).addEventListener('change', updateTeamProposalFormAvailability);
   });
   smartInputs[0].addEventListener('input', () => {
     $('proposal-title').value = smartInputs[0].value;
@@ -345,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
       $('proposal-end').focus();
       return;
     }
-    const ownConflicts = updateProposalAvailability();
+    const ownConflicts = updateTeamProposalFormAvailability();
     if (ownConflicts.length) return;
     const conflicts = typeof window.getTeamProposalConflicts === 'function'
       ? window.getTeamProposalConflicts(activeTeamId, $('proposal-weekday').value, start, end)
@@ -354,18 +335,18 @@ document.addEventListener('DOMContentLoaded', function () {
       const names = conflicts.join(', ');
       const message = 'This slot overlaps with a shared schedule slot for ' + names + '. Do you still want to propose it?';
       proposalConflictConfirmationPending = true;
-      updateProposalAvailability();
+      updateTeamProposalFormAvailability();
       const approved = await confirmProposalConflict(message);
       proposalConflictConfirmationPending = false;
       if (!approved || !proposalDialog.open || !activeTeamId) {
         $('team-proposal-submit').textContent = 'Propose';
-        updateProposalAvailability();
+        updateTeamProposalFormAvailability();
         return;
       }
     }
     const controller = new AbortController();
     proposalRequest = controller;
-    updateProposalAvailability();
+    updateTeamProposalFormAvailability();
     $('team-proposal-submit').textContent = 'Sending proposal…';
     setProposalStatus('Sending your weekly block to the team…');
     const teamId = activeTeamId;
@@ -388,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (error) {
       if (error.name !== 'AbortError' && proposalRequest === controller) {
         if (/^schedule conflict:/i.test(error.message) && typeof window.errorPopup === 'function') {
-          window.errorPopup(escapePopup(error.message), 'Schedule conflict');
+          window.errorPopup(window.APP_UTILS.escapePopup(error.message), 'Schedule conflict');
         } else {
           setProposalStatus(error.message, true);
         }
@@ -396,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } finally {
       if (proposalRequest === controller) proposalRequest = null;
       $('team-proposal-submit').textContent = 'Propose';
-      updateProposalAvailability();
+      updateTeamProposalFormAvailability();
     }
   });
 });

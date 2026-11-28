@@ -7,10 +7,10 @@
   <meta name="description"
     content="Build conflict-free academic schedules, visualize your semester at a glance, and optimize your courses. Fast, minimal, and student-first.">
   <link rel="icon" type="image/png" href="./favicon.png">
-  <link rel="stylesheet" href="./frontend/css/landing.css?v=20261128-mobile-centered-brand-2">
+    <link rel="stylesheet" href="./frontend/css/landing.css?v=20261128">
   <link rel="stylesheet" href="./frontend/css/chrome.css" data-schedula-header data-site-footer>
   <link rel="stylesheet" href="./frontend/css/popup.css" data-schedula-popup>
-  <link rel="stylesheet" href="./frontend/css/dark-theme.css?v=20261128-mobile-clear-header">
+  <link rel="stylesheet" href="./frontend/css/dark-theme.css?v=20261128">
   <link rel="stylesheet" href="./frontend/css/responsive-chrome.css">
   <script src="./frontend/scripts/theme.js"></script>
 </head>
@@ -71,174 +71,7 @@
 
   <script src="./frontend/scripts/popup.js"></script>
   <script src="./frontend/scripts/footer.js"></script>
-  <script>
-    (() => {
-      const START = 420, END = 1020, STEP = 30;
-      const days = [
-        { n: 'Day 1', b: [
-          { t: 'CS 301 · Machine Learning', s: 'Prof. Reyes · Room 204', st: 480, d: 90 },
-          { t: 'CS 315 · Software Engineering', s: 'Prof. Santos · Room 118', st: 600, d: 90 },
-          { t: 'Capstone Team Sync', s: 'BSCS 3A · Google Meet', st: 660, d: 60 },
-          { t: 'Study group · Data Structures', s: 'Library · Room 3', st: 840, d: 90 }
-        ] },
-        { n: 'Day 2', b: [
-          { t: 'IT 220 · Database Systems', s: 'Prof. Cruz · Room 305', st: 540, d: 90 },
-          { t: 'Math 210 · Discrete Structures', s: 'Prof. Lim · Room 112', st: 660, d: 90 },
-          { t: 'Org Officers Meeting', s: 'Student Council · Room 2', st: 810, d: 60 },
-          { t: 'CS 340 · Network Security Lab', s: 'Prof. Tan · Lab 4', st: 900, d: 120 }
-        ] }
-      ];
-      const all = [], wrap = document.getElementById('days');
-      const chip = document.getElementById('chip'), msg = document.getElementById('msg');
-      const moveButton = document.getElementById('mv'), resetButton = document.getElementById('rs');
-      const live = document.getElementById('live');
-
-      const parts = (minutes) => {
-        const hour = Math.floor(minutes / 60), minute = minutes % 60;
-        return [(hour % 12 || 12) + ':' + (minute < 10 ? '0' : '') + minute, minutes >= 720 ? 'PM' : 'AM'];
-      };
-      const formatTime = (minutes) => parts(minutes).join(' ');
-      const formatRange = (start, end) => {
-        const first = parts(start), last = parts(end);
-        return first[0] + (first[1] === last[1] ? '' : ' ' + first[1]) + ' – ' + last[0] + ' ' + last[1];
-      };
-
-      days.forEach((day, dayIndex) => {
-        const column = document.createElement('div');
-        column.className = 'day';
-        column.innerHTML = '<h2></h2><div class="well"><div class="lane"></div></div>';
-        column.querySelector('h2').textContent = day.n;
-        const lane = column.querySelector('.lane');
-        wrap.appendChild(column);
-        day.b.forEach((block) => {
-          block.day = dayIndex;
-          block.home = block.st;
-          block.i = all.length;
-          const element = document.createElement('div');
-          element.className = 'block' + (block.d >= 90 ? ' tall' : '');
-          element.tabIndex = 0;
-          element.setAttribute('role', 'button');
-          element.style.setProperty('--i', block.i);
-          element.innerHTML = '<span class="grip" aria-hidden="true"></span><b></b><span class="tm"></span><span class="sb"></span>';
-          element.querySelector('b').textContent = block.t;
-          element.querySelector('.sb').textContent = block.s;
-          const time = element.querySelector('.tm');
-          const flag = document.createElement('em');
-          flag.className = 'flag';
-          flag.textContent = ' · Overlaps';
-          time.appendChild(flag);
-          block.el = element;
-          lane.appendChild(element);
-          all.push(block);
-        });
-      });
-
-      let last = null, target = null, slot = null;
-      function place(block) {
-        const element = block.el;
-        element.style.top = 'calc(var(--row) * ' + ((block.st - START) / 60) + ')';
-        element.style.height = 'calc(var(--row) * ' + (block.d / 60) + ' - 4px)';
-        element.querySelector('.tm').firstChild
-          ? element.querySelector('.tm').firstChild.nodeValue = formatRange(block.st, block.st + block.d)
-          : element.querySelector('.tm').prepend(document.createTextNode(formatRange(block.st, block.st + block.d)));
-        element.setAttribute('aria-label', days[block.day].n + ', ' + block.t + ', ' + formatRange(block.st, block.st + block.d) + '. Use the up and down arrow keys to move it.');
-      }
-      function pairs() {
-        return all.flatMap((a) => all.filter((b) => a.i < b.i && a.day === b.day).flatMap((b) => {
-          const overlap = Math.min(a.st + a.d, b.st + b.d) - Math.max(a.st, b.st);
-          return overlap > 0 ? [{ a, b }] : [];
-        }));
-      }
-      function freeSlot(block) {
-        let best = null;
-        for (let start = START; start + block.d <= END; start += STEP) {
-          if (all.some((other) => other !== block && other.day === block.day &&
-            start < other.st + other.d && other.st < start + block.d)) continue;
-          const distance = Math.abs(start - block.st);
-          if (!best || distance < best.distance) best = { start, distance };
-        }
-        return best;
-      }
-      function render() {
-        const overlaps = pairs();
-        all.forEach((block) => block.el.classList.remove('clash'));
-        overlaps.forEach(({ a, b }) => { a.el.classList.add('clash'); b.el.classList.add('clash'); });
-        chip.dataset.s = overlaps.length ? 'clash' : 'ok';
-        chip.textContent = overlaps.length + (overlaps.length === 1 ? ' overlap' : ' overlaps');
-        target = null; slot = null;
-        let text;
-        if (overlaps.length) {
-          const pair = overlaps[0];
-          target = pair.a === last ? pair.a : pair.b === last ? pair.b : (pair.a.st > pair.b.st ? pair.a : pair.b);
-          slot = freeSlot(target);
-          text = 'Overlap detected on ' + days[target.day].n + ', ' + (slot ? formatTime(slot.start) + ' is the optimal time.' : 'no free time is left for it.');
-        } else {
-          text = 'No overlaps. Drag a block onto another to see what happens.';
-        }
-        if (overlaps.length === 0) chip.textContent = 'No overlaps';
-        moveButton.disabled = !slot;
-        moveButton.setAttribute('aria-label', slot ? 'Move ' + target.t + ' to ' + formatTime(slot.start) : 'Move, unavailable');
-        resetButton.disabled = !all.some((block) => block.st !== block.home);
-        if (msg.textContent !== text) { msg.textContent = text; live.textContent = text; }
-      }
-      moveButton.addEventListener('click', () => {
-        if (slot) { target.st = slot.start; place(target); render(); }
-      });
-      resetButton.addEventListener('click', () => {
-        all.forEach((block) => { block.st = block.home; place(block); });
-        last = null; render();
-      });
-      function find(element) { return all.find((block) => block.el === element); }
-      wrap.addEventListener('pointerdown', (event) => {
-        const element = event.target.closest('.block');
-        if (!element || event.button > 0 || (event.pointerType === 'touch' && !event.target.closest('.grip'))) return;
-        const block = find(element), rowPixels = element.parentNode.clientHeight / 10;
-        const y0 = event.clientY, start0 = block.st;
-        let nextSt = start0;
-        last = block;
-        element.setPointerCapture(event.pointerId);
-        element.classList.add('drag');
-        element.focus({ preventScroll: true });
-        event.preventDefault();
-        const move = (current) => {
-          const next = Math.max(START, Math.min(END - block.d, Math.round((start0 + (current.clientY - y0) / rowPixels * 60) / STEP) * STEP));
-          nextSt = next;
-          element.style.transform = `translateY(${current.clientY - y0}px)`;
-        };
-        const up = (finishEvent) => {
-          if (finishEvent.type === 'pointerup') block.st = nextSt;
-          element.style.transform = '';
-          place(block);
-          render();
-          element.classList.remove('drag');
-          element.removeEventListener('pointermove', move);
-          element.removeEventListener('pointerup', up);
-          element.removeEventListener('pointercancel', up);
-        };
-        element.addEventListener('pointermove', move);
-        element.addEventListener('pointerup', up);
-        element.addEventListener('pointercancel', up);
-      });
-      wrap.addEventListener('keydown', (event) => {
-        const element = event.target.closest('.block');
-        if (!element || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
-        event.preventDefault();
-        const block = find(element);
-        last = block;
-        const next = Math.max(START, Math.min(END - block.d, block.st + (event.key === 'ArrowUp' ? -STEP : STEP)));
-        if (next !== block.st) { block.st = next; place(block); render(); }
-      });
-      all.forEach(place);
-      render();
-    })();
-
-    const goTo = (path) => { window.location.href = path; };
-    document.getElementById('login-btn').addEventListener('click', () => goTo('./pages/login.html'));
-    document.getElementById('signup-btn').addEventListener('click', () => goTo('./pages/signup.html'));
-    document.getElementById('get-started-btn').addEventListener('click', () => goTo('./pages/signup.html'));
-    document.getElementById('login-hero-btn').addEventListener('click', () => goTo('./pages/login.html'));
-
-  </script>
+  <script src="./frontend/scripts/landing.js"></script>
   <script src="./frontend/scripts/background.js"></script>
 </body>
 

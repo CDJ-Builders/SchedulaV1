@@ -746,3 +746,18 @@ if (closeButton) {
     });
   }
 }
+
+
+// Allow Enter key to trigger form submission
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const pinSection = document.getElementById('reset-password-section');
+    if (pinSection && pinSection.style.display !== 'none') {
+      const resetBtn = document.getElementById('reset-submit-btn');
+      if (resetBtn && !resetBtn.disabled) resetBtn.click();
+    } else {
+      const forgotBtn = document.getElementById('forgot-submit-btn');
+      if (forgotBtn && !forgotBtn.disabled) forgotBtn.click();
+    }
+  }
+});

@@ -1,22 +1,12 @@
 const token = () => localStorage.getItem('token');
-const getElement = id => document.getElementById(id);
+const getElement = window.APP_UTILS.getElement;
 
 let currentStep = 0;
 const totalSteps = 5;
 
-async function api(url, options = {}) {
-  const response = await fetch(`${window.APP_CONFIG.API_BASE}${url}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token()}`,
-      ...(options.headers || {})
-    }
-  });
-  const data = response.status === 204 ? null : await response.json();
-  if (!response.ok) throw new Error(data.error || 'Setup failed');
-  return data;
-}
+const api = (url, options = {}) => window.APP_API.request(url, options, {
+  errorMessage: ({ data }) => data.error || 'Setup failed'
+});
 
 function showStep(step) {
   currentStep = Math.max(0, Math.min(totalSteps - 1, step));

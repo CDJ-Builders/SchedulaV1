@@ -6,12 +6,10 @@
   if (!dialog || !list || !caption || !closeButton) return;
 
   function api(path) {
-    return fetch(window.APP_CONFIG.API_BASE + path, {
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
-    }).then(async function (response) {
-      const data = await response.json().catch(function () { return {}; });
-      if (!response.ok) throw new Error(data.error || 'Could not load team preferences.');
-      return data;
+    return window.APP_API.request(path, {}, {
+      contentType: false,
+      emptyResponse: {},
+      errorMessage: function ({ data }) { return data.error || 'Could not load team preferences.'; }
     });
   }
 

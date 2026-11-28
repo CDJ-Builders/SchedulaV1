@@ -10,34 +10,21 @@ document.addEventListener('DOMContentLoaded', async function () {
  var statusTimer = null, statusHideTimer = null;
 
  async function api(path, options) {
-  options = options || {};
-  var token = localStorage.getItem('token');
-  var response;
-  try {
-   response = await fetch(window.APP_CONFIG.API_BASE + path, {
-    ...options,
-    headers: Object.assign({ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, options.headers || {})
-   });
-  } catch (error) { throw new Error('Unable to reach the Schedula server.'); }
-  var data = null;
-  var rawBody = '';
-  if (response.status !== 204) {
-   rawBody = await response.text().catch(function () { return ''; });
-   try { data = rawBody ? JSON.parse(rawBody) : {}; } catch (error) { data = {}; }
-  }
-  if (!response.ok) {
-   var message = data && data.error;
-   if (!message && path.indexOf('/shared-schedule') !== -1 && response.status === 404) {
-    message = 'The running backend does not recognize shared schedule imports yet. Restart the backend from this Schedula workspace, then try again.';
-   } else if (!message && rawBody && !response.headers.get('content-type')?.includes('application/json')) {
-    message = 'The Teams server returned HTTP ' + response.status + ' without a JSON error. Restart the backend and retry the import.';
+  return window.APP_API.request(path, options || {}, {
+   networkMessage: 'Unable to reach the Schedula server.',
+   rejectEmpty: true,
+   emptyMessage: 'The Teams server returned an invalid response.',
+   errorMessage: function ({ response, rawBody, data }) {
+    if (data && data.error) return data.error;
+    if (path.indexOf('/shared-schedule') !== -1 && response.status === 404) {
+     return 'The running backend does not recognize shared schedule imports yet. Restart the backend from this Schedula workspace, then try again.';
+    }
+    if (rawBody && !response.headers.get('content-type')?.includes('application/json')) {
+     return 'The Teams server returned HTTP ' + response.status + ' without a JSON error. Restart the backend and retry the import.';
+    }
+    return 'The Teams request could not be completed (HTTP ' + response.status + ').';
    }
-   var failure = new Error(message || 'The Teams request could not be completed (HTTP ' + response.status + ').');
-   failure.status = response.status;
-   throw failure;
-  }
-  if (response.status !== 204 && data === null) throw new Error('The Teams server returned an invalid response.');
-  return data;
+  });
  }
  function displayName(member) { return member.isSelf ? member.name + ' (You)' : member.name; }
  window.getTeamProposalConflicts = function (teamId, weekday, startTime, endTime) {
@@ -101,15 +88,14 @@ document.addEventListener('DOMContentLoaded', async function () {
  function t(h) { var H = Math.floor(h), p = H >= 12 ? 'PM' : 'AM'; return (H % 12 || 12) + ':' + (h % 1 ? '30' : '00') + ' ' + p; }
  function rng(a, b) { return t(a) + ' – ' + t(b); }
  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
- function escapePopup(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]; }); }
  function popupConfirm(message, title, confirmType) {
   return new Promise(function (resolve) {
-   window.confirmPopup(escapePopup(message), function () { resolve(true); }, function () { resolve(false); }, escapePopup(title), confirmType || 'primary');
+   window.confirmPopup(window.APP_UTILS.escapePopup(message), function () { resolve(true); }, function () { resolve(false); }, window.APP_UTILS.escapePopup(title), confirmType || 'primary');
   });
  }
- function popupSuccess(message, title) { window.successPopup(escapePopup(message), escapePopup(title)); }
+ function popupSuccess(message, title) { window.successPopup(window.APP_UTILS.escapePopup(message), window.APP_UTILS.escapePopup(title)); }
  function popupError(message, title) {
-  var safeMessage = escapePopup(message), safeTitle = escapePopup(title || 'Team schedule error');
+  var safeMessage = window.APP_UTILS.escapePopup(message), safeTitle = window.APP_UTILS.escapePopup(title || 'Team schedule error');
   if (typeof window.errorPopup === 'function') window.errorPopup(safeMessage, safeTitle);
   else window.alert('Error: ' + safeMessage, safeTitle, 'error');
  }
@@ -147,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
  }
 
- function updateProposalAvailability() {
+ function updateTeamProposalAvailability() {
   var button = $('prop');
   if (!button) return;
   var memberCount = team && Array.isArray(team.members) ? team.members.length : 0;
@@ -159,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async function () {
  }
 
  function render() {
-  updateProposalAvailability();
+  updateTeamProposalAvailability();
   var bd = $('board'); bd.textContent = '';
   bd.classList.toggle('team-view-mode', viewMode === 'team');
   bd.classList.toggle('member-view-mode', viewMode === 'member');

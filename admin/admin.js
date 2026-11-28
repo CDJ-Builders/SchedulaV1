@@ -1,31 +1,11 @@
-const API_BASE = window.APP_CONFIG.API_BASE.replace(/\/$/, '');
-const rawFetch = window.SCHEDULA_RAW_FETCH || window.fetch.bind(window);
-
-async function api(path, options = {}) {
-  const token = localStorage.getItem('token');
-  const headers = new Headers(options.headers || {});
-  headers.set('Accept', 'application/json');
-  if (token) headers.set('Authorization', `Bearer ${token}`);
-  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-  const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), 8000);
-  let response;
-  try {
-    response = await rawFetch(`${API_BASE}/admin${path}`, { ...options, headers, cache: 'no-store', signal: controller.signal });
-  } catch (error) {
-    if (error.name === 'AbortError') throw new Error('Admin API request timed out after 8 seconds.');
-    throw new Error(`Admin API request failed: ${error.message}`);
-  } finally {
-    window.clearTimeout(timer);
-  }
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(body.error || `Request failed (${response.status})`);
-    error.status = response.status;
-    throw error;
-  }
-  return body;
-}
+const api = (path, options = {}) => window.APP_API.request(`/admin${path}`, options, {
+  contentType: false,
+  timeoutMs: 8000,
+  cache: 'no-store',
+  emptyResponse: {},
+  timeoutMessage: 'Admin API request timed out after 8 seconds.',
+  networkMessage: error => `Admin API request failed: ${error.message}`
+});
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];

@@ -6,29 +6,24 @@ document.addEventListener('DOMContentLoaded', function () {
   var teams = [];
 
   function api(path, options) {
-    options = options || {};
-    return fetch(window.APP_CONFIG.API_BASE + path, Object.assign({}, options, {
-      headers: Object.assign({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') }, options.headers || {})
-    })).then(async function (response) {
-      var data = response.status === 204 ? {} : await response.json().catch(function () { return {}; });
-      if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
-      return data;
+    return window.APP_API.request(path, options || {}, {
+      emptyResponse: {},
+      errorMessage: function ({ data }) { return data.error || 'The request could not be completed.'; }
     });
   }
   function feedback(id, message, error) {
     var element = $(id);
     if (element) { element.textContent = message || ''; element.classList.toggle('is-error', Boolean(error)); }
   }
-  function escapePopup(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]; }); }
   function confirmPopup(options) {
     return new Promise(function (resolve) {
-      window.confirmPopup(escapePopup(options.message), function () { resolve(true); }, function () { resolve(false); }, escapePopup(options.title), options.tone === 'warning' ? 'warning' : (options.tone === 'danger' ? 'error' : 'primary'));
+      window.confirmPopup(window.APP_UTILS.escapePopup(options.message), function () { resolve(true); }, function () { resolve(false); }, window.APP_UTILS.escapePopup(options.title), options.tone === 'warning' ? 'warning' : (options.tone === 'danger' ? 'error' : 'primary'));
     });
   }
   function noticePopup(title, message, tone) {
-    if (tone === 'danger') window.alert('Error: ' + escapePopup(message), escapePopup(title));
-    else if (tone === 'warning') window.alert('⚠️ ' + escapePopup(message), escapePopup(title));
-    else window.successPopup(escapePopup(message), escapePopup(title));
+    if (tone === 'danger') window.alert('Error: ' + window.APP_UTILS.escapePopup(message), window.APP_UTILS.escapePopup(title));
+    else if (tone === 'warning') window.alert('⚠️ ' + window.APP_UTILS.escapePopup(message), window.APP_UTILS.escapePopup(title));
+    else window.successPopup(window.APP_UTILS.escapePopup(message), window.APP_UTILS.escapePopup(title));
     var popup = document.querySelector('.custom-modal-overlay');
     var okButton = popup && popup.querySelector('#custom-alert-ok');
     if (!okButton) return Promise.resolve();

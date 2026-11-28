@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const colorValid = value => /^#[\da-f]{6}$/i.test(value);
   const makeId = () => window.crypto?.randomUUID?.() || `block-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
-  async function loadSchedules() {
+  async function loadPlotterSchedules() {
     const response = await fetch(`${window.APP_CONFIG.API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error('Failed to load schedules');
     schedules = await response.json();
@@ -709,7 +709,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   exportMenu.addEventListener('click', event => { const button = event.target.closest('[data-export]'); if (button) runExport(button.dataset.export, button); });
   document.addEventListener('click', event => { if (!event.target.closest('.export-actions')) exportMenu.hidden = true; });
 
-  try { await loadSchedules(); } catch (error) {
+  try { await loadPlotterSchedules(); } catch (error) {
     list.setAttribute('aria-busy', 'false'); const item = document.createElement('div'); item.className = 'plotter-schedule-item'; item.textContent = error.message; list.replaceChildren(item);
   }
 });

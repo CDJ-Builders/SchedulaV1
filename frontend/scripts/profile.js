@@ -1,29 +1,10 @@
 /** Generic profile and preference controls. */
 
-const getElement = id => document.getElementById(id);
+const getElement = window.APP_UTILS.getElement;
 
-function getHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${getToken()}`
-  };
-}
-
-async function api(url, options = {}) {
-  const response = await fetch(`${window.APP_CONFIG.API_BASE}${url}`, {
-    ...options,
-    headers: {
-      ...getHeaders(),
-      ...(options.headers || {})
-    }
-  });
-
-  const data = response.status === 204 ? null : await response.json();
-  if (!response.ok) {
-    throw new Error(data?.error || 'Request failed');
-  }
-  return data;
-}
+const api = (url, options = {}) => window.APP_API.request(url, options, {
+  errorMessage: ({ data }) => data.error || 'Request failed'
+});
 
 async function loadProfile() {
   const cachedUser = localStorage.getItem('user');

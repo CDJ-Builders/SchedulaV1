@@ -155,7 +155,7 @@ function chooseRecommendation(item, rank) {
   else showBuilderNotice(message, 'Time selected');
 }
 
-function renderRecommendations(data) {
+function renderScheduleRecommendations(data) {
   resetSmartScheduleResults();
   const recommendations = Array.isArray(data.recommendations) ? data.recommendations.slice(0, 5) : [];
   if (data.model && typeof data.model.name === 'string' && typeof data.model.version === 'string') {
@@ -366,7 +366,7 @@ function selectSchedule(id) {
   renderEvents();
 }
 
-async function loadSchedules() {
+async function loadBuilderSchedules() {
   schedules = await requestJson('/schedules');
   scheduleSelector.innerHTML = '<option value="new">+ Create new schedule</option>';
   schedules.forEach(schedule => {
@@ -555,7 +555,7 @@ async function saveSchedule() {
   }
   try {
     await persistSchedule(events, title);
-    await loadSchedules();
+    await loadBuilderSchedules();
     if (typeof window.successPopup === 'function') {
       window.successPopup('Schedule saved successfully.', 'Schedule saved');
     } else {
@@ -718,7 +718,7 @@ smartScheduleGenerateButton.addEventListener('click', async () => {
       setSmartScheduleStatus('The schedule now conflicts with these suggestions. Save the latest schedule and request fresh suggestions.', true);
       return;
     }
-    renderRecommendations(data);
+    renderScheduleRecommendations(data);
   } catch (error) {
     setSmartScheduleStatus(`${error.message} Please retry.`, true);
   } finally {
@@ -780,7 +780,7 @@ deleteScheduleButton.addEventListener('click', () => {
       try {
         await requestJson(`/schedules/${activeScheduleId}`, { method: 'DELETE' });
         activeScheduleId = 'new';
-        await loadSchedules();
+        await loadBuilderSchedules();
       } catch (error) {
         setMessage(error.message, true);
         showBuilderNotice(error.message, 'Unable to delete schedule');
@@ -794,7 +794,7 @@ deleteScheduleButton.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
-  try { await loadSchedules(); } catch (error) {
+  try { await loadBuilderSchedules(); } catch (error) {
     eventsList.setAttribute('aria-busy', 'false');
     eventsList.innerHTML = `<p class="text-muted-light">${window.APP_UTILS?.escapeHtml(error.message) || 'Unable to load schedules.'}</p>`;
     setMessage(error.message, true);
