@@ -1,6 +1,6 @@
-# Schedula Backend Schema
+# Schedula Backend Structure
 
-The backend is built with Node.js/Express and connects to PostgreSQL using parameterized SQL and UUID-based domain entities. Apply the executable migrations in `backend/sql/migrations/` using the instructions in [DB_UPDATE_INSTRUCTIONS.md](../plans/DB_UPDATE_INSTRUCTIONS.md).
+The backend is built with Node.js/Express and connects to PostgreSQL using parameterized SQL and UUID-based domain entities. The canonical database reference is [SCHEDULA_DB_SCHEMA.md](SCHEDULA_DB_SCHEMA.md); apply executable migrations using [setup and migration instructions](../plans/SCHEDULA_DB_PLAN.md#database-setup-and-migration-operations). For the current application layers, see [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ---
 

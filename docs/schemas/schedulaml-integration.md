@@ -1,5 +1,7 @@
 # SchedulaML Smart Schedule Operations
 
+This is the current operational reference. The [integration plan](../plans/SCHEDULAML_INTEGRATION_PLAN.md) records the earlier design decisions.
+
 ## Architecture
 
 ```mermaid

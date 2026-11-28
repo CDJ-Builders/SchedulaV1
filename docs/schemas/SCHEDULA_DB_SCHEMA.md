@@ -1,6 +1,6 @@
 # Schedula Database Schema Architecture
 
-This document is the architectural reference for Schedula's PostgreSQL database schema. Detailed constraint specifications are in [SCHEDULA_DB_PLAN.md](../plans/SCHEDULA_DB_PLAN.md); step-by-step migration execution instructions are in [DB_UPDATE_INSTRUCTIONS.md](../plans/DB_UPDATE_INSTRUCTIONS.md).
+This is the single reference for Schedula's PostgreSQL schema. See the [database plan](../plans/SCHEDULA_DB_PLAN.md) for design history and [setup and migration instructions](../plans/SCHEDULA_DB_PLAN.md#database-setup-and-migration-operations) for operations. The [backend schema overview](SCHEDULA_BACKEND_SCHEMA.md) covers application layers and links back here for database entities.
 
 ---
 

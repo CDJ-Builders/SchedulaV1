@@ -80,7 +80,8 @@ schedula/
 │   │   ├── 1setup.sql            # Initial database setup script
 │   │   └── migrations/           # Reversible SQL migrations (001_schedula_schema through 015)
 │   ├── test/                     # Backend test suite (admin, plotterModel, recommendation, teams)
-│   ├── utils/                    # Async handler, crypto, email, helpers, password policy
+│   ├── utils/                    # Async handler, email, helpers, logger, password policy
+│   ├── .env.example              # Backend environment variable names
 │   ├── db-server.js              # Express application bootstrap & route mounting
 │   └── package.json
 ├── schedulaml/                   # Python FastAPI machine learning inference service
@@ -93,9 +94,9 @@ schedula/
 │   ├── artifacts/
 │   │   └── 1.1.0/                # Versioned LightGBM & GradientBoosting model bundles & manifest
 │   ├── tests/                    # Pytest suite (adapter, regression, feature contract, scoring)
-│   ├── pyproject.toml / uv.lock  # Python dependency specifications
 │   ├── requirements.txt
-│   └── start.ps1                 # Python 3.13 launcher script
+│   ├── start.ps1                 # Python 3.13 launcher script
+│   └── start.bat                 # Windows launcher script
 ├── frontend/                     # Client stylesheets and interactive logic
 │   ├── css/                      # Modular stylesheets (auth, builder, chrome, plotter, profile, teams, theme, etc.)
 │   └── scripts/                  # Interactive logic (auth, plotter, preferences, schedules, teams, timePicker, etc.)
@@ -111,16 +112,17 @@ schedula/
 │   ├── teams.html                # Team schedules, member availability & meeting proposals
 │   └── teams-settings.html       # Team management, invites & role administration
 ├── docs/                         # Comprehensive project documentation
-│   ├── admin/                    # Admin API, operations guide & recon notes (API.md, README.md, RECON.md)
+│   ├── ARCHITECTURE.md           # Frontend, backend, and SchedulaML flow
+│   ├── CONTRIBUTING.md           # Development and migration workflow
+│   ├── admin/                    # Admin API and operations guide
 │   ├── plans/                    # Migration guides, audits & UI/UX plans (incl. UIUX_AUDIT/)
 │   ├── schemas/                  # Backend, DB, security & SchedulaML contract specifications
 │   ├── scrum/                    # Agile SCRUM logs, requirements & proposals
 │   └── TODO.md                   # Development backlog and task tracking
 ├── assets/                       # Static branding images, icons, and diagrams
+├── scripts/                      # Repository maintenance scripts
+│   └── check-html-assets.js      # Check local HTML scripts and stylesheets
 ├── index.html                    # Public landing page
-├── .env.example                  # Environment configuration template
-├── PROGRESS.md                   # SchedulaML integration progress and status
-├── PRD.md                        # Product Requirements Document
 └── README.md                     # Project overview and reference guide
 ```
 
@@ -141,29 +143,33 @@ schedula/
 - [PostgreSQL](https://www.postgresql.org/) (v15+ recommended)
 - [Python](https://www.python.org/) (v3.13 recommended for SchedulaML inference)
 
-### 1. Database Setup
-Create a PostgreSQL database
+### 1. Configure Environment
+Create an empty PostgreSQL database. Copy `backend/.env.example` to `backend/.env` and fill in its values, including database credentials and required secrets.
 
-### 2. Configure Environment
-Update your database credentials and secrets
+### 2. Database Setup
+
+```powershell
+cd backend
+npm ci
+npm run db:setup
+npm run db:migrate
+```
 
 ### 3. Start SchedulaML Inference Service
 In a separate terminal, launch the Python service:
 
 > **⚠️ Python 3.13 required.** The model artifacts are incompatible with Python 3.14+. Using the wrong interpreter will cause a startup `RuntimeError`. Use `.\start.ps1` or the `uv` instructions below.
 
-**Recommended — use the included launcher (auto-selects Python 3.13):**
+**PowerShell:**
 ```powershell
 cd schedulaml
 .\start.ps1
 ```
 
-**Manual setup (first time or after deleting `.venv`):**
+**Command Prompt:**
 ```powershell
 cd schedulaml
-uv venv --python 3.13 .venv
-uv pip install -r requirements.txt --python .venv
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+start.bat
 ```
 
 ### 4. Start the Backend API Server
@@ -171,9 +177,10 @@ In another terminal, install dependencies and start Express:
 
 ```powershell
 cd backend
-npm install
 npm start
 ```
+
+Create the initial super admin with `npm run admin:create -- admin@example.com`. To create demo admin data in a development database, use `npm run seed:admin`.
 
 ### 5. Access the Application
 ```

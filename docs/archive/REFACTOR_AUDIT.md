@@ -1,3 +1,5 @@
+Historical snapshot (2026-10-19). Files named here may no longer exist.
+
 # Schedula Refactor Audit
 
 **Phase:** 0 - Reconnaissance
@@ -14,7 +16,7 @@ The smallest credible refactor boundary is to retain authentication, account/pro
 
 ## Turnover Document Findings
 
-The requested `progress.md` does not exist. The repository contains uppercase [`PROGRESS.md`](../../PROGRESS.md), which was read fully and treated as the turnover source of truth.
+The requested `progress.md` did not exist. The historical report referred to uppercase `PROGRESS.md`, which was read at the time as the turnover source of truth.
 
 Relevant current statements:
 
@@ -26,9 +28,9 @@ Conflicts with the current prompt:
 
 - The turnover document still describes a simple MVP around blocked times and conflicting **course** additions, while this prompt requires a general-purpose, team-oriented schedule builder with generic events and a future-ready multi-user/team schema.
 - It treats the current academic schema as reusable design, while this prompt explicitly removes academic entities and requires new generic tables, UUID keys, soft deletes, UTC `timestamptz`, event recurrence, availability, and future group sharing.
-- It references Kubernetes removal, but the current workspace listing does not include a `k8s/` directory; [`CODEX.md`](../../CODEX.md) still documents one. This should be verified during cleanup rather than assumed complete.
+- It referenced Kubernetes removal, but the workspace listing did not include a `k8s/` directory; the historical `CODEX.md` also documented one. This was recorded for verification during cleanup.
 - The handover says MVP-ready, but the current UI/API still exposes academic resources and the current database bootstrap only auto-initializes refresh tokens. There is no migration runner or end-to-end verification command documented.
-- The turnover document mentions `NEW_PRD.md`; the repository's current equivalent is [`PRD.md`](../../PRD.md), which contains the Schedula product requirements.
+- The turnover document mentioned `NEW_PRD.md`; `PRD.md` was treated as the product requirements document at the time.
 
 These are recorded as conflicts only. They are not silently resolved in Phase 0.
 
@@ -43,7 +45,7 @@ These are recorded as conflicts only. They are not silently resolved in Phase 0.
 - `backend/sql/4courses.sql`: course, course-term, and course-slot seed data with academic codes, instructors, and rooms.
 - `backend/sql/Dockerfile`: SQL image packaging; reusable container boundary, but its copied/ordered SQL inputs will need to match the new migration plan.
 - No migration runner is present. SQL files appear to depend on ordered initialization.
-- No `k8s/` directory is currently present, although deployment references remain in [`CODEX.md`](../../CODEX.md) and generated/history documentation.
+- No `k8s/` directory was present, although deployment references remained in the historical `CODEX.md` and generated/history documentation.
 
 ### Backend runtime
 
@@ -54,7 +56,7 @@ These are recorded as conflicts only. They are not silently resolved in Phase 0.
 - `backend/middleware/validation.js`: shared email/string validation. Reusable, but event/profile/preferences validation must be added without making optional event fields required.
 - `backend/middleware/errorHandler.js`: centralized error middleware. Reusable.
 - `backend/utils/asyncHandler.js`: reusable async route wrapper.
-- `backend/utils/crypto.js`: password encryption helper. Authentication support is reusable, but reversible password storage is a known security risk recorded in [`CODEX.md`](../../CODEX.md).
+- `backend/utils/crypto.js`: password encryption helper. Authentication support is reusable, but reversible password storage was recorded as a security risk in the historical `CODEX.md`.
 - `backend/utils/email.js`: password reset email and development fallback. Reusable; no academic dependency.
 - `backend/utils/helpers.js`: debug and `parseTimeToMins` helper. Time parsing is reusable, while hardcoded academic hours in callers are not.
 

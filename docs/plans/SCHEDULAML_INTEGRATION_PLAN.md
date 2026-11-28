@@ -1,5 +1,7 @@
 # Schedula MindLab Smart Scheduling Integration Plan
 
+This document records the original implementation plan. The current implemented service contract and request flow are documented in [schedulaml-integration.md](../schemas/schedulaml-integration.md) and [ARCHITECTURE.md](../ARCHITECTURE.md).
+
 ## Goal
 
 Connect the **Smart Schedule** button in Schedula's schedule builder to Schedula MindLab (SML), so a user can request ranked, feasible times for a meeting and choose which recommendation to add to their schedule. Recommendations must remain suggestions: the user reviews and selects a slot, and Schedula validates conflicts before saving.
