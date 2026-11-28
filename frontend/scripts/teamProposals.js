@@ -67,6 +67,29 @@ document.addEventListener('DOMContentLoaded', function () {
     proposalStatus.classList.toggle('is-error', isError);
   }
 
+  function updateProposalAvailability() {
+    const button = $('team-proposal-submit');
+    if (!button) return [];
+    const start = $('proposal-start').value;
+    const end = $('proposal-end').value;
+    const weekday = $('proposal-weekday').value;
+    const conflicts = activeTeamId && start && end && end > start && typeof window.getTeamProposalOwnConflicts === 'function'
+      ? window.getTeamProposalOwnConflicts(activeTeamId, weekday, start, end)
+      : [];
+    const hasOwnConflict = conflicts.length > 0;
+    button.disabled = Boolean(proposalRequest || proposalConflictConfirmationPending || hasOwnConflict);
+    button.title = hasOwnConflict ? 'This time conflicts with your shared schedule: ' + conflicts.join(', ') : '';
+    button.setAttribute('aria-disabled', button.disabled ? 'true' : 'false');
+    if (hasOwnConflict) {
+      proposalStatus.dataset.ownScheduleConflict = 'true';
+      setProposalStatus('This slot conflicts with your shared schedule: ' + conflicts.join(', ') + '. Choose another time.', true);
+    } else if (proposalStatus.dataset.ownScheduleConflict === 'true') {
+      delete proposalStatus.dataset.ownScheduleConflict;
+      setProposalStatus('');
+    }
+    return conflicts;
+  }
+
   function setSmartStatus(message, isError = false) {
     smartStatus.textContent = message || '';
     smartStatus.classList.toggle('is-error', isError);
@@ -107,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!activeTeamId) return;
     proposalForm.reset();
     setProposalStatus('');
+    updateProposalAvailability();
     proposalDialog.showModal();
     $('proposal-title').focus();
   }
@@ -188,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
           $('proposal-start').value = item.start_time;
           $('proposal-end').value = item.end_time;
           setProposalStatus('Recommended time selected. Review the weekly block before proposing it.');
+          updateProposalAvailability();
           smartDialog.close();
           $('proposal-start').focus();
         });
@@ -260,6 +285,10 @@ document.addEventListener('DOMContentLoaded', function () {
   $('team-smart-schedule-cancel').addEventListener('click', cancelProposal);
   $('team-proposal-close').addEventListener('click', cancelProposal);
   $('team-proposal-cancel').addEventListener('click', cancelProposal);
+  ['proposal-weekday', 'proposal-start', 'proposal-end'].forEach(id => {
+    $(id).addEventListener('input', updateProposalAvailability);
+    $(id).addEventListener('change', updateProposalAvailability);
+  });
   smartInputs[0].addEventListener('input', () => {
     $('proposal-title').value = smartInputs[0].value;
     setRecommendationBusy(false);
@@ -316,6 +345,8 @@ document.addEventListener('DOMContentLoaded', function () {
       $('proposal-end').focus();
       return;
     }
+    const ownConflicts = updateProposalAvailability();
+    if (ownConflicts.length) return;
     const conflicts = typeof window.getTeamProposalConflicts === 'function'
       ? window.getTeamProposalConflicts(activeTeamId, $('proposal-weekday').value, start, end)
       : [];
@@ -323,18 +354,18 @@ document.addEventListener('DOMContentLoaded', function () {
       const names = conflicts.join(', ');
       const message = 'This slot overlaps with a shared schedule slot for ' + names + '. Do you still want to propose it?';
       proposalConflictConfirmationPending = true;
-      $('team-proposal-submit').disabled = true;
+      updateProposalAvailability();
       const approved = await confirmProposalConflict(message);
       proposalConflictConfirmationPending = false;
       if (!approved || !proposalDialog.open || !activeTeamId) {
-        $('team-proposal-submit').disabled = false;
         $('team-proposal-submit').textContent = 'Propose';
+        updateProposalAvailability();
         return;
       }
     }
     const controller = new AbortController();
     proposalRequest = controller;
-    $('team-proposal-submit').disabled = true;
+    updateProposalAvailability();
     $('team-proposal-submit').textContent = 'Sending proposal…';
     setProposalStatus('Sending your weekly block to the team…');
     const teamId = activeTeamId;
@@ -364,8 +395,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } finally {
       if (proposalRequest === controller) proposalRequest = null;
-      $('team-proposal-submit').disabled = false;
       $('team-proposal-submit').textContent = 'Propose';
+      updateProposalAvailability();
     }
   });
 });

@@ -56,6 +56,21 @@ document.addEventListener('DOMContentLoaded', async function () {
    return name && names.indexOf(name) === index;
   });
  };
+ window.getTeamProposalOwnConflicts = function (teamId, weekday, startTime, endTime) {
+  if (!team || String(team.id) !== String(teamId)) return [];
+  var day = { Monday:'Mon', Tuesday:'Tue', Wednesday:'Wed', Thursday:'Thu', Friday:'Fri', Saturday:'Sat', Sunday:'Sun' }[weekday];
+  if (!day) return [];
+  var start = toHour(startTime), end = toHour(endTime);
+  if (end <= start) return [];
+  var self = team.members.find(function (member) { return member.isSelf; });
+  var conflicts = (self && self.busy && self.busy[day] || []).filter(function (block) {
+   return Array.isArray(block) && Number(block[0]) < end && Number(block[1]) > start;
+  }).map(function (block) { return block[2] || 'your shared schedule'; });
+  (team.events && team.events[day] || []).forEach(function (block) {
+   if (Array.isArray(block) && Number(block[0]) < end && Number(block[1]) > start) conflicts.push(block[2] || 'a team event');
+  });
+  return conflicts.filter(function (title, index, titles) { return titles.indexOf(title) === index; });
+ };
  function showStatus(message, isError) {
   var status = $('team-status');
   if (statusTimer) window.clearTimeout(statusTimer);

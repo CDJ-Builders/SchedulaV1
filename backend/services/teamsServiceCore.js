@@ -161,10 +161,10 @@ function createTeamsService(db) {
           members[index].busy[key].push([
             start,
             end,
-            teamEvent ? block.title || 'Team event' : 'Busy',
-            teamEvent ? teamEvent.description || block.description || '' : '',
-            teamEvent ? 'team-proposal' : '',
-            teamEvent ? teamEvent.modality || block.modality || '' : ''
+            block.title || (teamEvent ? 'Team event' : 'Shared block'),
+            teamEvent ? teamEvent.description || block.description || '' : block.description || '',
+            teamEvent ? 'team-proposal' : 'shared',
+            teamEvent ? teamEvent.modality || block.modality || '' : block.modality || ''
           ]);
         });
       });
@@ -592,7 +592,7 @@ function createTeamsService(db) {
     const endTime = proposal.end || proposal.end_time.slice(0, 5);
     const alreadySavedBlock = configuration.find(block => block &&
       block.title === proposal.title &&
-      Array.isArray(block.weekdays) && block.weekdays.includes(proposal.weekday) &&
+      Array.isArray(block.weekdays) && block.weekdays.some(day => String(day).toLowerCase() === proposal.weekday.toLowerCase()) &&
       typeof block.start_time === 'string' && block.start_time.slice(0, 5) === startTime &&
       typeof block.end_time === 'string' && block.end_time.slice(0, 5) === endTime &&
       block.modality === proposal.modality
@@ -602,7 +602,8 @@ function createTeamsService(db) {
       const startHour = timeToHour(startTime);
       const endHour = timeToHour(endTime);
       const conflictingBlock = configuration.find(block => {
-        if (!block || !Array.isArray(block.weekdays) || !block.weekdays.includes(proposal.weekday)) return false;
+        if (!block || !Array.isArray(block.weekdays) ||
+          !block.weekdays.some(day => String(day).toLowerCase() === proposal.weekday.toLowerCase())) return false;
         const blockStart = timeToHour(block.start_time);
         const blockEnd = timeToHour(block.end_time);
         return blockStart !== null && blockEnd !== null && blockEnd > blockStart &&
@@ -611,6 +612,20 @@ function createTeamsService(db) {
       if (conflictingBlock) {
         throw httpError(409, 'Schedule conflict: this proposal overlaps with "' +
           String(conflictingBlock.title || 'another block') + '" on your shared schedule.');
+      }
+      const teamEvents = await client.query(
+        'SELECT title, start_time::text, end_time::text FROM team_events WHERE group_id = $1 AND weekday = $2',
+        [teamId, proposal.weekday]
+      );
+      const conflictingEvent = teamEvents.rows.find(event => {
+        const eventStart = timeToHour(event.start_time);
+        const eventEnd = timeToHour(event.end_time);
+        return eventStart !== null && eventEnd !== null && eventEnd > eventStart &&
+          startHour < eventEnd && endHour > eventStart;
+      });
+      if (conflictingEvent) {
+        throw httpError(409, 'Schedule conflict: this proposal overlaps with "' +
+          String(conflictingEvent.title || 'a team event') + '" on the team schedule.');
       }
     }
     const scheduledBlock = alreadySavedBlock || {
@@ -648,7 +663,7 @@ function createTeamsService(db) {
         [teamId, userId, proposal.title, proposal.description || null, proposal.weekday, proposal.start, proposal.end, proposal.modality]
       );
       proposalId = result.rows[0].id;
-      await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal);
+      await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true);
       await client.query(
         "INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,'accept')",
         [proposalId, userId]

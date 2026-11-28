@@ -5,7 +5,6 @@
  */
 (function () {
   'use strict';
-  const dropdownScriptUrl = document.currentScript?.src;
 
   const CHEVRON_SVG = `
     <svg class="custom-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -338,12 +337,4 @@
     window.initCustomDropdowns();
   }).observe(document.documentElement, { childList: true, subtree: true });
 
-  // Load the shared picker through the dropdown enhancer, which is already
-  // present on the builder and team proposal screens.
-  if (document.querySelector('input[type="time"]') && !window.initSchedulaTimePickers) {
-    const pickerScript = document.createElement('script');
-    pickerScript.src = new URL('timePicker.js?v=20261128-time-picker-force-init-1', dropdownScriptUrl).href;
-    pickerScript.dataset.schedulaTimePicker = 'true';
-    document.head.append(pickerScript);
-  }
 })();

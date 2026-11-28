@@ -13,22 +13,28 @@
       </button>
       <div class="time-picker-popover" popover="manual" role="dialog" aria-label="Choose time" hidden>
         <strong class="time-picker-heading">Time</strong>
-        <div class="time-picker-columns">
+        <div class="time-picker-controls">
           <div class="time-picker-column">
             <button class="time-picker-step" type="button" data-step="hour" data-direction="1" aria-label="Add one hour">+</button>
-            <label class="time-picker-select-label"><span class="sr-only">Hour</span><select class="time-picker-hour" aria-label="Hour"></select></label>
+            <div class="time-picker-wheel-field">
+              <button class="time-picker-wheel-toggle" type="button" aria-expanded="false" aria-controls="" aria-label="Choose hour"><span class="time-picker-hour-value">12</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
+              <div class="time-picker-wheel time-picker-hour-wheel" role="listbox" aria-label="Hour" tabindex="0" hidden></div>
+            </div>
             <button class="time-picker-step" type="button" data-step="hour" data-direction="-1" aria-label="Subtract one hour">−</button>
           </div>
           <span class="time-picker-colon" aria-hidden="true">:</span>
           <div class="time-picker-column">
             <button class="time-picker-step" type="button" data-step="minute" data-direction="1" aria-label="Add 15 minutes">+</button>
-            <div class="time-picker-minute-wheel" role="listbox" aria-label="Minute" tabindex="0"></div>
+            <div class="time-picker-wheel-field">
+              <button class="time-picker-wheel-toggle" type="button" aria-expanded="false" aria-controls="" aria-label="Choose minute"><span class="time-picker-minute-value">00</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
+              <div class="time-picker-wheel time-picker-minute-wheel" role="listbox" aria-label="Minute" tabindex="0" hidden></div>
+            </div>
             <button class="time-picker-step" type="button" data-step="minute" data-direction="-1" aria-label="Subtract 15 minutes">−</button>
           </div>
-        </div>
-        <div class="time-picker-period" role="radiogroup" aria-label="AM or PM">
-          <button type="button" role="radio" data-period="AM" aria-checked="true">AM</button>
-          <button type="button" role="radio" data-period="PM" aria-checked="false">PM</button>
+          <div class="time-picker-period" role="radiogroup" aria-label="AM or PM">
+            <button type="button" role="radio" data-period="AM" aria-checked="true">AM</button>
+            <button type="button" role="radio" data-period="PM" aria-checked="false">PM</button>
+          </div>
         </div>
         <button class="time-picker-save" type="button">Save</button>
       </div>`;
@@ -37,34 +43,86 @@
     const display = wrap.querySelector('.time-picker-value');
     const popover = wrap.querySelector('.time-picker-popover');
     popover.classList.add('time-picker-popover--floating');
-    const hour = wrap.querySelector('.time-picker-hour');
-    const minuteWheel = wrap.querySelector('.time-picker-minute-wheel');
-    const minuteOptions = [];
-    const periodButtons = [...wrap.querySelectorAll('[data-period]')];
+    const hourWheel = popover.querySelector('.time-picker-hour-wheel');
+    const minuteWheel = popover.querySelector('.time-picker-minute-wheel');
+    const hourValue = popover.querySelector('.time-picker-hour-value');
+    const minuteValue = popover.querySelector('.time-picker-minute-value');
+    const hourToggle = popover.querySelector('.time-picker-wheel-toggle[aria-label="Choose hour"]');
+    const minuteToggle = popover.querySelector('.time-picker-wheel-toggle[aria-label="Choose minute"]');
+    const pickerId = `time-picker-${Math.random().toString(36).slice(2)}`;
+    hourWheel.id = `${pickerId}-hour`;
+    minuteWheel.id = `${pickerId}-minute`;
+    hourToggle.setAttribute('aria-controls', hourWheel.id);
+    minuteToggle.setAttribute('aria-controls', minuteWheel.id);
+    const periodButtons = [...popover.querySelectorAll('[data-period]')];
     const labels = [...(input.labels || [])];
     const fieldName = input.getAttribute('aria-label') || labels[0]?.querySelector('span')?.textContent.trim() || labels[0]?.textContent.trim() || 'Time';
     trigger.setAttribute('aria-label', `Choose ${fieldName.toLowerCase()}`);
     const supportsPopover = typeof popover.showPopover === 'function';
-    (supportsPopover ? document.body : (input.closest('dialog') || document.body)).append(popover);
-    for (let i = 1; i <= 12; i++) hour.add(new Option(String(i), String(i)));
-    for (let i = 0; i < 60; i++) {
-      const option = document.createElement('button');
-      option.type = 'button';
-      option.className = 'time-picker-minute-option';
-      option.setAttribute('role', 'option');
-      option.setAttribute('aria-selected', 'false');
-      option.tabIndex = -1;
-      option.dataset.minute = pad(i);
-      option.textContent = pad(i);
-      minuteOptions.push(option);
-      minuteWheel.append(option);
-    }
-    let selectedMinute = '00';
+    // Keep modal-owned pickers inside their dialog. A modal makes the rest of
+    // the document inert, so a body-portaled popover can appear but not receive
+    // pointer or keyboard interaction while these dialogs are open.
+    (input.closest('dialog') || document.body).append(popover);
 
-    function setMinute(value, scroll = true) {
-      selectedMinute = pad(Number(value) % 60);
-      minuteOptions.forEach(option => option.setAttribute('aria-selected', String(option.dataset.minute === selectedMinute)));
-      if (scroll) minuteWheel.scrollTop = Number(selectedMinute) * 38;
+    const wheelOptions = { hour: [], minute: [] };
+    function addOptions(wheel, type, count, format) {
+      for (let i = 0; i < count; i++) {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = `time-picker-wheel-option time-picker-${type}-option`;
+        option.setAttribute('role', 'option');
+        option.setAttribute('aria-selected', 'false');
+        option.tabIndex = -1;
+        option.dataset.value = String(i + (type === 'hour' ? 1 : 0));
+        option.textContent = format(i);
+        wheelOptions[type].push(option);
+        wheel.append(option);
+      }
+    }
+    addOptions(hourWheel, 'hour', 12, i => String(i + 1));
+    addOptions(minuteWheel, 'minute', 60, pad);
+    const selected = { hour: 12, minute: 0 };
+    const rowHeight = 40;
+
+    function updateWheelVisual(type) {
+      const wheel = type === 'hour' ? hourWheel : minuteWheel;
+      wheelOptions[type].forEach((option, index) => {
+        const distance = index - wheel.scrollTop / rowHeight;
+        const curve = Math.max(-68, Math.min(68, distance * 22));
+        const fade = Math.max(0.28, 1 - Math.abs(distance) * 0.22);
+        option.style.transform = `perspective(420px) rotateX(${curve}deg) scale(${1 - Math.min(Math.abs(distance), 3) * 0.045})`;
+        option.style.opacity = String(fade);
+      });
+    }
+
+    function setWheel(type, value, scroll = true) {
+      const maximum = type === 'hour' ? 12 : 59;
+      const normalized = type === 'hour' ? ((Number(value) - 1 + 12) % 12) + 1 : ((Number(value) % 60) + 60) % 60;
+      selected[type] = normalized;
+      const key = type === 'hour' ? 'hour' : 'minute';
+      const valueElement = type === 'hour' ? hourValue : minuteValue;
+      const wheel = type === 'hour' ? hourWheel : minuteWheel;
+      valueElement.textContent = type === 'hour' ? String(normalized) : pad(normalized);
+      wheelOptions[key].forEach(option => option.setAttribute('aria-selected', String(Number(option.dataset.value) === normalized)));
+      if (scroll) wheel.scrollTop = (type === 'hour' ? normalized - 1 : normalized) * rowHeight;
+      updateWheelVisual(type);
+      return maximum;
+    }
+
+    function setWheelExpanded(type, expanded) {
+      const wheel = type === 'hour' ? hourWheel : minuteWheel;
+      const button = type === 'hour' ? hourToggle : minuteToggle;
+      wheel.hidden = !expanded;
+      button.hidden = expanded;
+      button.setAttribute('aria-expanded', String(expanded));
+      button.closest('.time-picker-wheel-field').classList.toggle('is-expanded', expanded);
+      if (expanded) {
+        setWheel(type, selected[type]);
+        requestAnimationFrame(() => {
+          wheel.focus({ preventScroll: true });
+          updateWheelVisual(type);
+        });
+      }
     }
 
     function readValue() {
@@ -73,32 +131,26 @@
       const h = Number(match[1]);
       const m = Number(match[2]);
       if (h > 23 || m > 59) return null;
-      return { hour: String(h % 12 || 12), minute: pad(m), period: h >= 12 ? 'PM' : 'AM' };
+      return { hour: h % 12 || 12, minute: m, period: h >= 12 ? 'PM' : 'AM' };
     }
 
     function syncFromInput() {
       const value = readValue();
-      display.textContent = value ? `${value.hour}:${value.minute} ${value.period}` : 'Choose a time';
+      display.textContent = value ? `${value.hour}:${pad(value.minute)} ${value.period}` : 'Choose a time';
       if (value) {
-        hour.value = value.hour;
-        setMinute(value.minute);
+        setWheel('hour', value.hour);
+        setWheel('minute', value.minute);
         periodButtons.forEach(button => button.setAttribute('aria-checked', String(button.dataset.period === value.period)));
       } else {
-        setMinute('00');
+        setWheel('hour', 12);
+        setWheel('minute', 0);
       }
     }
 
-    const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-    Object.defineProperty(input, 'value', {
-      configurable: true,
-      get() { return valueDescriptor.get.call(this); },
-      set(value) { valueDescriptor.set.call(this, value); syncFromInput(); }
-    });
-
     function writeValue() {
-      let h = Number(hour.value) % 12;
-      if (wrap.querySelector('[aria-checked="true"]').dataset.period === 'PM') h += 12;
-      input.value = `${pad(h)}:${selectedMinute}`;
+      let h = selected.hour % 12;
+      if (popover.querySelector('[aria-checked="true"]').dataset.period === 'PM') h += 12;
+      input.value = `${pad(h)}:${pad(selected.minute)}`;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
       syncFromInput();
@@ -110,7 +162,7 @@
       const rect = trigger.getBoundingClientRect();
       const viewportWidth = document.documentElement.clientWidth;
       const viewportHeight = document.documentElement.clientHeight;
-      const panelWidth = Math.min(300, viewportWidth - 32);
+      const panelWidth = Math.min(360, viewportWidth - 32);
       const left = Math.max(16, Math.min(rect.left, viewportWidth - panelWidth - 16));
       popover.style.width = `${panelWidth}px`;
       popover.style.maxHeight = `${Math.max(180, viewportHeight - 24)}px`;
@@ -130,13 +182,15 @@
         isOpen = true;
         popover.hidden = false;
         if (supportsPopover) popover.showPopover();
-        requestAnimationFrame(positionPopover);
+        positionPopover();
         window.addEventListener('resize', positionPopover);
         window.addEventListener('scroll', positionPopover, true);
       } else {
         isOpen = false;
         if (supportsPopover && popover.matches(':popover-open')) popover.hidePopover();
         popover.hidden = true;
+        setWheelExpanded('hour', false);
+        setWheelExpanded('minute', false);
         window.removeEventListener('resize', positionPopover);
         window.removeEventListener('scroll', positionPopover, true);
       }
@@ -152,45 +206,66 @@
         trigger.focus();
       }
     }));
-    hour.addEventListener('change', writeValue);
-    let wheelScrollTimer;
-    minuteWheel.addEventListener('scroll', () => {
-      window.clearTimeout(wheelScrollTimer);
-      wheelScrollTimer = window.setTimeout(() => {
-        const minuteValue = Math.max(0, Math.min(59, Math.round(minuteWheel.scrollTop / 38)));
-        setMinute(minuteValue, false);
+    hourToggle.addEventListener('click', () => setWheelExpanded('hour', hourToggle.getAttribute('aria-expanded') !== 'true'));
+    minuteToggle.addEventListener('click', () => setWheelExpanded('minute', minuteToggle.getAttribute('aria-expanded') !== 'true'));
+
+    const scrollTimers = { hour: 0, minute: 0 };
+    [['hour', hourWheel], ['minute', minuteWheel]].forEach(([type, wheel]) => {
+      const toggle = type === 'hour' ? hourToggle : minuteToggle;
+      wheel.addEventListener('click', () => {
+        setWheelExpanded(type, false);
+        toggle.focus({ preventScroll: true });
+      });
+      wheel.addEventListener('scroll', () => {
+        window.clearTimeout(scrollTimers[type]);
+        scrollTimers[type] = window.setTimeout(() => {
+          const max = type === 'hour' ? 11 : 59;
+          const index = Math.max(0, Math.min(max, Math.round(wheel.scrollTop / rowHeight)));
+          setWheel(type, type === 'hour' ? index + 1 : index, false);
+          writeValue();
+        }, 80);
+      });
+      wheel.addEventListener('scroll', () => updateWheelVisual(type), { passive: true });
+      wheel.addEventListener('keydown', event => {
+        const delta = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : event.key === 'PageDown' ? 5 : event.key === 'PageUp' ? -5 : 0;
+        if (!delta) return;
+        event.preventDefault();
+        setWheel(type, selected[type] + delta);
         writeValue();
-      }, 80);
+      });
+      wheelOptions[type].forEach(option => option.addEventListener('click', () => {
+        setWheel(type, Number(option.dataset.value));
+        writeValue();
+      }));
     });
-    minuteWheel.addEventListener('keydown', event => {
-      const delta = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : event.key === 'PageDown' ? 5 : event.key === 'PageUp' ? -5 : 0;
-      if (!delta) return;
-      event.preventDefault();
-      const next = (Number(selectedMinute) + delta + 60) % 60;
-      setMinute(next);
-      writeValue();
-    });
-    minuteOptions.forEach(option => option.addEventListener('click', () => {
-      setMinute(option.dataset.minute);
-      writeValue();
-    }));
     periodButtons.forEach(button => button.addEventListener('click', () => {
       periodButtons.forEach(item => item.setAttribute('aria-checked', String(item === button)));
       writeValue();
     }));
-    wrap.querySelectorAll('.time-picker-step').forEach(button => button.addEventListener('click', () => {
-      const current = readValue();
-      const selectedHour = Number(current?.hour || 12) % 12;
-      const isPm = current?.period === 'PM' || (!current && wrap.querySelector('[aria-checked="true"]').dataset.period === 'PM');
-      const totalMinutes = ((selectedHour + (isPm ? 12 : 0)) * 60) + Number(current?.minute || selectedMinute);
-      const next = (totalMinutes + Number(button.dataset.direction) * (button.dataset.step === 'minute' ? 15 : 60) + 1440) % 1440;
-      const nextHour = Math.floor(next / 60);
-      hour.value = String(nextHour % 12 || 12);
-      setMinute(next % 60);
-      periodButtons.forEach(item => item.setAttribute('aria-checked', String(item.dataset.period === (nextHour >= 12 ? 'PM' : 'AM'))));
+    popover.querySelectorAll('.time-picker-step').forEach(button => button.addEventListener('click', () => {
+      if (button.dataset.step === 'minute') {
+        const current = readValue();
+        const selectedHour = Number(current?.hour || selected.hour) % 12;
+        const isPm = current?.period === 'PM' || (!current && popover.querySelector('[aria-checked="true"]').dataset.period === 'PM');
+        const totalMinutes = ((selectedHour + (isPm ? 12 : 0)) * 60) + Number(current?.minute ?? selected.minute);
+        const next = (totalMinutes + Number(button.dataset.direction) * 15 + 1440) % 1440;
+        const nextHour = Math.floor(next / 60);
+        setWheel('hour', nextHour % 12 || 12);
+        setWheel('minute', next % 60);
+        periodButtons.forEach(item => item.setAttribute('aria-checked', String(item.dataset.period === (nextHour >= 12 ? 'PM' : 'AM'))));
+      } else {
+        const current = readValue();
+        const hour12 = Number(current?.hour || selected.hour) % 12;
+        const isPm = current?.period === 'PM' || (!current && popover.querySelector('[aria-checked="true"]').dataset.period === 'PM');
+        const totalMinutes = ((hour12 + (isPm ? 12 : 0)) * 60) + Number(current?.minute ?? selected.minute);
+        const next = (totalMinutes + Number(button.dataset.direction) * 60 + 1440) % 1440;
+        const nextHour = Math.floor(next / 60);
+        setWheel('hour', nextHour % 12 || 12);
+        periodButtons.forEach(item => item.setAttribute('aria-checked', String(item.dataset.period === (nextHour >= 12 ? 'PM' : 'AM'))));
+      }
       writeValue();
     }));
-    wrap.querySelector('.time-picker-save').addEventListener('click', () => { setOpen(false); trigger.focus(); });
+    popover.querySelector('.time-picker-save').addEventListener('click', () => { setOpen(false); trigger.focus(); });
     document.addEventListener('pointerdown', event => { if (!wrap.contains(event.target) && !popover.contains(event.target)) setOpen(false); });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !popover.hidden) { setOpen(false); trigger.focus(); }
@@ -204,7 +279,7 @@
     syncFromInput();
   }
 
-  function init() { document.querySelectorAll('input[type="time"]').forEach(initTimePicker); }
+  function init() { document.querySelectorAll('input[data-time-picker]').forEach(initTimePicker); }
   window.initSchedulaTimePickers = init;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

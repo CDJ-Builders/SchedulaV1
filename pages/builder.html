@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
   <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
   <link rel="stylesheet" href="../frontend/css/custom-dropdown.css">
-  <link rel="stylesheet" href="../frontend/css/time-picker.css?v=20261128-time-picker-force-init-1">
+  <link rel="stylesheet" href="../frontend/css/time-picker.css?v=20261128-dialog-time-picker-interaction-1">
   <script src="../frontend/scripts/theme.js"></script>
 </head>
 
@@ -100,8 +100,8 @@
                   </select></label>
               </div>
               <div class="builder-form-column">
-                <label class="field"><span>Start time</span><input id="event-start" type="time" required></label>
-                <label class="field"><span>End time</span><input id="event-end" type="time" required></label>
+                <label class="field"><span>Start time</span><input id="event-start" type="text" data-time-picker inputmode="numeric" placeholder="Choose a time" pattern="(?:[01]\d|2[0-3]):[0-5]\d" required></label>
+                <label class="field"><span>End time</span><input id="event-end" type="text" data-time-picker inputmode="numeric" placeholder="Choose a time" pattern="(?:[01]\d|2[0-3]):[0-5]\d" required></label>
                 <button id="smart-schedule-btn" class="btn-primary btn-save smart-schedule-btn" type="button"
                   aria-haspopup="dialog" aria-controls="smart-schedule-dialog">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -264,11 +264,11 @@
         </label>
         <label class="field" for="edit-block-start">
           <span>Start time</span>
-          <input id="edit-block-start" type="time" required>
+          <input id="edit-block-start" type="text" data-time-picker inputmode="numeric" placeholder="Choose a time" pattern="(?:[01]\d|2[0-3]):[0-5]\d" required>
         </label>
         <label class="field" for="edit-block-end">
           <span>End time</span>
-          <input id="edit-block-end" type="time" required>
+          <input id="edit-block-end" type="text" data-time-picker inputmode="numeric" placeholder="Choose a time" pattern="(?:[01]\d|2[0-3]):[0-5]\d" required>
         </label>
         <label class="field edit-weekly-block-description" for="edit-block-description">
           <span>Description</span>
@@ -293,6 +293,7 @@
   <script src="../frontend/scripts/auth.js"></script>
   <script src="../frontend/scripts/schedules.js"></script>
   <script src="../frontend/scripts/customDropdown.js?v=20261128-time-picker-force-init-1"></script>
+  <script src="../frontend/scripts/timePicker.js?v=20261128-dialog-time-picker-interaction-1"></script>
 </body>
 
 </html>

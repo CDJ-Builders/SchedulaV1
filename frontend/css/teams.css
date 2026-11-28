@@ -555,6 +555,12 @@ body.schedula-background.teams-page .team-block.team-proposal {
   overflow-wrap: anywhere;
 }
 
+body.schedula-background.teams-page .team-block.shared {
+  border: 1px solid #8b9bc6;
+  background: #e3e9fa;
+  color: #26345e;
+}
+
 body.schedula-background.teams-page .team-block.team-proposal b,
 body.schedula-background.teams-page .team-block.team-proposal small {
   white-space: normal;
