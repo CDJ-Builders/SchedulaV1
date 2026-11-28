@@ -40,6 +40,8 @@ if (smtpConfigured && nodemailer) {
  * If SMTP parameters are missing, falls back to logging the reset link and writing a local preview file.
  * @param {string} to - Destination email address
  * @param {string} pin - 6-digit PIN
+ * @returns {Promise<void>}
+ * @throws {Error} If the configured SMTP transport cannot send the email.
  */
 async function sendResetPinEmail(to, pin) {
   const fromEmail = SMTP.FROM;
