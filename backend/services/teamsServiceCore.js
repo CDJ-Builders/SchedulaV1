@@ -106,6 +106,18 @@ function createTeamsService(db) {
       busy: Object.fromEntries(Object.values(SHORT_DAY).map(day => [day, []]))
     }));
     const memberIndex = new Map(members.map((member, index) => [member.id, index]));
+    const proposalRows = await db.query(
+      'SELECT p.id, p.proposed_by_user_id, p.title, p.description, p.weekday, p.start_time::text, p.end_time::text, ' +
+      'p.modality, p.status, p.converted_event_id, p.created_at, mine.response AS current_user_response, ' +
+      'COUNT(r.id)::int AS response_count, ' +
+      "ARRAY_AGG(DISTINCT r.user_id) FILTER (WHERE r.response = 'accept') AS accepted_user_ids " +
+      'FROM team_proposals p ' +
+      'LEFT JOIN proposal_responses r ON r.proposal_id = p.id ' +
+      'LEFT JOIN proposal_responses mine ON mine.proposal_id = p.id AND mine.user_id = $2 ' +
+      'WHERE p.group_id = $1 ' +
+      'GROUP BY p.id, mine.response ORDER BY p.created_at DESC LIMIT 30',
+      [teamId, userId]
+    );
 
     const schedules = await db.query(
       'SELECT s.owner_user_id, sc.context ' +
@@ -131,7 +143,29 @@ function createTeamsService(db) {
         if (start === null || end === null || end <= start) return;
         block.weekdays.forEach(day => {
           const key = shortDay(day);
-          if (key) members[index].busy[key].push([start, end, 'Busy']);
+          if (!key) return;
+          const storedTeamEvent = block.team_event && typeof block.team_event === 'object'
+            ? block.team_event : null;
+          const scheduledProposal = storedTeamEvent ? null : proposalRows.rows.find(proposal =>
+            Array.isArray(proposal.accepted_user_ids) && proposal.accepted_user_ids.some(id => String(id) === String(row.owner_user_id)) &&
+            shortDay(proposal.weekday) === key && proposal.title === block.title &&
+            proposal.start_time.slice(0, 5) === String(block.start_time || '').slice(0, 5) &&
+            proposal.end_time.slice(0, 5) === String(block.end_time || '').slice(0, 5) &&
+            proposal.modality === block.modality
+          );
+          const teamEvent = storedTeamEvent || (scheduledProposal ? {
+            team_name: team.name,
+            modality: scheduledProposal.modality,
+            description: scheduledProposal.description || block.description || 'Scheduled for ' + team.name
+          } : null);
+          members[index].busy[key].push([
+            start,
+            end,
+            teamEvent ? block.title || 'Team event' : 'Busy',
+            teamEvent ? teamEvent.description || block.description || '' : '',
+            teamEvent ? 'team-proposal' : '',
+            teamEvent ? teamEvent.modality || block.modality || '' : ''
+          ]);
         });
       });
     });
@@ -146,20 +180,9 @@ function createTeamsService(db) {
       const key = shortDay(event.weekday);
       const start = timeToHour(event.start_time);
       const end = timeToHour(event.end_time);
-      if (key && start !== null && end !== null) events[key].push([start, end, event.title, event.description || '']);
+      if (key && start !== null && end !== null) events[key].push([start, end, event.title, event.description || '', 'team', event.modality || '']);
     });
 
-    const proposalRows = await db.query(
-      'SELECT p.id, p.proposed_by_user_id, p.title, p.description, p.weekday, p.start_time::text, p.end_time::text, ' +
-      'p.modality, p.status, p.converted_event_id, p.created_at, mine.response AS current_user_response, ' +
-      'COUNT(r.id)::int AS response_count ' +
-      'FROM team_proposals p ' +
-      'LEFT JOIN proposal_responses r ON r.proposal_id = p.id ' +
-      'LEFT JOIN proposal_responses mine ON mine.proposal_id = p.id AND mine.user_id = $2 ' +
-      'WHERE p.group_id = $1 ' +
-      'GROUP BY p.id, mine.response ORDER BY p.created_at DESC LIMIT 30',
-      [teamId, userId]
-    );
     const sharedSchedule = await db.query(
       'SELECT s.id FROM schedule_shares sh ' +
       'JOIN schedules s ON s.id = sh.schedule_id ' +
@@ -546,7 +569,7 @@ function createTeamsService(db) {
     return { title, description, weekday: input.weekday, start, end, modality: input.modality };
   }
 
-  async function addProposalToSharedSchedule(client, teamId, userId, teamName, proposal) {
+  async function addProposalToSharedSchedule(client, teamId, userId, teamName, proposal, rejectConflicts = false) {
     const sharedSchedule = await client.query(
       'SELECT s.id, COALESCE(sc.context, \'[]\'::jsonb) AS configuration ' +
       'FROM schedule_shares sh JOIN schedules s ON s.id = sh.schedule_id ' +
@@ -567,21 +590,43 @@ function createTeamsService(db) {
     if (!Array.isArray(configuration)) throw httpError(503, 'Your shared schedule configuration could not be read.');
     const startTime = proposal.start || proposal.start_time.slice(0, 5);
     const endTime = proposal.end || proposal.end_time.slice(0, 5);
-    const alreadySaved = configuration.some(block => block &&
+    const alreadySavedBlock = configuration.find(block => block &&
       block.title === proposal.title &&
       Array.isArray(block.weekdays) && block.weekdays.includes(proposal.weekday) &&
       typeof block.start_time === 'string' && block.start_time.slice(0, 5) === startTime &&
       typeof block.end_time === 'string' && block.end_time.slice(0, 5) === endTime &&
       block.modality === proposal.modality
     );
-    if (!alreadySaved) configuration.push({
+    const alreadySaved = Boolean(alreadySavedBlock);
+    if (rejectConflicts && !alreadySaved) {
+      const startHour = timeToHour(startTime);
+      const endHour = timeToHour(endTime);
+      const conflictingBlock = configuration.find(block => {
+        if (!block || !Array.isArray(block.weekdays) || !block.weekdays.includes(proposal.weekday)) return false;
+        const blockStart = timeToHour(block.start_time);
+        const blockEnd = timeToHour(block.end_time);
+        return blockStart !== null && blockEnd !== null && blockEnd > blockStart &&
+          startHour < blockEnd && endHour > blockStart;
+      });
+      if (conflictingBlock) {
+        throw httpError(409, 'Schedule conflict: this proposal overlaps with "' +
+          String(conflictingBlock.title || 'another block') + '" on your shared schedule.');
+      }
+    }
+    const scheduledBlock = alreadySavedBlock || {
       title: proposal.title,
       description: proposal.description || 'Team Scheduled at ' + teamName,
       weekdays: [proposal.weekday],
       start_time: startTime,
       end_time: endTime,
       modality: proposal.modality
-    });
+    };
+    scheduledBlock.team_event = {
+      team_id: teamId,
+      team_name: teamName,
+      modality: proposal.modality
+    };
+    if (!alreadySaved) configuration.push(scheduledBlock);
     await client.query(
       'INSERT INTO schedule_context (schedule_id, context) VALUES ($1, $2::jsonb) ' +
       'ON CONFLICT (schedule_id) DO UPDATE SET context = EXCLUDED.context, updated_at = CURRENT_TIMESTAMP, deleted_at = NULL',
@@ -650,7 +695,7 @@ function createTeamsService(db) {
       if (response === 'decline') {
         await client.query('DELETE FROM team_proposals WHERE id = $1 AND group_id = $2', [proposalId, teamId]);
       } else {
-        scheduleId = await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal);
+        scheduleId = await addProposalToSharedSchedule(client, teamId, userId, membership.name, proposal, true);
         await client.query(
           'INSERT INTO proposal_responses (proposal_id, user_id, response) VALUES ($1,$2,$3)',
           [proposalId, userId, response]

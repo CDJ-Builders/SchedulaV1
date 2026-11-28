@@ -548,6 +548,25 @@ body.schedula-background.teams-page .team-block.team {
   background: #dfe3f7;
 }
 
+body.schedula-background.teams-page .team-block.team-proposal {
+  border: 1px solid #b87816;
+  background: #fff0c7;
+  color: #4a2d08;
+  overflow-wrap: anywhere;
+}
+
+body.schedula-background.teams-page .team-block.team-proposal b,
+body.schedula-background.teams-page .team-block.team-proposal small {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+body.schedula-background.teams-page .member-week-block.team-proposal {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
 body.schedula-background.teams-page .team-block b,
 body.schedula-background.teams-page .team-block small {
   display: block;
@@ -1022,6 +1041,49 @@ body.schedula-background.teams-page dialog.team-smart-schedule-dialog::backdrop 
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
 }
+body.schedula-background.teams-page dialog.team-proposal-conflict-overlay {
+  position:fixed;
+  inset:0;
+  width:min(472px,calc(100vw - 32px));
+  max-width:none;
+  max-height:min(80dvh,680px);
+  margin:auto;
+  padding:0;
+  overflow:visible;
+  border:0;
+  border-radius:18px;
+  background:transparent;
+  color:#2a1245;
+  box-shadow:none;
+}
+body.schedula-background.teams-page dialog.team-proposal-conflict-overlay {
+  width:min(472px,calc(100vw - 32px))!important;
+  max-width:none!important;
+  margin:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.schedula-background.teams-page dialog.team-proposal-conflict-overlay::backdrop {
+  background:rgba(8,5,12,.62);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.team-proposal-conflict-overlay .custom-modal {
+  width:100%;
+  max-height:min(80dvh,680px);
+  transform:none;
+}
+.team-proposal-conflict-overlay .custom-modal-icon .modal-svg {
+  display:block;
+  width:24px!important;
+  height:24px!important;
+  min-width:24px;
+  max-width:24px;
+  flex:none;
+}
 .team-proposal-dialog-content,.team-smart-schedule-content { padding:clamp(20px,4vw,32px); }
 .team-proposal-dialog-header,.team-smart-schedule-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px; }
 .team-proposal-dialog-header h2,.team-smart-schedule-header h2 { margin:0; color:#2a1245; font-size:clamp(1.5rem,4vw,2rem); font-weight:800; line-height:1.1; }
@@ -1134,6 +1196,11 @@ body.schedula-background.teams-page .dock {
   min-height:92px; padding:16px 24px 16px 22px!important;
   display:flex; align-items:center; justify-content:space-between!important;
   gap:16px; flex-wrap:wrap;
+}
+body.schedula-background.teams-page .dock.has-open-dropdown {
+  position:relative;
+  z-index:40;
+  overflow:visible;
 }
 body.schedula-background.teams-page .team-shared-manager { min-width:0; flex:1 1 400px; display:grid; gap:7px; }
 body.schedula-background.teams-page .team-shared-manager > label { color:#4a1d6d; font-size:12px; font-weight:800; }

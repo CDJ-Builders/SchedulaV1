@@ -5,6 +5,7 @@
  */
 (function () {
   'use strict';
+  const dropdownScriptUrl = document.currentScript?.src;
 
   const CHEVRON_SVG = `
     <svg class="custom-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -223,6 +224,7 @@
       closeAllDropdowns();
       buildOptions();
       menu.hidden = false;
+      wrap.closest('.dock')?.classList.add('has-open-dropdown');
       if (overflowDialog) positionDialogMenu();
       btn.classList.add('is-open');
       btn.setAttribute('aria-expanded', 'true');
@@ -234,6 +236,7 @@
       menu.hidden = true;
       btn.classList.remove('is-open');
       btn.setAttribute('aria-expanded', 'false');
+      wrap.closest('.dock')?.classList.remove('has-open-dropdown');
     }
 
     function positionDialogMenu() {
@@ -311,6 +314,7 @@
       btn.classList.remove('is-open');
       btn.setAttribute('aria-expanded', 'false');
     });
+    document.querySelectorAll('.dock.has-open-dropdown').forEach((dock) => dock.classList.remove('has-open-dropdown'));
   }
 
   document.addEventListener('click', (e) => {
@@ -333,4 +337,13 @@
   new MutationObserver(() => {
     window.initCustomDropdowns();
   }).observe(document.documentElement, { childList: true, subtree: true });
+
+  // Load the shared picker through the dropdown enhancer, which is already
+  // present on the builder and team proposal screens.
+  if (document.querySelector('input[type="time"]') && !window.initSchedulaTimePickers) {
+    const pickerScript = document.createElement('script');
+    pickerScript.src = new URL('timePicker.js?v=20261128-time-picker-force-init-1', dropdownScriptUrl).href;
+    pickerScript.dataset.schedulaTimePicker = 'true';
+    document.head.append(pickerScript);
+  }
 })();

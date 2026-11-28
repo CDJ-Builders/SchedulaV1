@@ -10,6 +10,28 @@ document.addEventListener('DOMContentLoaded', function () {
   let activeTeamId = null;
   let recommendationRequest = null;
   let proposalRequest = null;
+  let proposalConflictConfirmationPending = false;
+
+  function escapePopup(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
+  }
+
+  function confirmProposalConflict(message) {
+    return new Promise(resolve => {
+      const dialog = $('team-proposal-conflict-dialog');
+      if (!dialog || typeof dialog.showModal !== 'function') {
+        resolve(window.confirm(message));
+        return;
+      }
+      $('team-proposal-conflict-message').textContent = message;
+      dialog.returnValue = '';
+      dialog.addEventListener('close', () => resolve(dialog.returnValue === 'continue'), { once: true });
+      $('team-proposal-conflict-cancel').onclick = () => dialog.close('cancel');
+      $('team-proposal-conflict-continue').onclick = () => dialog.close('continue');
+      dialog.showModal();
+      $('team-proposal-conflict-cancel').focus();
+    });
+  }
 
   async function api(path, options = {}) {
     let response;
@@ -30,9 +52,11 @@ document.addEventListener('DOMContentLoaded', function () {
     try { data = rawBody ? JSON.parse(rawBody) : {}; } catch { }
     if (!response.ok) {
       const missingRecommendationRoute = response.status === 404 && /\/recommendations(?:\?|$)/.test(path);
-      throw new Error(data.error || (missingRecommendationRoute
+      const error = new Error(data.error || (missingRecommendationRoute
         ? 'The team recommendation route is not loaded by the backend yet. Restart or redeploy the backend, then retry.'
         : 'The request could not be completed (HTTP ' + response.status + ').'));
+      error.status = response.status;
+      throw error;
     }
     return data;
   }
@@ -283,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
       setProposalStatus('At least two team members are required to make a proposal.', true);
       return;
     }
-    if (!activeTeamId || proposalRequest) return;
+    if (!activeTeamId || proposalRequest || proposalConflictConfirmationPending) return;
     if (!proposalForm.reportValidity()) return;
     const start = $('proposal-start').value;
     const end = $('proposal-end').value;
@@ -291,6 +315,22 @@ document.addEventListener('DOMContentLoaded', function () {
       setProposalStatus('End time must be later than start time.', true);
       $('proposal-end').focus();
       return;
+    }
+    const conflicts = typeof window.getTeamProposalConflicts === 'function'
+      ? window.getTeamProposalConflicts(activeTeamId, $('proposal-weekday').value, start, end)
+      : [];
+    if (conflicts.length) {
+      const names = conflicts.join(', ');
+      const message = 'This slot overlaps with a shared schedule slot for ' + names + '. Do you still want to propose it?';
+      proposalConflictConfirmationPending = true;
+      $('team-proposal-submit').disabled = true;
+      const approved = await confirmProposalConflict(message);
+      proposalConflictConfirmationPending = false;
+      if (!approved || !proposalDialog.open || !activeTeamId) {
+        $('team-proposal-submit').disabled = false;
+        $('team-proposal-submit').textContent = 'Propose';
+        return;
+      }
     }
     const controller = new AbortController();
     proposalRequest = controller;
@@ -315,7 +355,13 @@ document.addEventListener('DOMContentLoaded', function () {
       proposalDialog.close();
       window.dispatchEvent(new CustomEvent('schedula:team-proposal-created', { detail: { teamId } }));
     } catch (error) {
-      if (error.name !== 'AbortError' && proposalRequest === controller) setProposalStatus(error.message, true);
+      if (error.name !== 'AbortError' && proposalRequest === controller) {
+        if (/^schedule conflict:/i.test(error.message) && typeof window.errorPopup === 'function') {
+          window.errorPopup(escapePopup(error.message), 'Schedule conflict');
+        } else {
+          setProposalStatus(error.message, true);
+        }
+      }
     } finally {
       if (proposalRequest === controller) proposalRequest = null;
       $('team-proposal-submit').disabled = false;

@@ -12,9 +12,10 @@
     <link rel="stylesheet" href="../frontend/css/background.css">
     <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
     <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
-    <link rel="stylesheet" href="../frontend/css/teams.css">
+    <link rel="stylesheet" href="../frontend/css/teams.css?v=20261128-proposal-event-details">
+    <link rel="stylesheet" href="../frontend/css/time-picker.css?v=20261128-time-picker-force-init-1">
     <link rel="stylesheet" href="../frontend/css/team-preferences.css">
-    <link rel="stylesheet" href="../frontend/css/custom-dropdown.css">
+    <link rel="stylesheet" href="../frontend/css/custom-dropdown.css?v=20261128-dropdown-footer-layer">
     <script src="../frontend/scripts/theme.js"></script>
 </head>
 
@@ -244,6 +245,25 @@
                 </section>
             </form>
         </div>
+        <dialog class="team-proposal-conflict-overlay" id="team-proposal-conflict-dialog" role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="team-proposal-conflict-title" aria-describedby="team-proposal-conflict-message">
+            <div class="custom-modal">
+                <div class="custom-modal-icon warning" aria-hidden="true">
+                    <svg class="modal-svg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="custom-modal-title warning-text" id="team-proposal-conflict-title">Member schedule conflict</div>
+                <div class="custom-modal-body" id="team-proposal-conflict-message"></div>
+                <div class="custom-modal-actions">
+                    <button class="custom-modal-btn secondary" type="button" id="team-proposal-conflict-cancel">Cancel</button>
+                    <button class="custom-modal-btn warning" type="button" id="team-proposal-conflict-continue">Propose anyway</button>
+                </div>
+            </div>
+        </dialog>
     </dialog>
 
     <dialog class="team-dialog team-smart-schedule-dialog" id="team-smart-schedule-dialog"
@@ -337,9 +357,9 @@
     <script src="../frontend/scripts/footer.js"></script>
     <script src="../frontend/scripts/auth.js"></script>
     <script src="../frontend/scripts/teamPreferences.js"></script>
-    <script src="../frontend/scripts/teams.js?v=20261128-team-proposal-members"></script>
-    <script src="../frontend/scripts/teamProposals.js?v=20261128-team-proposal-members"></script>
-    <script src="../frontend/scripts/customDropdown.js"></script>
+    <script src="../frontend/scripts/teams.js?v=20261128-proposal-event-details"></script>
+    <script src="../frontend/scripts/teamProposals.js?v=20261128-proposal-popup-layer"></script>
+    <script src="../frontend/scripts/customDropdown.js?v=20261128-time-picker-force-init-1"></script>
 </body>
 
 </html>
