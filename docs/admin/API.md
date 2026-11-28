@@ -28,8 +28,8 @@ Returns the current role and only the privacy-approved capabilities. The current
 
 These endpoints are available to `developer` and `super_admin` only. Each directory or detail request creates an audit record in the same transaction as its database reads. Lists are paginated (25 by default, maximum 100) and searchable by email, display name, or UID.
 
-- `GET /users?page=1&limit=25&q=<email|name|uid>` — account UID, email, role, status, creation/update timestamps, and counts indicating configured personal schedules, entries, and preferences.
-- `GET /users/:id` — account, profile, preferences, personal schedules and their saved context, and personal schedule entries.
+- `GET /users?page=1&limit=25&q=<email|name|uid>` — account UID, email, role, status, creation/update timestamps, and configured personal schedule and preference indicators.
+- `GET /users/:id` — account, profile, preferences, personal schedules and their saved context.
 
 Soft-deleted accounts and records remain visible for retention and recovery context. Team/group records and authentication data (password hashes, tokens, reset secrets) are not returned. Configuration content is recursively redacted for credential-like fields and values before serialization.
 
@@ -47,8 +47,8 @@ Returns `{ "id": "...", "role": "developer" }`. The password is never returned o
 
 - `GET /dashboard?range=7d|30d|90d` — bundled overview, time series, and breakdowns. Individual panel failures are returned alongside successful panels so the dashboard can render partial results. Health is loaded separately so dependency checks do not delay the charts.
 - `GET /stats/overview?range=7d|30d|90d`
-- `GET /stats/timeseries?metric=signups|schedules_created|entries_created|requests|errors|smart_schedule_calls&range=7d|30d|90d&interval=day|hour`
-- `GET /stats/breakdown?metric=users_by_role|entries_by_modality|top_routes|top_error_routes`
+- `GET /stats/timeseries?metric=signups|schedules_created|requests|errors|smart_schedule_calls&range=7d|30d|90d&interval=day|hour`
+- `GET /stats/breakdown?metric=users_by_role|top_routes|top_error_routes`
 - `GET /health`
 
 Stats are aggregated in SQL and overview responses are cached in memory for 30 seconds. Values lacking a source signal return `null` or an empty series with a reason. Schedule and user breakdowns return counts only, not individual records.

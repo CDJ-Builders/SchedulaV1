@@ -26,14 +26,23 @@ async function signup(email, password) {
     const error = new Error('Email already registered'); error.status = 409; throw error;
   }
   const pin = nodeCrypto.randomInt(100000, 1000000).toString();
-  await pool.query(
+  const pendingSignup = await pool.query(
     `INSERT INTO pending_signups (email, password_hash, pin_hash, expires_at)
      VALUES (LOWER($1), crypt($2, gen_salt('bf')), $3, CURRENT_TIMESTAMP + INTERVAL '15 minutes')
      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash,
-       pin_hash = EXCLUDED.pin_hash, expires_at = EXCLUDED.expires_at, created_at = CURRENT_TIMESTAMP`,
+       pin_hash = EXCLUDED.pin_hash, expires_at = EXCLUDED.expires_at, created_at = CURRENT_TIMESTAMP
+     WHERE pending_signups.expires_at <= CURRENT_TIMESTAMP
+     RETURNING email`,
     [email, password, hashToken(pin)]
   );
-  await sendSignupPinEmail(email, pin);
+  if (!pendingSignup.rowCount) return { alreadySent: true };
+  try {
+    await sendSignupPinEmail(email, pin);
+  } catch (error) {
+    await pool.query('DELETE FROM pending_signups WHERE email = LOWER($1) AND pin_hash = $2', [email, hashToken(pin)]);
+    throw error;
+  }
+  return { alreadySent: false };
 }
 
 async function verifySignup(email, pin) {

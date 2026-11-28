@@ -23,7 +23,7 @@ The current bearer token is held in browser `localStorage`, so a top-level `/adm
 | `developer` | Read | No | No |
 | `super_admin` | Read | Yes, with password re-entry | Yes, with password re-entry |
 
-Both elevated roles can use the audited, read-only Users inspector to see account UIDs and configured profile, preference, personal schedule, and schedule-entry data. It never returns password hashes or session/reset tokens. Team/group data remains outside the inspector.
+Both elevated roles can use the audited, read-only Users inspector to see account UIDs and configured profile, preference, and personal schedule data. It never returns password hashes or session/reset tokens. Team/group data remains outside the inspector.
 
 Role changes cannot demote the acting super admin or demote the last active super admin. The role endpoint exposes only a role value for a known user ID; user data inspection is read-only.
 

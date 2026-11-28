@@ -38,21 +38,32 @@
       <div class="card-content">
         <h1>Sign up</h1>
         <p class="subtitle" id="signup-subtitle">Create your Schedula account</p>
-        <div id="signup-message" role="status" aria-live="polite" style="display:none; margin-bottom:16px"></div>
-
         <div class="form-group">
           <label class="field">
             <span>Email</span>
             <input id="signup-email" type="email" name="email" placeholder="you@example.com" aria-label="Email address" autocomplete="email" required>
           </label>
 
-          <label class="field">
-            <span>Password</span>
-            <input id="signup-password" type="password" name="password" placeholder="6+ characters, number, uppercase, lowercase" aria-label="Password" autocomplete="new-password" required>
-            <small>At least 6 characters, including a number, uppercase letter, and lowercase letter.</small>
-          </label>
+          <div class="field" id="signup-password-group">
+            <div class="password-field-heading">
+              <label for="signup-password">Password</label>
+              <span class="password-requirements">
+                <button class="password-requirements-trigger" type="button" aria-label="Show password requirements" aria-describedby="password-requirements-tooltip">?</button>
+                <span class="password-requirements-tooltip" id="password-requirements-tooltip" role="tooltip">
+                  <strong>Password must include:</strong>
+                  <ul>
+                    <li>At least 6 characters</li>
+                    <li>One number</li>
+                    <li>One uppercase letter</li>
+                    <li>One lowercase letter</li>
+                  </ul>
+                </span>
+              </span>
+            </div>
+            <input id="signup-password" type="password" name="password" placeholder="Create password" aria-label="Password" aria-describedby="password-requirements-tooltip" autocomplete="new-password" required>
+          </div>
 
-          <label class="field">
+          <label class="field" id="signup-confirm-password-group">
             <span>Confirm password</span>
             <input id="signup-confirm-password" type="password" name="confirmPassword" placeholder="Repeat your password" aria-label="Confirm password" autocomplete="new-password" required>
           </label>

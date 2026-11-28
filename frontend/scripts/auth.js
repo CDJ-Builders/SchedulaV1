@@ -357,21 +357,29 @@ if (loginButton) {
 
 // Signup Event Trigger
 let signupVerificationPending = false;
+let signupRequestInFlight = false;
 if (signupButton) {
   signupButton.addEventListener('click', async () => {
+    if (signupRequestInFlight) return;
     const email = document.querySelector('input[type="email"]').value.trim();
     const password = document.querySelectorAll('input[type="password"]')[0].value.trim();
     const confirmPassword = document.querySelectorAll('input[type="password"]')[1].value.trim();
 
-    const message = document.getElementById('signup-message');
     const showSignupMessage = (text, error = false) => {
-      if (message) { message.textContent = text; message.style.display = 'block'; message.style.color = error ? '#b42318' : '#237a3b'; }
-      else alert(text);
+      if (error) {
+        if (typeof window.errorPopup === 'function') window.errorPopup(text, 'Unable to sign up');
+        else window.alert(text, 'Unable to sign up', 'error');
+        return;
+      }
+      if (typeof window.successPopup === 'function') window.successPopup(text, 'Verification email sent');
+      else window.alert(text, 'Verification email sent');
     };
 
     if (signupVerificationPending) {
       const pin = document.getElementById('signup-pin').value.trim();
       if (!/^\d{6}$/.test(pin)) { showSignupMessage('Enter the 6-digit PIN sent to your email.', true); return; }
+      signupRequestInFlight = true;
+      signupButton.disabled = true;
       try {
         const verifyResponse = await fetch(`${window.APP_CONFIG.API_BASE}/verify-signup`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -390,6 +398,7 @@ if (signupButton) {
         localStorage.setItem('user', JSON.stringify(loginData.user));
         redirectWithToken('./setup.html');
       } catch (error) { showSignupMessage('Email verification failed: ' + error.message, true); }
+      finally { signupRequestInFlight = false; signupButton.disabled = false; }
       return;
     }
 
@@ -411,6 +420,8 @@ if (signupButton) {
       return;
     }
 
+    signupRequestInFlight = true;
+    signupButton.disabled = true;
     try {
       // Call signup endpoint
       const signupResponse = await fetch(`${window.APP_CONFIG.API_BASE}/signup`, {
@@ -421,18 +432,20 @@ if (signupButton) {
       const signupData = await signupResponse.json();
 
       if (!signupResponse.ok) {
-        alert(signupData.error || 'Signup failed');
+        showSignupMessage(signupData.error || 'Signup failed.', true);
         return;
       }
 
       signupVerificationPending = true;
+      document.getElementById('signup-password-group').hidden = true;
+      document.getElementById('signup-confirm-password-group').hidden = true;
       document.getElementById('signup-pin-group').style.display = 'grid';
       document.getElementById('signup-subtitle').textContent = `Enter the 6-digit PIN sent to ${email}.`;
       signupButton.textContent = 'Verify Email';
       showSignupMessage('We sent a 6-digit verification PIN to your email address.');
     } catch (error) {
       showSignupMessage('Signup failed: ' + error.message, true);
-    }
+    } finally { signupRequestInFlight = false; signupButton.disabled = false; }
   });
 }
 
@@ -450,19 +463,18 @@ if (forgotButton) {
 
 // Helper to display premium inline success/error alerts
 function showMessage(text, isError = false) {
+  if (isError) {
+    if (typeof window.errorPopup === 'function') window.errorPopup(text, 'Unable to reset password');
+    else window.alert(text, 'Unable to reset password', 'error');
+    return;
+  }
   const banner = document.getElementById('message-banner');
   if (banner) {
     banner.textContent = text;
     banner.style.display = 'block';
-    if (isError) {
-      banner.style.backgroundColor = '#ffebee';
-      banner.style.color = '#d32f2f';
-      banner.style.borderColor = '#f5c6cb';
-    } else {
-      banner.style.backgroundColor = '#e8f5e9';
-      banner.style.color = '#2e7d32';
-      banner.style.borderColor = '#c3e6cb';
-    }
+    banner.style.backgroundColor = '#e8f5e9';
+    banner.style.color = '#2e7d32';
+    banner.style.borderColor = '#c3e6cb';
   } else {
     alert(text);
   }

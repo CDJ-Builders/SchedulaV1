@@ -12,7 +12,7 @@ async function overview(range = '30d') {
   const days = rangeDays(range);
   const cached = overviewCache.get(days);
   if (cached && cached.expires > Date.now()) return cached.value;
-  const [userCounts, scheduleCounts, eventCounts, requestStats, smartStats, metricsSince] = await Promise.all([
+  const [userCounts, scheduleCounts, requestStats, smartStats, metricsSince] = await Promise.all([
     pool.query(`SELECT COUNT(*) FILTER (WHERE deleted_at IS NULL)::integer AS total,
       COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP AND deleted_at IS NULL)::integer AS current,
       COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($2 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND deleted_at IS NULL)::integer AS previous
@@ -21,10 +21,6 @@ async function overview(range = '30d') {
       COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP AND deleted_at IS NULL)::integer AS current,
       COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($2 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND deleted_at IS NULL)::integer AS previous
       FROM schedules`, [days, days * 2]),
-    pool.query(`SELECT COUNT(*) FILTER (WHERE deleted_at IS NULL)::integer AS total,
-      COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP AND deleted_at IS NULL)::integer AS current,
-      COUNT(*) FILTER (WHERE created_at >= CURRENT_TIMESTAMP - ($2 * INTERVAL '1 day') AND created_at < CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day') AND deleted_at IS NULL)::integer AS previous
-      FROM events`, [days, days * 2]),
     pool.query(`SELECT COALESCE(SUM(count), 0)::bigint AS requests,
       COALESCE(SUM(count) FILTER (WHERE status_class = '5xx'), 0)::bigint AS errors,
       COALESCE(MAX(p95_ms), 0)::numeric AS p95_ms,
@@ -39,7 +35,6 @@ async function overview(range = '30d') {
   ]);
   const users = userCounts.rows[0];
   const schedules = scheduleCounts.rows[0];
-  const events = eventCounts.rows[0];
   const requests = requestStats.rows[0];
   const smart = smartStats.rows[0];
   const requestCount = Number(requests.requests);
@@ -48,7 +43,6 @@ async function overview(range = '30d') {
     range: `${days}d`,
     users: { total: users.total, delta: Number(users.current) - Number(users.previous), signups: Number(users.current) },
     schedules: { total: schedules.total, delta: Number(schedules.current) - Number(schedules.previous), created: Number(schedules.current) },
-    schedule_entries: { total: events.total, delta: Number(events.current) - Number(events.previous), created: Number(events.current) },
     groups: { value: null, reason: 'Team data is outside the admin reporting scope.' },
     conflicts_detected: { value: null, reason: 'Conflict outcomes are not persisted.' },
     smart_schedule: {
@@ -85,11 +79,6 @@ async function timeseries(metric, range = '7d', interval = 'day') {
     case 'schedules_created':
       sourceSql = `SELECT date_trunc($2, created_at) AS bucket, COUNT(*)::bigint AS value
         FROM schedules WHERE created_at >= CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day')
-        GROUP BY 1`;
-      break;
-    case 'entries_created':
-      sourceSql = `SELECT date_trunc($2, created_at) AS bucket, COUNT(*)::bigint AS value
-        FROM events WHERE created_at >= CURRENT_TIMESTAMP - ($1 * INTERVAL '1 day')
         GROUP BY 1`;
       break;
     case 'requests':
@@ -131,11 +120,6 @@ async function breakdown(metric) {
   switch (metric) {
     case 'users_by_role': {
       const result = await pool.query('SELECT role AS label, COUNT(*)::bigint AS value FROM users WHERE deleted_at IS NULL GROUP BY role ORDER BY role');
-      return result.rows;
-    }
-    case 'entries_by_modality': {
-      const result = await pool.query(`SELECT COALESCE(modality, 'unspecified') AS label, COUNT(*)::bigint AS value
-        FROM events WHERE deleted_at IS NULL GROUP BY modality ORDER BY value DESC`);
       return result.rows;
     }
     case 'top_routes':

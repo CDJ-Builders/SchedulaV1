@@ -59,7 +59,6 @@ async function listUsers(req, { q, limit, offset, page }) {
       `SELECT u.id, u.email, u.role, u.created_at, u.updated_at, u.deleted_at,
               p.display_name,
               COALESCE(s.schedule_count, 0)::integer AS schedules_count,
-              COALESCE(e.entry_count, 0)::integer AS entries_count,
               (pref.user_id IS NOT NULL) AS has_preferences
          FROM users u
          LEFT JOIN profiles p ON p.user_id = u.id
@@ -69,14 +68,6 @@ async function listUsers(req, { q, limit, offset, page }) {
              FROM schedules s
             WHERE s.owner_user_id = u.id AND s.group_id IS NULL
          ) s ON TRUE
-         LEFT JOIN LATERAL (
-           SELECT COUNT(*) AS entry_count
-             FROM events e
-             JOIN schedules own_schedule ON own_schedule.id = e.schedule_id
-            WHERE e.owner_user_id = u.id
-              AND own_schedule.owner_user_id = u.id
-              AND own_schedule.group_id IS NULL
-         ) e ON TRUE
         WHERE $1::text IS NULL
            OR u.id::text ILIKE $1
            OR u.email::text ILIKE $1
@@ -127,32 +118,16 @@ async function getUserConfiguration(req, userId) {
         ORDER BY s.created_at DESC, s.id ASC`,
       [userId]
     );
-    const entriesResult = await client.query(
-      `SELECT e.id, e.schedule_id, s.title AS schedule_title, e.title,
-              e.start_at, e.end_at, e.timezone, e.description, e.location, e.modality,
-              e.category, e.color, e.priority, e.status, e.recurrence_rule,
-              e.reminder_offset_minutes, e.notes, e.created_at, e.updated_at, e.deleted_at
-         FROM events e
-         JOIN schedules s ON s.id = e.schedule_id
-        WHERE e.owner_user_id = $1
-          AND s.owner_user_id = $1
-          AND s.group_id IS NULL
-        ORDER BY e.start_at, e.id`,
-      [userId]
-    );
-
     const configuration = redactConfiguredData({
       account: accountResult.rows[0],
       profile: profileResult.rows[0] || null,
       preferences: preferencesResult.rows[0] || null,
-      schedules: schedulesResult.rows,
-      entries: entriesResult.rows
+      schedules: schedulesResult.rows
     });
     return {
       value: configuration,
       audit: {
         schedules_count: schedulesResult.rowCount,
-        entries_count: entriesResult.rowCount,
         has_profile: Boolean(profileResult.rowCount),
         has_preferences: Boolean(preferencesResult.rowCount)
       }

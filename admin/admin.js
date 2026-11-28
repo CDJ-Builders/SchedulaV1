@@ -153,7 +153,6 @@ function setKpis(stats) {
   const cards = [
     ['Users', stats.users?.total, `${number(stats.users?.signups)} new in range`, stats.users?.delta],
     ['Schedules', stats.schedules?.total, `${number(stats.schedules?.created)} created in range`, stats.schedules?.delta],
-    ['Schedule entries', stats.schedule_entries?.total, `${number(stats.schedule_entries?.created)} created in range`, stats.schedule_entries?.delta],
     ['Error rate', stats.error_rate == null ? null : `${(stats.error_rate * 100).toFixed(2)}%`, `${number(stats.error_count)} server errors in range`],
     ['p95 latency', stats.p95_latency_ms == null ? null : `${number(stats.p95_latency_ms, 1)} ms`, `Since ${stats.metrics_available_since ? new Date(stats.metrics_available_since).toLocaleString() : 'metrics deployment'}`]
   ];
@@ -325,14 +324,13 @@ function errorRow(row, index) {
 
 function userRow(row, index) {
   const deleted = Boolean(row.deleted_at);
-  return `<tr style="--i:${index}"><td data-label="Email / name"><span>${escapeHtml(row.email)}</span><small>${escapeHtml(row.display_name || 'No display name')}</small></td><td data-label="UID"><code>${escapeHtml(row.id)}</code></td><td data-label="Role">${escapeHtml(row.role)}</td><td data-label="Status">${deleted ? 'Deleted' : 'Active'}</td><td data-label="Personal data">${number(row.schedules_count)} schedules<br>${number(row.entries_count)} entries</td><td data-label="Preferences">${row.has_preferences ? 'Configured' : 'Not set'}</td><td data-label="View data"><button class="key icon admin-user-view-button" type="button" data-user-id="${escapeHtml(row.id)}" aria-label="View data for ${escapeHtml(row.email)}" title="View data"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></td></tr>`;
+  return `<tr style="--i:${index}"><td data-label="Email / name"><span>${escapeHtml(row.email)}</span><small>${escapeHtml(row.display_name || 'No display name')}</small></td><td data-label="UID"><code>${escapeHtml(row.id)}</code></td><td data-label="Role">${escapeHtml(row.role)}</td><td data-label="Status">${deleted ? 'Deleted' : 'Active'}</td><td data-label="Personal data">${number(row.schedules_count)} schedules</td><td data-label="Preferences">${row.has_preferences ? 'Configured' : 'Not set'}</td><td data-label="View data"><button class="key icon admin-user-view-button" type="button" data-user-id="${escapeHtml(row.id)}" aria-label="View data for ${escapeHtml(row.email)}" title="View data"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></td></tr>`;
 }
 
 function renderUserDetail(user) {
   const account = user.account;
   const section = (title, value) => `<section class="admin-user-detail-section"><h3>${escapeHtml(title)}</h3><div class="well"><pre class="admin-pre">${escapeHtml(value == null ? 'No data configured.' : JSON.stringify(value, null, 2))}</pre></div></section>`;
   const schedulesData = Array.isArray(user.schedules) ? user.schedules : [];
-  const entriesData = Array.isArray(user.entries) ? user.entries : [];
   const schedules = schedulesData.length ? schedulesData.map(schedule => ({
     id: schedule.id, title: schedule.title, timezone: schedule.timezone, color: schedule.color,
     created_at: schedule.created_at, updated_at: schedule.updated_at, deleted_at: schedule.deleted_at,
@@ -343,8 +341,7 @@ function renderUserDetail(user) {
     ${section('Account · UID', account)}
     ${section('Profile', user.profile)}
     ${section('Preferences', user.preferences)}
-    ${section(`Personal schedules (${schedulesData.length})`, schedules)}
-    ${section(`Personal schedule entries (${entriesData.length})`, entriesData)}`;
+    ${section(`Personal schedules (${schedulesData.length})`, schedules)}`;
 }
 
 async function loadUserDetail(userId) {
@@ -373,7 +370,7 @@ async function loadUsers() {
   showSkeleton(container, 'table', 6, 'Loading user directory');
   try {
     const result = await api(`/users?${params}`);
-    renderTable(container, ['Email / name', 'UID', 'Role', 'Status', 'Personal data', 'Preferences', ''], result.rows, 'No users found.', userRow, {
+    renderTable(container, ['Email / name', 'UID', 'Role', 'Status', 'Personal schedules', 'Preferences', ''], result.rows, 'No users found.', userRow, {
       page, hasMore: page * limit < result.total,
       onPage: nextPage => { state.pages.users = nextPage; loadUsers().catch(error => showToast(error.message)); }
     });

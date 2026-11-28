@@ -293,6 +293,100 @@ h1 span {
   text-transform: uppercase;
 }
 
+.auth-page .field[hidden] { display: none; }
+.auth-page #signup-pin-group { margin-top: 16px; }
+
+.auth-page .password-field-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 15px;
+}
+
+.auth-page .password-field-heading > label {
+  cursor: pointer;
+}
+
+.auth-page .password-requirements {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.auth-page .password-requirements-trigger {
+  display: inline-grid;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(42,18,69,.45);
+  border-radius: 50%;
+  background: #f2e8fa;
+  color: var(--auth-heading);
+  font: 800 12px/1 "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  cursor: help;
+}
+
+.auth-page .password-requirements::after {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: min(280px, calc(100vw - 64px));
+  height: 10px;
+  content: "";
+}
+
+.auth-page .password-requirements-trigger:focus-visible {
+  outline: 3px solid rgba(139,92,246,.3);
+  outline-offset: 2px;
+}
+
+.auth-page .password-requirements-tooltip {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(280px, calc(100vw - 64px));
+  padding: 13px 15px;
+  border: 1px solid rgba(42,18,69,.7);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--auth-heading);
+  box-shadow: inset 0 1px 0 #fff, 0 4px 0 #62298a, 0 10px 22px rgba(42,18,69,.22);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+}
+
+.auth-page .password-requirements:hover .password-requirements-tooltip,
+.auth-page .password-requirements:focus-within .password-requirements-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.auth-page .password-requirements-tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.auth-page .password-requirements-tooltip ul {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 18px;
+}
+
 .auth-page .field input {
   width: 100%;
   height: 50px;
