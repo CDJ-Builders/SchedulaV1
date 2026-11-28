@@ -553,9 +553,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (let minute = dayStartMinutes; minute < endMinute; minute += 60) { const label = document.createElement('div'); label.textContent = formatHour(minute); times.appendChild(label); }
     body.appendChild(times);
     const canvasColor = canvasBackgroundInput.value;
+    const canvasGradient = canvasGradientInput.checked ? colorGradient(canvasColor) : 'none';
     const columns = dayNames.map(() => {
       const col = document.createElement('div'); col.className = 'export-day-column';
       col.style.setProperty('--canvas-background', canvasColor);
+      col.style.setProperty('--canvas-gradient', canvasGradient);
       body.appendChild(col); return col;
     });
     const duration = endMinute - dayStartMinutes;
@@ -563,7 +565,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const resolvedStyle = item.legacy
         ? { ...batchDefaults(), title: item.block.title || '', description: item.block.description || '', notes: item.block.notes || '' }
         : Model.resolveBlockStyle(item.block, batchDefaults());
-      const style = { ...resolvedStyle, gradient: false, fontGradient: false };
+      const style = resolvedStyle;
       const card = document.createElement('article'); card.className = 'export-block';
       card.dataset.modality = item.block.modality || 'onsite';
       card.style.top = `${((item.start - dayStartMinutes) / duration) * 100}%`; card.style.height = `${((item.end - item.start) / duration) * 100}%`;
@@ -598,7 +600,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return `
       .schedule-export-view{box-sizing:border-box;width:1280px;padding:40px;background:#fff;color:#2a1245;font-family:"Bricolage Grotesque",system-ui,sans-serif}
       .schedule-export-view *{box-sizing:border-box}
-      .export-header{display:block;margin-bottom:22px;padding:22px 26px;border:2px solid #2a1245;border-radius:18px;background:#f2e8fa!important;box-shadow:inset 0 1px 0 #fff,inset 0 -3px 0 rgba(98,41,138,.12),0 4px 0 #62298a,0 8px 14px rgba(42,18,69,.14)}
+      .export-header{display:block;margin-bottom:22px;padding:22px 26px;border:2px solid #2a1245;border-radius:18px;background:#fff!important;box-shadow:inset 0 1px 0 #fff,inset 0 -3px 0 rgba(98,41,138,.12),0 4px 0 #62298a,0 8px 14px rgba(42,18,69,.14)}
       .schedule-export-view .export-header h1{display:block;width:auto;margin:0;color:#2a1245;background:transparent!important;padding:0;font-size:32px;font-weight:800;line-height:1.08;letter-spacing:-.025em;overflow-wrap:anywhere}
       .export-grid{width:100%;overflow:hidden;border:2px solid #2a1245;border-radius:16px;background:#fff;box-shadow:inset 0 1px 0 #fff,0 4px 0 #62298a,0 9px 18px rgba(42,18,69,.16)}
       .export-head-row,.export-grid-body{display:grid;grid-template-columns:84px repeat(7,minmax(0,1fr))}
@@ -625,7 +627,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
   }
   function exportCanvasCss() {
-    return '.export-day-column{background-color:var(--canvas-background,#fff);background-image:linear-gradient(to bottom,rgba(98,41,138,.18) 1px,transparent 1px);background-size:100% 66px}';
+    return '.export-day-column{background-color:var(--canvas-background,#fff);background-image:linear-gradient(to bottom,rgba(98,41,138,.18) 1px,transparent 1px),var(--canvas-gradient,none);background-size:100% 66px,100% 100%;background-repeat:repeat-y,no-repeat;background-position:top left,top left}';
   }
 
   async function withExportView(callback) {

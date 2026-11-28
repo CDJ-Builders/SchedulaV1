@@ -499,8 +499,8 @@ async function loadDashboardData() {
   showKpiSkeletons();
   showHealthChipSkeletons();
   [
-    'chart-signups', 'chart-requests', 'chart-schedules', 'chart-entries', 'chart-smart',
-    'chart-user-roles', 'chart-modalities', 'chart-routes'
+    'chart-signups', 'chart-requests', 'chart-schedules', 'chart-smart',
+    'chart-user-roles', 'chart-routes'
   ].forEach(id => showChartSkeleton($(`#${id}`)));
   let bundle;
   try {
@@ -514,7 +514,7 @@ async function loadDashboardData() {
     $('#access-state').textContent = displayError;
     $('#kpi-grid').innerHTML = `<div class="admin-load-error">Could not load dashboard statistics: ${escapeHtml(displayError)}</div>`;
     markLoaded($('#kpi-grid'));
-    ['chart-signups', 'chart-requests', 'chart-schedules', 'chart-entries', 'chart-smart', 'chart-user-roles', 'chart-modalities', 'chart-routes']
+    ['chart-signups', 'chart-requests', 'chart-schedules', 'chart-smart', 'chart-user-roles', 'chart-routes']
       .forEach(id => showChartError(id, `summary-${id.replace('chart-', '')}`, new Error(displayError)));
     return;
   }
@@ -525,10 +525,8 @@ async function loadDashboardData() {
   const requestsResult = toSettled(series.requests);
   const errorsResult = toSettled(series.errors);
   const schedulesResult = toSettled(series.schedules_created);
-  const entriesResult = toSettled(series.entries_created);
   const smartResult = toSettled(series.smart_schedule_calls);
   const rolesResult = toSettled(breakdowns.users_by_role);
-  const modalitiesResult = toSettled(breakdowns.entries_by_modality);
   const routesResult = toSettled(breakdowns.top_routes);
   if (statsResult.status === 'fulfilled') {
     const stats = statsResult.value;
@@ -549,14 +547,10 @@ async function loadDashboardData() {
   } else showChartError('chart-requests', 'summary-requests', requestsResult.reason || errorsResult.reason);
   if (hasChartPoints(schedulesResult)) drawSeries($('#chart-schedules'), schedulesResult.value.points, [{ key: 'value', label: 'Schedules', color: '--plum' }], $('#summary-schedules'));
   else showChartError('chart-schedules', 'summary-schedules', schedulesResult.reason);
-  if (hasChartPoints(entriesResult)) drawSeries($('#chart-entries'), entriesResult.value.points, [{ key: 'value', label: 'Entries', color: '--purple-dark' }], $('#summary-entries'));
-  else showChartError('chart-entries', 'summary-entries', entriesResult.reason);
   if (hasChartPoints(smartResult)) drawSeries($('#chart-smart'), smartResult.value.points, [{ key: 'value', label: 'Smart schedule', color: '--purple' }], $('#summary-smart'));
   else showChartError('chart-smart', 'summary-smart', smartResult.reason);
   if (hasBreakdownRows(rolesResult)) drawBreakdown($('#chart-user-roles'), breakdownRows(rolesResult), $('#summary-user-roles'));
   else showChartError('chart-user-roles', 'summary-user-roles', rolesResult.reason);
-  if (hasBreakdownRows(modalitiesResult)) drawBreakdown($('#chart-modalities'), breakdownRows(modalitiesResult), $('#summary-modalities'));
-  else showChartError('chart-modalities', 'summary-modalities', modalitiesResult.reason);
   if (hasBreakdownRows(routesResult)) drawBreakdown($('#chart-routes'), breakdownRows(routesResult), $('#summary-routes'));
   else showChartError('chart-routes', 'summary-routes', routesResult.reason);
   $('#last-updated').textContent = `Last updated ${new Date().toLocaleTimeString()}`;

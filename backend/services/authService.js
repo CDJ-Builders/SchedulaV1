@@ -1,8 +1,9 @@
 const { pool } = require('../config/database');
-const { sendResetPinEmail } = require('../utils/email');
+const { sendResetPinEmail, sendSignupPinEmail } = require('../utils/email');
 const jwt = require('jsonwebtoken');
 const nodeCrypto = require('crypto');
 const { JWT_SECRET, JWT_REFRESH_SECRET } = require('../config/env');
+const { isValidPassword } = require('../utils/passwordPolicy');
 
 function hashToken(token) {
   return nodeCrypto.createHash('sha256').update(token).digest('hex');
@@ -15,20 +16,43 @@ function issueTokens(userId, sessionId) {
 }
 
 async function signup(email, password) {
+  if (!isValidPassword(password)) {
+    const error = new Error('Password must be at least 6 characters and include a number, an uppercase letter, and a lowercase letter.');
+    error.status = 400;
+    throw error;
+  }
+  const existing = await pool.query('SELECT 1 FROM users WHERE LOWER(email::text) = LOWER($1) AND deleted_at IS NULL', [email]);
+  if (existing.rows.length) {
+    const error = new Error('Email already registered'); error.status = 409; throw error;
+  }
+  const pin = nodeCrypto.randomInt(100000, 1000000).toString();
+  await pool.query(
+    `INSERT INTO pending_signups (email, password_hash, pin_hash, expires_at)
+     VALUES (LOWER($1), crypt($2, gen_salt('bf')), $3, CURRENT_TIMESTAMP + INTERVAL '15 minutes')
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash,
+       pin_hash = EXCLUDED.pin_hash, expires_at = EXCLUDED.expires_at, created_at = CURRENT_TIMESTAMP`,
+    [email, password, hashToken(pin)]
+  );
+  await sendSignupPinEmail(email, pin);
+}
+
+async function verifySignup(email, pin) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const result = await client.query(
-      `INSERT INTO users (email, password_hash)
-       VALUES (LOWER($1), crypt($2, gen_salt('bf')))
-       RETURNING id, email`,
-      [email, password]
+    const pending = await client.query(
+      `SELECT email, password_hash FROM pending_signups
+        WHERE email = LOWER($1) AND pin_hash = $2 AND expires_at > CURRENT_TIMESTAMP
+        FOR UPDATE`, [email, hashToken(pin)]
     );
+    if (!pending.rows.length) { const error = new Error('Invalid or expired signup PIN.'); error.status = 400; throw error; }
+    const result = await client.query('INSERT INTO users (email, password_hash) VALUES (LOWER($1), $2) RETURNING id, email', [email, pending.rows[0].password_hash]);
     await client.query(
       'INSERT INTO profiles (user_id, display_name) VALUES ($1, $2)',
       [result.rows[0].id, email]
     );
     await client.query('INSERT INTO preferences (user_id) VALUES ($1)', [result.rows[0].id]);
+    await client.query('DELETE FROM pending_signups WHERE email = LOWER($1)', [email]);
     await client.query('COMMIT');
     return { user_id: result.rows[0].id };
   } catch (error) {
@@ -38,6 +62,7 @@ async function signup(email, password) {
       err.status = 409;
       throw err;
     }
+    if (error.status) throw error;
     throw error;
   } finally {
     client.release();
@@ -159,6 +184,11 @@ async function forgotPassword(email) {
 }
 
 async function resetPassword(resetPin, email, password) {
+  if (!isValidPassword(password)) {
+    const error = new Error('Password must be at least 6 characters and include a number, an uppercase letter, and a lowercase letter.');
+    error.status = 400;
+    throw error;
+  }
   const result = await pool.query(
     `SELECT prt.id, u.id AS user_id
        FROM password_reset_tokens prt
@@ -177,4 +207,4 @@ async function resetPassword(resetPin, email, password) {
   await pool.query('UPDATE password_reset_tokens SET used_at = CURRENT_TIMESTAMP WHERE id = $1', [result.rows[0].id]);
 }
 
-module.exports = { signup, login, refresh, logout, forgotPassword, resetPassword };
+module.exports = { signup, verifySignup, login, refresh, logout, forgotPassword, resetPassword };

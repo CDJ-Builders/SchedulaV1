@@ -500,6 +500,17 @@ CREATE TABLE admin_job_runs (
   last_run_at TIMESTAMPTZ NOT NULL
 );
 
+-- Schema changes from 014_email_verified_signup.up.sql
+CREATE TABLE IF NOT EXISTS pending_signups (
+  email TEXT PRIMARY KEY,
+  password_hash TEXT NOT NULL,
+  pin_hash TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_pending_signups_expiry ON pending_signups (expires_at);
+
 -- The preference backup in migration 003 is upgrade-only; it is not part of the final schema.
 DROP TABLE IF EXISTS preferences_backup;
 
@@ -535,5 +546,7 @@ INSERT INTO schema_migrations (version, name, checksum) VALUES ('011', '011_remo
 INSERT INTO schema_migrations (version, name, checksum) VALUES ('012', '012_admin_roles.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
 
 INSERT INTO schema_migrations (version, name, checksum) VALUES ('013', '013_admin_diagnostics.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
+
+INSERT INTO schema_migrations (version, name, checksum) VALUES ('014', '014_email_verified_signup.up.sql', NULL) ON CONFLICT (version) DO NOTHING;
 
 COMMIT;

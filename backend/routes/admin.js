@@ -99,8 +99,8 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     try { return { data: await action() }; }
     catch (error) { return { error: error.message || 'Dashboard data unavailable' }; }
   };
-  const metrics = ['signups', 'requests', 'errors', 'schedules_created', 'entries_created', 'smart_schedule_calls'];
-  const breakdownMetrics = ['users_by_role', 'entries_by_modality', 'top_routes'];
+  const metrics = ['signups', 'requests', 'errors', 'schedules_created', 'smart_schedule_calls'];
+  const breakdownMetrics = ['users_by_role', 'top_routes'];
   const [stats, ...results] = await Promise.all([
     collect(() => adminStats.overview(range)),
     ...metrics.map(metric => collect(() => adminStats.timeseries(metric, range))),

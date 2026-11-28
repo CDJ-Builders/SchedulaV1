@@ -97,6 +97,22 @@ async function sendResetPinEmail(to, pin) {
   }
 }
 
+async function sendSignupPinEmail(to, pin) {
+  const fromEmail = SMTP.FROM;
+  const subject = 'Verify your Schedula email';
+  const text = `Use this 6-digit PIN to verify your email and finish creating your Schedula account:\n\n${pin}\n\nThis PIN expires in 15 minutes. If you did not try to sign up, ignore this email.`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px"><h2>Verify your Schedula email</h2><p>Enter this 6-digit PIN to finish creating your account. It expires in 15 minutes.</p><p style="font:700 32px monospace;letter-spacing:8px">${pin}</p><p>If you did not try to sign up, ignore this email.</p></div>`;
+  if (smtpConfigured && transporter) {
+    await transporter.sendMail({ from: `"Schedula" <${fromEmail}>`, to, subject, text, html });
+    return;
+  }
+  logDebug(`[DEV MOCK EMAIL DISPATCH] Signup verification PIN for ${to}: ${pin}`);
+  const dir = path.join(__dirname, '..', 'logs', 'email-verifications');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, `${Date.now()}-${to.replace(/[^a-zA-Z0-9]/g, '_')}.html`);
+  fs.writeFileSync(file, `<p><strong>To:</strong> ${to}</p><p><strong>Subject:</strong> ${subject}</p><p><strong>PIN:</strong> ${pin}</p><hr>${html}`);
+}
+
 async function verifySmtp(timeoutMs = 3000) {
   if (!smtpConfigured || !transporter) return null;
   let timeout;
@@ -111,4 +127,4 @@ async function verifySmtp(timeoutMs = 3000) {
   }
 }
 
-module.exports = { sendResetPinEmail, verifySmtp };
+module.exports = { sendResetPinEmail, sendSignupPinEmail, verifySmtp };

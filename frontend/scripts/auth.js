@@ -356,30 +356,58 @@ if (loginButton) {
 }
 
 // Signup Event Trigger
+let signupVerificationPending = false;
 if (signupButton) {
   signupButton.addEventListener('click', async () => {
     const email = document.querySelector('input[type="email"]').value.trim();
     const password = document.querySelectorAll('input[type="password"]')[0].value.trim();
     const confirmPassword = document.querySelectorAll('input[type="password"]')[1].value.trim();
 
-    if (!email || !password || !confirmPassword) {
-      alert('Please fill in all fields.');
+    const message = document.getElementById('signup-message');
+    const showSignupMessage = (text, error = false) => {
+      if (message) { message.textContent = text; message.style.display = 'block'; message.style.color = error ? '#b42318' : '#237a3b'; }
+      else alert(text);
+    };
+
+    if (signupVerificationPending) {
+      const pin = document.getElementById('signup-pin').value.trim();
+      if (!/^\d{6}$/.test(pin)) { showSignupMessage('Enter the 6-digit PIN sent to your email.', true); return; }
+      try {
+        const verifyResponse = await fetch(`${window.APP_CONFIG.API_BASE}/verify-signup`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, pin })
+        });
+        const verifyData = await verifyResponse.json();
+        if (!verifyResponse.ok) { showSignupMessage(verifyData.error || 'Email verification failed.', true); return; }
+        const loginResponse = await fetch(`${window.APP_CONFIG.API_BASE}/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const loginData = await loginResponse.json();
+        if (!loginResponse.ok) { showSignupMessage(loginData.error || 'Account created. Please log in.', true); return; }
+        localStorage.setItem('token', loginData.token);
+        if (loginData.refreshToken) localStorage.setItem('refreshToken', loginData.refreshToken);
+        localStorage.setItem('user', JSON.stringify(loginData.user));
+        redirectWithToken('./setup.html');
+      } catch (error) { showSignupMessage('Email verification failed: ' + error.message, true); }
       return;
     }
 
+    if (!email || !password || !confirmPassword) { showSignupMessage('Please fill in all fields.', true); return; }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Invalid email address format.');
+      showSignupMessage('Invalid email address format.', true);
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match.');
+      showSignupMessage('Passwords do not match.', true);
       return;
     }
 
-    if (password.length < 6) {
-      alert('Password must be at least 6 characters long.');
+    if (password.length < 6 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+      showSignupMessage('Password must be at least 6 characters and include a number, an uppercase letter, and a lowercase letter.', true);
       return;
     }
 
@@ -397,26 +425,13 @@ if (signupButton) {
         return;
       }
 
-      // Automatically trigger backend login routine on successful registration
-      const loginResponse = await fetch(`${window.APP_CONFIG.API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const loginData = await loginResponse.json();
-
-      if (loginResponse.ok) {
-        localStorage.setItem('token', loginData.token);
-        if (loginData.refreshToken) {
-          localStorage.setItem('refreshToken', loginData.refreshToken);
-        }
-        localStorage.setItem('user', JSON.stringify(loginData.user));
-        redirectWithToken(`./setup.html`);
-      } else {
-        alert(loginData.error || 'Login verification failed post-signup');
-      }
+      signupVerificationPending = true;
+      document.getElementById('signup-pin-group').style.display = 'grid';
+      document.getElementById('signup-subtitle').textContent = `Enter the 6-digit PIN sent to ${email}.`;
+      signupButton.textContent = 'Verify Email';
+      showSignupMessage('We sent a 6-digit verification PIN to your email address.');
     } catch (error) {
-      alert('Signup failed: ' + error.message);
+      showSignupMessage('Signup failed: ' + error.message, true);
     }
   });
 }
@@ -549,8 +564,8 @@ if (resetSubmitBtn) {
       return;
     }
 
-    if (password.length < 6) {
-      showMessage('Password must be at least 6 characters long.', true);
+    if (password.length < 6 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+      showMessage('Password must be at least 6 characters and include a number, an uppercase letter, and a lowercase letter.', true);
       return;
     }
 

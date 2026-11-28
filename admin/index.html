@@ -8,11 +8,11 @@
   <title>Schedula | Admin</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../frontend/css/background.css">
-  <link rel="stylesheet" href="admin.css?v=11">
+  <link rel="stylesheet" href="admin.css?v=12">
   <script src="../frontend/scripts/utils.js"></script>
   <script src="../frontend/scripts/auth.js?v=4" defer></script>
   <script src="session.js?v=4" defer></script>
-  <script src="admin.js?v=14" defer></script>
+  <script src="admin.js?v=15" defer></script>
 </head>
 
 <body class="admin-page">
@@ -96,13 +96,6 @@
                     <p class="sr" id="summary-schedules"></p>
                   </div>
                   <div>
-                    <h3>Entries created</h3>
-                    <div class="well chart-well"><canvas id="chart-entries" role="img"
-                        aria-label="Schedule entries created over time" aria-describedby="summary-entries"></canvas>
-                    </div>
-                    <p class="sr" id="summary-entries"></p>
-                  </div>
-                  <div>
                     <h3>Smart schedule requests</h3>
                     <div class="well chart-well"><canvas id="chart-smart" role="img"
                         aria-label="Smart schedule requests over time" aria-describedby="summary-smart"></canvas></div>
@@ -119,13 +112,6 @@
                     <div class="well chart-well admin-breakdown"><canvas id="chart-user-roles" role="img"
                         aria-label="User counts by role" aria-describedby="summary-user-roles"></canvas></div>
                     <p class="sr" id="summary-user-roles"></p>
-                  </div>
-                  <div>
-                    <h3>Entries by modality</h3>
-                    <div class="well chart-well admin-breakdown"><canvas id="chart-modalities" role="img"
-                        aria-label="Schedule entry counts by modality" aria-describedby="summary-modalities"></canvas>
-                    </div>
-                    <p class="sr" id="summary-modalities"></p>
                   </div>
                   <div>
                     <h3>Top routes</h3>
