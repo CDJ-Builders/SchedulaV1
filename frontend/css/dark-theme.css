@@ -228,6 +228,13 @@
   text-shadow: none !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -3px 0 rgba(0,0,0,.22), 0 4px 0 var(--key-edge), 0 8px 14px var(--shadow-tint) !important;
 }
+:root[data-theme="dark"] body.auth-page .signup-btn:disabled {
+  color: #a5a1aa !important;
+  background: linear-gradient(180deg,#34363a,#292b2f) !important;
+  border-color: #51545a !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 0 #484b50 !important;
+  opacity: 1;
+}
 
 /* Builder and Plotter action roles: green commits, muted purple creation/generation. */
 :root[data-theme="dark"] body :is(#smart-schedule-btn,#save-schedule-btn,#edit-block-save,#save-profile-btn,#save-preferences-btn,#setup-next-btn,#btn-export),

@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="../frontend/css/theme.css">
   <link rel="stylesheet" href="../frontend/css/background.css">
   <link rel="stylesheet" href="../frontend/css/chrome.css" data-schedula-header data-site-footer>
-  <link rel="stylesheet" href="../frontend/css/auth.css?v=20261128-auth-hitarea">
+  <link rel="stylesheet" href="../frontend/css/auth.css?v=20261128-signup-consent-6">
   <link rel="stylesheet" href="../frontend/css/popup.css" data-schedula-popup>
-  <link rel="stylesheet" href="../frontend/css/dark-theme.css">
+  <link rel="stylesheet" href="../frontend/css/dark-theme.css?v=20261128-signup-consent-3">
   <link rel="stylesheet" href="../frontend/css/responsive-chrome.css">
   <script src="../frontend/scripts/theme.js"></script>
 </head>
@@ -90,8 +90,20 @@
           <input id="signup-pin" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code">
         </label>
 
+        <div class="signup-terms" id="signup-terms">
+          <label class="signup-terms-consent" for="signup-terms-checkbox">
+            <input id="signup-terms-checkbox" type="checkbox">
+            <span>I agree to the</span>
+          </label>
+          <button class="signup-terms-link" id="signup-terms-link" type="button">Terms and Conditions</button>
+          <span class="signup-terms-period">.</span>
+        </div>
+
         <div class="separator"></div>
-        <button class="button primary signup-btn" type="button">Create Account</button>
+        <button class="button primary signup-btn" type="button" disabled aria-disabled="true">
+          <svg class="signup-lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/></svg>
+          <span class="signup-btn-label">Create Account</span>
+        </button>
 
         <div class="separator"></div>
 
@@ -108,6 +120,6 @@
   <script src="../frontend/scripts/background.js"></script>
   <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js?v=20261128-nav-icons"></script>
-  <script src="../frontend/scripts/auth.js?v=20261128-url-safe-handoff"></script>
+  <script src="../frontend/scripts/auth.js?v=20261128-signup-consent-3"></script>
 </body>
 </html>

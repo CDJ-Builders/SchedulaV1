@@ -62,56 +62,61 @@
     terms: {
       title: 'Terms and Conditions',
       body: `
-        <h4>1. ACCEPTANCE</h4>
-        <p>By using Schedula, you agree to these Terms and Conditions. If you do not agree, please discontinue use of the service.</p>
-        <h4>2. EDUCATIONAL USE</h4>
-        <p>Schedula helps people organize personal and team schedules. Availability and shared schedule data may change, so review important plans before relying on them.</p>
-        <h4>3. ACCOUNTS</h4>
-        <p>You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account. Notify us promptly if you suspect unauthorized access.</p>
-        <h4>4. ACCEPTABLE USE</h4>
-        <p>You agree not to misuse the platform, attempt unauthorized access, interfere with service operation, or use the tool for unlawful purposes.</p>
-        <h4>5. DISCLAIMER</h4>
-        <p>The service is provided &ldquo;as is&rdquo; without warranties of any kind. CDJ Builders is not liable for missed commitments or scheduling outcomes resulting from use of this tool.</p>
-        <h4>6. CHANGES</h4>
-        <p>We may update these terms from time to time. Continued use after changes are posted constitutes acceptance of the revised terms.</p>
-        <h4>7. CONTACT</h4>
-        <p><a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
+        <p><strong>Last Updated:</strong> November 2026</p>
+        <h4>1. ACCEPTANCE OF TERMS</h4>
+        <p>By accessing or using Schedula, you agree to be bound by these Terms and Conditions. If you do not agree, please discontinue use of the service.</p>
+        <h4>2. SERVICE SCOPE &amp; SMART SCHEDULING</h4>
+        <p>Schedula is a personal and collaborative scheduling platform featuring conflict detection, visual timetable plotting, team coordination, Excel/PNG/PDF import and export, and ML-assisted slot recommendations (SchedulaML). Recommendations are advisory—always review generated or shared schedules before relying on them.</p>
+        <h4>3. ACCOUNTS &amp; SECURITY</h4>
+        <p>Account registration requires email verification. You are responsible for safeguarding your password, session access, and any activity under your account. Sessions automatically expire after periods of inactivity for your protection.</p>
+        <h4>4. TEAM COLLABORATION &amp; SHARED CONTENT</h4>
+        <p>When you create or join a team using an invite code, team members and administrators can view shared availability windows, team proposals, and schedule details permitted by your team settings. You are responsible for the accuracy of schedules and files you import or share.</p>
+        <h4>5. ACCEPTABLE USE &amp; MODERATION</h4>
+        <p>You agree not to misuse the platform, attempt unauthorized access, bypass rate limits or role controls, interfere with service operation, or upload unlawful content. System administrators may monitor operational health, audit logs, and enforce access or retention policies to keep the platform secure.</p>
+        <h4>6. DISCLAIMER &amp; LIMITATION OF LIABILITY</h4>
+        <p>Schedula is provided &ldquo;as is&rdquo; without warranties of any kind. CDJ Builders is not liable for missed commitments, scheduling conflicts, or data loss resulting from use of the service.</p>
+        <h4>7. CHANGES TO TERMS</h4>
+        <p>We may update these Terms from time to time. Continued use of Schedula after updates are posted constitutes acceptance of the revised Terms.</p>
+        <h4>8. CONTACT</h4>
+        <p>Questions about these Terms? Contact <a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
       `,
     },
     privacy: {
       title: 'Privacy Policy',
       body: `
-        <h4>INFORMATION WE COLLECT</h4>
-        <p>We collect information you provide when creating an account, profile preferences, and schedule data you save within the application.</p>
-        <h4>HOW WE USE YOUR INFORMATION</h4>
-        <p>Your information is used to authenticate your account, store your schedules, personalize your experience, and improve the reliability of the service.</p>
-        <h4>DATA STORAGE AND SECURITY</h4>
-        <p>We take reasonable measures to protect your data. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
-        <h4>SHARING</h4>
-        <p>We do not sell your personal information. We may share data only when required by law or to protect the rights and safety of users and the service.</p>
-        <h4>YOUR CHOICES</h4>
-        <p>You may update and delete profile information within the app. For data inquiries, contact us at the email address listed in the site footer.</p>
-        <h4>UPDATES</h4>
-        <p>This Privacy Policy may be updated periodically. Material changes will be reflected on this page when you view the policy from the footer.</p>
-        <h4>CONTACT</h4>
-        <p><a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
+        <p><strong>Last Updated:</strong> November 2026</p>
+        <h4>1. INFORMATION WE COLLECT</h4>
+        <p>We collect account details you provide (name, email address, and encrypted password), onboarding and scheduling preferences (preferred time windows, breaks, and tolerance settings), availability blocks, personal and team schedules, team memberships and meeting proposals, and basic operational logs (error diagnostics and audit events) needed to keep the service reliable.</p>
+        <h4>2. HOW WE USE YOUR INFORMATION</h4>
+        <p>Your data is used to authenticate your account, verify your email, store and export your schedules, detect time conflicts, generate personalized Smart Scheduling recommendations via SchedulaML, and coordinate team availability.</p>
+        <h4>3. DATA STORAGE, SECURITY &amp; RETENTION</h4>
+        <p>Passwords are protected using strong cryptographic hashing (Blowfish <code>crypt()</code>), API access is guarded by JWT authentication with idle session timeouts, and database queries are parameterized. Operational logs follow automated retention and pruning schedules. While we apply industry-standard safeguards, no system can guarantee absolute security.</p>
+        <h4>4. TEAM SHARING &amp; THIRD-PARTY DISCLOSURE</h4>
+        <p>We do not sell or rent your personal information. Availability windows and shared schedule details are visible only to members of teams you explicitly join. We may disclose data only if required by law or to protect user and platform safety.</p>
+        <h4>5. YOUR CHOICES &amp; ACCOUNT DELETION</h4>
+        <p>You can update your profile, preferences, and availability blocks at any time, export your schedules, or permanently delete your account from your Profile settings—which removes your associated personal data.</p>
+        <h4>6. POLICY UPDATES</h4>
+        <p>We may revise this Privacy Policy periodically. Any updates will appear directly in this modal.</p>
+        <h4>7. CONTACT</h4>
+        <p>For privacy inquiries, contact <a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
       `,
     },
     about: {
-      title: 'About',
+      title: 'About Us',
       body: `
-        <h4>Schedula</h4>
-        <p>Schedula is a focused scheduling workspace by <strong>CDJ Builders</strong>.</p>
-        <h4>What you can do</h4>
+        <h4>Schedula by CDJ Builders</h4>
+        <p>Schedula is a student-first, collaborative scheduling workspace built by <strong>CDJ Builders</strong> (De La Salle University &ndash; Dasmari&ntilde;as: Carmona, Devega, and Jimenez).</p>
+        <h4>What You Can Do</h4>
         <ul>
-          <li>Build schedules with conflict detection</li>
-          <li>Plot your week visually with the timeline plotter</li>
-          <li>Save, restore, and manage multiple schedule versions</li>
+          <li><strong>Build &amp; Detect Conflicts:</strong> Organize weekly blocks with automatic time-overlap checks.</li>
+          <li><strong>Smart Scheduling (SchedulaML):</strong> Get ML-powered slot recommendations tailored to your habits, breaks, and availability.</li>
+          <li><strong>Plot &amp; Export:</strong> Customize timetable colors, fonts, and modality tags, then export to PNG, PDF, or Excel.</li>
+          <li><strong>Coordinate Teams:</strong> Create or join teams via invite codes, compare member availability, and propose or review group meetings.</li>
         </ul>
-        <h4>OUR MISSION</h4>
-        <p>We built Schedula to make time planning faster, clearer, and less stressful.</p>
-        <h4>GET IN TOUCH</h4>
-        <p><a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
+        <h4>Our Mission</h4>
+        <p>We built Schedula to eliminate spreadsheet friction and make personal and team time planning faster, clearer, and less stressful.</p>
+        <h4>Get in Touch</h4>
+        <p>Have feedback or need support? Reach us at <a href="mailto:cdj.builders.dev@gmail.com">cdj.builders.dev@gmail.com</a>.</p>
       `,
     },
   };
@@ -185,7 +190,7 @@
           </button>
           <button type="button" class="site-footer-link" data-footer-modal="about">
             ${ICONS.about}
-            <span>About</span>
+            <span>About Us</span>
           </button>
         </nav>
       </div>

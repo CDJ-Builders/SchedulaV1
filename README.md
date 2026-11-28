@@ -115,7 +115,6 @@ schedula/
 │   ├── plans/                    # Migration guides, audits & UI/UX plans (incl. UIUX_AUDIT/)
 │   ├── schemas/                  # Backend, DB, security & SchedulaML contract specifications
 │   ├── scrum/                    # Agile SCRUM logs, requirements & proposals
-│   ├── GRAPHIFY_CODEBASE_INDEX.md # Codebase knowledge graph summary
 │   └── TODO.md                   # Development backlog and task tracking
 ├── assets/                       # Static branding images, icons, and diagrams
 ├── index.html                    # Public landing page

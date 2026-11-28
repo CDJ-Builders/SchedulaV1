@@ -339,6 +339,9 @@ function fallbackAutologinRedirect() {
 
 const loginButton = document.querySelector('.login-btn');
 const signupButton = document.querySelector('.signup-btn');
+const signupTermsCheckbox = document.getElementById('signup-terms-checkbox');
+const signupTermsGroup = document.getElementById('signup-terms');
+const signupTermsLink = document.getElementById('signup-terms-link');
 const forgotButton = document.getElementById('forgot-password');
 const signupLinkButton = document.getElementById('signup');
 const loginLinkButton = document.getElementById('login');
@@ -417,6 +420,31 @@ if (loginButton) {
 let signupVerificationPending = false;
 let signupRequestInFlight = false;
 let signupVerified = false;
+function setSignupButtonDisabled(disabled) {
+  if (!signupButton) return;
+  const locked = Boolean(disabled);
+  signupButton.disabled = locked;
+  signupButton.setAttribute('aria-disabled', String(locked));
+  signupButton.classList.toggle('is-locked', locked);
+}
+if (signupButton && signupTermsCheckbox) {
+  setSignupButtonDisabled(true);
+  signupTermsCheckbox.addEventListener('change', () => {
+    if (!signupVerificationPending && !signupVerified) {
+      setSignupButtonDisabled(!signupTermsCheckbox.checked);
+    }
+  });
+}
+if (signupTermsLink) {
+  signupTermsLink.addEventListener('click', () => {
+    if (typeof window.showFooterModal === 'function') window.showFooterModal('terms');
+  });
+}
+function setSignupButtonLabel(label) {
+  const labelElement = signupButton?.querySelector('.signup-btn-label');
+  if (labelElement) labelElement.textContent = label;
+  else if (signupButton) signupButton.textContent = label;
+}
 if (signupButton) {
   signupButton.addEventListener('click', async () => {
     if (signupRequestInFlight) return;
@@ -438,10 +466,10 @@ if (signupButton) {
       const pin = document.getElementById('signup-pin').value.trim();
       if (!/^\d{6}$/.test(pin)) { showSignupMessage('Enter the 6-digit PIN sent to your email.', true); return; }
       signupRequestInFlight = true;
-      signupButton.disabled = true;
+      setSignupButtonDisabled(true);
       signupButton.setAttribute('aria-busy', 'true');
       signupButton.classList.add('is-processing');
-      signupButton.textContent = 'Checking PIN...';
+      setSignupButtonLabel('Checking PIN...');
       try {
         const verifyResponse = await fetch(`${window.APP_CONFIG.API_BASE}/verify-signup`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -471,9 +499,14 @@ if (signupButton) {
         signupRequestInFlight = false;
         signupButton.classList.remove('is-processing');
         signupButton.removeAttribute('aria-busy');
-        signupButton.disabled = signupVerified;
-        signupButton.textContent = signupVerified ? 'Verified' : 'Verify Email';
+        setSignupButtonDisabled(signupVerified);
+        setSignupButtonLabel(signupVerified ? 'Verified' : 'Verify Email');
       }
+      return;
+    }
+
+    if (signupTermsCheckbox && !signupTermsCheckbox.checked) {
+      showSignupMessage('Please agree to the Terms and Conditions to create an account.', true);
       return;
     }
 
@@ -496,10 +529,10 @@ if (signupButton) {
     }
 
     signupRequestInFlight = true;
-    signupButton.disabled = true;
+    setSignupButtonDisabled(true);
     signupButton.setAttribute('aria-busy', 'true');
     signupButton.classList.add('is-processing');
-    signupButton.textContent = 'Sending PIN...';
+    setSignupButtonLabel('Sending PIN...');
     try {
       // Call signup endpoint
       const signupResponse = await fetch(`${window.APP_CONFIG.API_BASE}/signup`, {
@@ -518,17 +551,19 @@ if (signupButton) {
       document.getElementById('signup-password-group').hidden = true;
       document.getElementById('signup-confirm-password-group').hidden = true;
       document.getElementById('signup-pin-group').style.display = 'grid';
+      if (signupTermsGroup) signupTermsGroup.hidden = true;
+      if (signupTermsCheckbox) signupTermsCheckbox.disabled = true;
       document.getElementById('signup-subtitle').textContent = `Enter the 6-digit PIN sent to ${email}.`;
-      signupButton.textContent = 'Verify Email';
+      setSignupButtonLabel('Verify Email');
       showSignupMessage('We sent a 6-digit verification PIN to your email address.');
     } catch (error) {
       showSignupMessage('Signup failed: ' + error.message, true);
     } finally {
       signupRequestInFlight = false;
-      signupButton.disabled = false;
+      setSignupButtonDisabled(signupVerified || (!signupVerificationPending && Boolean(signupTermsCheckbox && !signupTermsCheckbox.checked)));
       signupButton.removeAttribute('aria-busy');
       signupButton.classList.remove('is-processing');
-      signupButton.textContent = signupVerificationPending ? 'Verify Email' : 'Create Account';
+      setSignupButtonLabel(signupVerificationPending ? 'Verify Email' : 'Create Account');
     }
   });
 }
