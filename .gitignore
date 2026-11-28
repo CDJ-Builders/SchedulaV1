@@ -6,6 +6,7 @@
 graphify-out/
 .graphify*
 skills-lock.json
+tools/*
 tools/CODEX.md
 tools/PRD.md
 tools/PROGRESS.md

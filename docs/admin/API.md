@@ -24,6 +24,15 @@ Returns the current role and only the privacy-approved capabilities. The current
 }
 ```
 
+## Read-only user configuration
+
+These endpoints are available to `developer` and `super_admin` only. Each directory or detail request creates an audit record in the same transaction as its database reads. Lists are paginated (25 by default, maximum 100) and searchable by email, display name, or UID.
+
+- `GET /users?page=1&limit=25&q=<email|name|uid>` — account UID, email, role, status, creation/update timestamps, and counts indicating configured personal schedules, entries, and preferences.
+- `GET /users/:id` — account, profile, preferences, personal schedules and their saved context, and personal schedule entries.
+
+Soft-deleted accounts and records remain visible for retention and recovery context. Team/group records and authentication data (password hashes, tokens, reset secrets) are not returned. Configuration content is recursively redacted for credential-like fields and values before serialization.
+
 ### `PATCH /access/users/:id/role`
 
 Super admin only. Requires current password in the JSON body. Allowed roles: `user`, `developer`, `super_admin`. Self-demotion and demotion of the last active super admin return 409.
@@ -36,8 +45,9 @@ Returns `{ "id": "...", "role": "developer" }`. The password is never returned o
 
 ## Dashboard and health
 
+- `GET /dashboard?range=7d|30d|90d` — bundled overview, time series, and breakdowns. Individual panel failures are returned alongside successful panels so the dashboard can render partial results. Health is loaded separately so dependency checks do not delay the charts.
 - `GET /stats/overview?range=7d|30d|90d`
-- `GET /stats/timeseries?metric=signups|active_users|schedules_created|entries_created|requests|errors|smart_schedule_calls&range=7d|30d|90d&interval=day|hour`
+- `GET /stats/timeseries?metric=signups|schedules_created|entries_created|requests|errors|smart_schedule_calls&range=7d|30d|90d&interval=day|hour`
 - `GET /stats/breakdown?metric=users_by_role|entries_by_modality|top_routes|top_error_routes`
 - `GET /health`
 
@@ -51,7 +61,7 @@ Health includes API process, PostgreSQL connectivity/pool and provider diagnosti
 - `GET /logs/errors?page=1&limit=25&route=<normalized-route>&from=<ISO-8601>&to=<ISO-8601>`
 - `GET /metrics/requests?page=1&limit=25&route=<normalized-route>&from=<ISO-8601>&to=<ISO-8601>`
 
-Page size is capped at 100. Audit before/after JSON is redacted. Error records include request ID and normalized route, omit user ID/request body, and are retention-pruned. Request metrics are per-minute normalized route/status rollups.
+Page size is capped at 100. Audit and error endpoints return `has_more` for accurate previous/next controls; the dashboard shows 24-hour counts and links to the paginated logs. Audit tables allocate columns for timestamp, action, resource, actor, and change data. Error tables allocate columns for timestamp, route, message, and stack; long values wrap or scroll inside the table card. Audit before/after JSON is redacted. Error records include request ID and normalized route, omit user ID/request body, and are retention-pruned. Request metrics are per-minute normalized route/status rollups.
 
 ## Maintenance
 

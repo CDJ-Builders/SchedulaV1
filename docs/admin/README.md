@@ -10,6 +10,7 @@
 
 No elevated-role signup path exists. Public signup always creates a `user`. Admin API authorization reads the role from PostgreSQL on every request; token role claims are not used.
 
+
 Migration 012 does not carry forward legacy `platform_role='admin'` values. It assigns every existing account `user`; the first elevated account must be created deliberately through the bootstrap CLI.
 
 The current bearer token is held in browser `localStorage`, so a top-level `/admin` navigation cannot send that token for a server-side HTML authorization check. The page performs a client access check and displays no admin controls/data until `/api/admin/meta` succeeds. All admin data and actions are server-guarded on every request. The HTML shell itself contains no private records.
@@ -22,11 +23,13 @@ The current bearer token is held in browser `localStorage`, so a top-level `/adm
 | `developer` | Read | No | No |
 | `super_admin` | Read | Yes, with password re-entry | Yes, with password re-entry |
 
-Role changes cannot demote the acting super admin or demote the last active super admin. The role endpoint exposes only a role value for a known user ID; general user CRUD and user listing are not exposed.
+Both elevated roles can use the audited, read-only Users inspector to see account UIDs and configured profile, preference, personal schedule, and schedule-entry data. It never returns password hashes or session/reset tokens. Team/group data remains outside the inspector.
+
+Role changes cannot demote the acting super admin or demote the last active super admin. The role endpoint exposes only a role value for a known user ID; user data inspection is read-only.
 
 ## Admin data scope
 
-The current schema has no privacy-safe general-purpose CRUD resource. Users/profiles/preferences are personal data; groups, memberships, invitations, proposals, and shared records are team data; schedules/events are user-owned and may contain personal content. These tables are excluded from generic CRUD. The interface therefore provides aggregate usage, health, diagnostics, and audit views. Any additional CRUD resource needs a field-level privacy review and explicit allowlist first.
+The current schema has no privacy-safe general-purpose CRUD resource. Generic CRUD remains disabled. The Users inspector is a separate, read-only, audited feature requested for account support; it shows account/profile/preferences and owner-only schedules/events. Groups, memberships, invitations, proposals, and shared records remain excluded. Any additional mutation capability needs a field-level privacy review and explicit allowlist first.
 
 ## Data retention
 
@@ -56,6 +59,6 @@ There is intentionally no generic resource registry until a privacy-safe general
 
 ## Metrics limitations
 
-Request rollups start when the new backend is deployed; there is no external or prior repository history to backfill. Active-user DAU/WAU/MAU, detected conflict counts, and recommendation fallbacks are reported as unavailable because the repository has no privacy-approved persisted signal for them. The admin demo seed creates only anonymous route/status rollups.
+Request rollups start when the new backend is deployed; there is no external or prior repository history to backfill. Detected conflict counts and recommendation fallbacks are reported as unavailable because the repository does not persist those outcomes. The admin demo seed creates only anonymous route/status rollups.
 
 The dashboard's overall p95 field is the worst per-minute p95 value in the selected range, since the retained per-minute percentile summaries cannot be mathematically merged into an exact range-wide percentile. Recommendation success rate uses HTTP 2xx vs total recorded recommendation route requests; fallback count remains unavailable.

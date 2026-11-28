@@ -21,7 +21,8 @@ function adminNetworkGuard(req, res, next) {
   const origin = req.get('origin');
   const allowedOrigins = env.ADMIN_ORIGIN.split(',').map(value => value.trim()).filter(Boolean);
   const sameOrigin = `${req.protocol}://${req.get('host')}`;
-  const originAllowed = !origin || (allowedOrigins.length
+  const localFileOrigin = origin === 'null' && process.env.NODE_ENV !== 'production';
+  const originAllowed = !origin || localFileOrigin || (allowedOrigins.length
     ? allowedOrigins.includes(origin)
     : process.env.NODE_ENV !== 'production' && (
       origin === sameOrigin || ['http://localhost', 'http://127.0.0.1'].some(prefix => origin === prefix || origin.startsWith(`${prefix}:`))

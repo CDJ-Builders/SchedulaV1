@@ -20,13 +20,13 @@ const adminPageHelmet = helmet({
       defaultSrc: ["'self'"],
       baseUri: ["'self'"],
       connectSrc: ["'self'", ...(env.ADMIN_API_ORIGIN ? [env.ADMIN_API_ORIGIN] : [])],
-      fontSrc: ["'self'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       formAction: ["'self'"],
       frameAncestors: ["'none'"],
       imgSrc: ["'self'", 'data:'],
       objectSrc: ["'none'"],
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"]
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
     }
   }
 });
@@ -92,9 +92,21 @@ app.use('/api', teamRoutes);
 app.use('/api/admin', adminRoutes);
 
 // --- Static Assets Routing ---
+const adminAssets = path.join(__dirname, '../admin');
+app.use('/admin', adminNetworkGuard, express.static(adminAssets, {
+  index: false,
+  setHeaders: res => res.set('Cache-Control', 'no-store')
+}));
+app.use('/frontend/scripts', express.static(path.join(__dirname, '../frontend/scripts'), { index: false }));
+app.use('/frontend/css', express.static(path.join(__dirname, '../frontend/css'), { index: false }));
+app.use('/pages', express.static(path.join(__dirname, '../pages'), { index: false }));
+app.use('/assets', express.static(path.join(__dirname, '../assets'), { index: false }));
+app.get('/favicon.png', (req, res) => res.sendFile(path.join(__dirname, '../favicon.png')));
+app.get(['/', '/index.html'], (req, res) => res.sendFile(path.join(__dirname, '../index.html')));
 app.get('/admin', adminNetworkGuard, adminPageHelmet, (req, res) => {
+  if (req.path === '/admin') return res.redirect(302, '/admin/');
   res.set('Cache-Control', 'no-store');
-  res.sendFile(path.join(__dirname, '../frontend/admin/index.html'));
+  res.sendFile(path.join(__dirname, '../admin/index.html'));
 });
 if (env.SERVE_STATIC) {
   app.use(express.static(path.join(__dirname, '../')));

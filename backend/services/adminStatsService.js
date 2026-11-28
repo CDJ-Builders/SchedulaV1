@@ -47,7 +47,6 @@ async function overview(range = '30d') {
   const value = {
     range: `${days}d`,
     users: { total: users.total, delta: Number(users.current) - Number(users.previous), signups: Number(users.current) },
-    active_users: { value: null, reason: 'No privacy-approved activity signal is stored.' },
     schedules: { total: schedules.total, delta: Number(schedules.current) - Number(schedules.previous), created: Number(schedules.current) },
     schedule_entries: { total: events.total, delta: Number(events.current) - Number(events.previous), created: Number(events.current) },
     groups: { value: null, reason: 'Team data is outside the admin reporting scope.' },
@@ -73,7 +72,6 @@ async function overview(range = '30d') {
 async function timeseries(metric, range = '7d', interval = 'day') {
   if (!RANGE_DAYS[range]) throw Object.assign(new Error('range must be 7d, 30d, or 90d'), { status: 400 });
   if (!['day', 'hour'].includes(interval)) throw Object.assign(new Error('interval must be day or hour'), { status: 400 });
-  if (metric === 'active_users') return { metric, range, interval, points: [], unavailable: 'No privacy-approved activity signal is stored.' };
   const days = RANGE_DAYS[range];
   const bucket = interval === 'hour' ? 'hour' : 'day';
   let sourceSql;

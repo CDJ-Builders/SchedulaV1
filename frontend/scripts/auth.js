@@ -6,6 +6,7 @@
 // Centralized fetch wrapper to intercept and refresh expired tokens
 (function () {
   const originalFetch = window.fetch;
+  window.SCHEDULA_RAW_FETCH = originalFetch;
   let isRefreshing = false;
   let refreshSubscribers = [];
 
@@ -16,6 +17,12 @@
   function onTokenRefreshed(newToken) {
     refreshSubscribers.forEach(cb => cb(newToken));
     refreshSubscribers = [];
+  }
+
+  function clearLocalSession() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
   }
 
   window.fetch = async function (resource, options = {}) {
@@ -45,11 +52,15 @@
         isRefreshing = true;
 
         try {
+          const refreshController = new AbortController();
+          const refreshTimeout = window.setTimeout(() => refreshController.abort(), 5000);
           const refreshRes = await originalFetch(`${window.APP_CONFIG.API_BASE}/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken })
+            body: JSON.stringify({ refreshToken }),
+            signal: refreshController.signal
           });
+          window.clearTimeout(refreshTimeout);
 
           if (refreshRes.ok) {
             const refreshData = await refreshRes.json();
@@ -85,9 +96,8 @@
           } else {
             // Refresh token has failed (expired, deleted, etc.) - force clean logout
             isRefreshing = false;
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
+            clearLocalSession();
+            onTokenRefreshed(null);
 
             // Redirect to login page if we are not already on an auth page
             const pathname = window.location.pathname;
@@ -102,6 +112,8 @@
         } catch (refreshErr) {
           isRefreshing = false;
           console.error('Failed to perform silent token refresh:', refreshErr);
+          clearLocalSession();
+          onTokenRefreshed(null);
           return response;
         }
       }
@@ -109,6 +121,10 @@
       // If we are already refreshing, queue the request until refresh completes
       return new Promise((resolve) => {
         subscribeTokenRefresh((newToken) => {
+          if (!newToken) {
+            resolve(originalFetch(resource, options));
+            return;
+          }
           // Re-clone options and update Authorization header
           const newOptions = { ...options };
           if (newOptions.headers) {
@@ -178,6 +194,17 @@ function redirectWithToken(targetUrl) {
 }
 window.redirectWithToken = redirectWithToken;
 
+function getPostLoginUrl(user) {
+  const role = user?.role || user?.access;
+  if (role !== 'developer' && role !== 'super_admin') return './home.html';
+  if (window.location.protocol === 'file:') {
+    return window.location.pathname.includes('/pages/')
+      ? '../admin/index.html'
+      : './admin/index.html';
+  }
+  return '/admin';
+}
+
 /**
  * Core Authentication Guard.
  * Evaluated on page initialization:
@@ -205,10 +232,11 @@ async function initAuth() {
         }
 
         const pathname = window.location.pathname;
-        const isLandingOrAuth = pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html');
+        const isAdminDocument = pathname.includes('/admin/');
+        const isLandingOrAuth = !isAdminDocument && (pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html'));
 
         if (isLandingOrAuth) {
-          redirectWithToken('./home.html');
+          redirectWithToken(getPostLoginUrl(freshUser));
         }
       } else {
         if (response.status === 401 || response.status === 403) {
@@ -270,10 +298,11 @@ function fallbackAutologinRedirect() {
     try {
       const user = JSON.parse(userStr);
       const pathname = window.location.pathname;
-      const isLandingOrAuth = pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html');
+      const isAdminDocument = pathname.includes('/admin/');
+      const isLandingOrAuth = !isAdminDocument && (pathname.endsWith('/') || pathname.includes('index.html') || pathname.includes('login.html') || pathname.includes('signup.html'));
 
       if (isLandingOrAuth) {
-        redirectWithToken('./home.html');
+        redirectWithToken(getPostLoginUrl(user));
       }
     } catch (e) {
       console.error('Offline fallback redirection parsing error:', e);
@@ -316,7 +345,7 @@ if (loginButton) {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
         localStorage.setItem('user', JSON.stringify(data.user));
-        redirectWithToken('./home.html');
+        redirectWithToken(getPostLoginUrl(data.user));
       } else {
         alert(data.error);
       }

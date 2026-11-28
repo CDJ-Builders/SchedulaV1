@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Schedula | Admin</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="stylesheet" href="../frontend/css/background.css">
+  <link rel="stylesheet" href="admin.css?v=11">
+  <script src="../frontend/scripts/utils.js"></script>
+  <script src="../frontend/scripts/auth.js?v=4" defer></script>
+  <script src="session.js?v=4" defer></script>
+  <script src="admin.js?v=14" defer></script>
+</head>
+
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-topbar card">
+      <div class="admin-brand" role="img" aria-label="Schedula">
+        <img src="../assets/logo.png" alt="" aria-hidden="true">
+        <span>Schedula</span>
+      </div>
+      <div class="admin-account">
+        <span id="environment-badge" class="admin-env">Loading environment</span>
+        <span id="current-user" class="admin-user">Checking access…</span>
+        <span id="current-role" class="admin-role"></span>
+        <button id="logout-button" class="key sm" type="button">Log out</button>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <nav class="admin-sidebar card" aria-label="Admin navigation">
+        <p class="admin-nav-label">Workspace</p>
+        <button class="key sm admin-nav-key" type="button" data-view="dashboard" aria-current="page">Dashboard</button>
+        <button class="key sm admin-nav-key" type="button" data-view="users">Users</button>
+        <button class="key sm admin-nav-key" type="button" data-view="health">Health</button>
+        <button class="key sm admin-nav-key" type="button" data-view="audit">Audit log</button>
+        <button class="key sm admin-nav-key" type="button" data-view="errors">Error log</button>
+        <p class="admin-scope-note">User configuration is read-only and audited. Team records and authentication secrets
+          stay excluded.</p>
+      </nav>
+
+      <main class="admin-workspace" id="admin-workspace" aria-live="polite">
+        <div id="access-state" class="card admin-message" role="status">Checking your admin access…</div>
+
+        <section class="admin-view" data-panel="dashboard" hidden>
+          <div class="admin-page-heading">
+            <div>
+              <p class="eyebrow">Operations</p>
+              <h1>Dashboard</h1>
+              <p class="admin-subtitle">System health and aggregate usage at a glance.</p>
+            </div>
+            <label class="admin-range-label">Reporting range
+              <select id="dashboard-range" class="well">
+                <option value="7d">7 days</option>
+                <option value="30d" selected>30 days</option>
+                <option value="90d">90 days</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-health-strip" id="health-strip" aria-label="System component health"></div>
+          <div class="card admin-kpis" id="kpi-grid"></div>
+          <div class="admin-insight-pagination" role="group" aria-label="Dashboard insight panels">
+            <button id="insight-prev" class="key sm" type="button" aria-label="Previous insight panel">Previous</button>
+            <span id="insight-page" aria-live="polite">Panel 1 of 2 · Usage over time</span>
+            <button id="insight-next" class="key sm" type="button" aria-label="Next insight panel">Next</button>
+          </div>
+          <div class="admin-insight-viewport">
+            <div class="admin-insight-track" id="insight-track">
+              <section class="card admin-panel admin-insight-panel">
+                <h2>Usage over time</h2>
+                <p class="subtitle">Aggregate activity recorded after instrumentation is deployed.</p>
+                <div class="admin-charts">
+                  <div>
+                    <h3>Signups</h3>
+                    <div class="well chart-well"><canvas id="chart-signups" role="img" aria-label="Signups over time"
+                        aria-describedby="summary-signups"></canvas></div>
+                    <p class="sr" id="summary-signups"></p>
+                  </div>
+                  <div>
+                    <h3>Requests and errors</h3>
+                    <div class="admin-chart-legend" aria-label="Chart series">
+                      <span class="admin-series-key" data-series="requests">Requests</span>
+                      <span class="admin-series-key" data-series="errors">Errors</span>
+                    </div>
+                    <div class="well chart-well"><canvas id="chart-requests" role="img"
+                        aria-label="Requests and errors over time" aria-describedby="summary-requests"></canvas></div>
+                    <p class="sr" id="summary-requests"></p>
+                  </div>
+                  <div>
+                    <h3>Schedules created</h3>
+                    <div class="well chart-well"><canvas id="chart-schedules" role="img"
+                        aria-label="Schedules created over time" aria-describedby="summary-schedules"></canvas></div>
+                    <p class="sr" id="summary-schedules"></p>
+                  </div>
+                  <div>
+                    <h3>Entries created</h3>
+                    <div class="well chart-well"><canvas id="chart-entries" role="img"
+                        aria-label="Schedule entries created over time" aria-describedby="summary-entries"></canvas>
+                    </div>
+                    <p class="sr" id="summary-entries"></p>
+                  </div>
+                  <div>
+                    <h3>Smart schedule requests</h3>
+                    <div class="well chart-well"><canvas id="chart-smart" role="img"
+                        aria-label="Smart schedule requests over time" aria-describedby="summary-smart"></canvas></div>
+                    <p class="sr" id="summary-smart"></p>
+                  </div>
+                </div>
+              </section>
+              <section class="card admin-panel admin-insight-panel">
+                <h2>Breakdowns</h2>
+                <p class="subtitle">Aggregated counts only.</p>
+                <div class="admin-breakdowns">
+                  <div>
+                    <h3>Users by role</h3>
+                    <div class="well chart-well admin-breakdown"><canvas id="chart-user-roles" role="img"
+                        aria-label="User counts by role" aria-describedby="summary-user-roles"></canvas></div>
+                    <p class="sr" id="summary-user-roles"></p>
+                  </div>
+                  <div>
+                    <h3>Entries by modality</h3>
+                    <div class="well chart-well admin-breakdown"><canvas id="chart-modalities" role="img"
+                        aria-label="Schedule entry counts by modality" aria-describedby="summary-modalities"></canvas>
+                    </div>
+                    <p class="sr" id="summary-modalities"></p>
+                  </div>
+                  <div>
+                    <h3>Top routes</h3>
+                    <div class="well chart-well admin-breakdown"><canvas id="chart-routes" role="img"
+                        aria-label="Top request routes" aria-describedby="summary-routes"></canvas></div>
+                    <p class="sr" id="summary-routes"></p>
+                  </div>
+                </div>
+                <div class="admin-unavailable" id="unavailable-note"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-view" data-panel="users" hidden>
+          <div class="admin-page-heading">
+            <div>
+              <p class="eyebrow">Accounts</p>
+              <h1>Users</h1>
+              <p class="admin-subtitle">User IDs and configured personal data, available to elevated admins as an
+                audited read-only view.</p>
+            </div><button id="refresh-users" class="key" type="button">Refresh</button>
+          </div>
+          <div class="admin-user-layout">
+            <section class="card admin-panel">
+              <div class="admin-filter-row"><label>Search users<input id="user-search" class="well" type="search"
+                    maxlength="200" placeholder="Email, name, or UID"></label><button id="filter-users" class="key lav"
+                  type="button">Search</button></div>
+              <div id="users-table"></div>
+            </section>
+            <section class="card admin-panel" aria-live="polite">
+              <div id="user-detail">
+                <p class="admin-empty">Select a user to inspect their configured data.</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-view" data-panel="health" hidden>
+          <div class="admin-page-heading">
+            <div>
+              <p class="eyebrow">System</p>
+              <h1>Health</h1>
+              <p class="admin-subtitle">Provider diagnostics may be limited by PostgreSQL permissions.</p>
+            </div><button id="refresh-health" class="key lav" type="button">Refresh health</button>
+          </div>
+          <div id="health-details" class="admin-health-grid"></div>
+          <section id="superadmin-tools" class="card admin-panel admin-tools" hidden
+            aria-labelledby="superadmin-tools-title">
+            <h2 id="superadmin-tools-title">Super admin actions</h2>
+            <p class="subtitle">These actions require your current password.</p>
+            <form id="role-change-form" class="admin-action-form">
+              <label>Target user ID<input id="role-target" class="well" autocomplete="off" required maxlength="36"
+                  placeholder="UUID"></label>
+              <label>New role<select id="role-value" class="well">
+                  <option value="user">User</option>
+                  <option value="developer">Developer</option>
+                  <option value="super_admin">Super admin</option>
+                </select></label>
+              <label>Current password<input id="stepup-password" class="well" type="password"
+                  autocomplete="current-password" required></label>
+              <button class="key warning" type="submit">Change role</button>
+            </form>
+            <div class="admin-maintenance-actions"><button id="prune-logs" class="key danger" type="button">Prune
+                expired logs</button><button id="clear-sessions" class="key danger" type="button">Clear expired
+                sessions</button></div>
+          </section>
+        </section>
+
+        <section class="admin-view" data-panel="audit" hidden>
+          <div class="admin-page-heading">
+            <div>
+              <p class="eyebrow">Security</p>
+              <h1>Audit log</h1>
+              <p class="admin-subtitle">Append-only record of admin changes.</p>
+            </div><button id="refresh-audit" class="key" type="button">Refresh</button>
+          </div>
+          <section class="card admin-panel">
+            <div class="admin-filter-row"><label>Actor ID<input id="audit-actor" class="well" maxlength="36"
+                  placeholder="Optional UUID"></label><label>Resource<input id="audit-resource" class="well"
+                  maxlength="100" placeholder="Resource"></label><label>Action<input id="audit-action" class="well"
+                  maxlength="100" placeholder="Action"></label><label>From<input id="audit-from" class="well"
+                  type="date"></label><label>To<input id="audit-to" class="well" type="date"></label><button
+                id="filter-audit" class="key lav" type="button">Apply filters</button></div>
+            <div id="audit-table"></div>
+          </section>
+        </section>
+
+        <section class="admin-view" data-panel="errors" hidden>
+          <div class="admin-page-heading">
+            <div>
+              <p class="eyebrow">Diagnostics</p>
+              <h1>Error log</h1>
+              <p class="admin-subtitle">No request body or user ID is stored in these records.</p>
+            </div><button id="refresh-errors" class="key" type="button">Refresh</button>
+          </div>
+          <section class="card admin-panel">
+            <div class="admin-filter-row"><label>Route<input id="error-route" class="well" maxlength="256"
+                  placeholder="Normalized route"></label><label>From<input id="error-from" class="well"
+                  type="date"></label><label>To<input id="error-to" class="well" type="date"></label><button
+                id="filter-errors" class="key lav" type="button">Apply filters</button></div>
+            <div id="error-table"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <footer class="admin-footer"><span id="last-updated">Waiting for authorized data</span><span>Automatic refresh
+        pauses in hidden tabs.</span></footer>
+  </div>
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+
+</html>

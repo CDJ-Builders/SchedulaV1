@@ -11,6 +11,7 @@ const healthService = require('../services/healthService');
 const metrics = require('../middleware/metrics');
 const retention = require('../config/adminRetention');
 const adminStats = require('../services/adminStatsService');
+const adminUserData = require('../services/adminUserDataService');
 
 const router = express.Router();
 const adminRoles = requireRole(['developer', 'super_admin']);
@@ -58,6 +59,23 @@ router.use((req, res, next) => {
 });
 router.use(authenticateToken, adminRoles);
 
+router.get('/users', pageParams, asyncHandler(async (req, res) => {
+  const result = await adminUserData.listUsers(req, {
+    q: String(req.query.q || '').trim(), limit: req.limit, offset: req.offset, page: req.page
+  });
+  res.json(result);
+}));
+
+router.get('/users/:id', asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+  const configuration = await adminUserData.getUserConfiguration(req, userId);
+  if (!configuration) return res.status(404).json({ error: 'User not found' });
+  res.json(configuration);
+}));
+
 router.get('/meta', (req, res) => {
   res.json({
     role: req.user.role,
@@ -72,6 +90,25 @@ router.get('/meta', (req, res) => {
 
 router.get('/health', asyncHandler(async (req, res) => {
   res.json(await healthService.getHealth());
+}));
+
+router.get('/dashboard', asyncHandler(async (req, res) => {
+  const range = req.query.range || '30d';
+  if (!['7d', '30d', '90d'].includes(range)) return res.status(400).json({ error: 'range must be 7d, 30d, or 90d' });
+  const collect = async action => {
+    try { return { data: await action() }; }
+    catch (error) { return { error: error.message || 'Dashboard data unavailable' }; }
+  };
+  const metrics = ['signups', 'requests', 'errors', 'schedules_created', 'entries_created', 'smart_schedule_calls'];
+  const breakdownMetrics = ['users_by_role', 'entries_by_modality', 'top_routes'];
+  const [stats, ...results] = await Promise.all([
+    collect(() => adminStats.overview(range)),
+    ...metrics.map(metric => collect(() => adminStats.timeseries(metric, range))),
+    ...breakdownMetrics.map(metric => collect(() => adminStats.breakdown(metric)))
+  ]);
+  const series = Object.fromEntries(metrics.map((metric, index) => [metric, results[index]]));
+  const breakdowns = Object.fromEntries(breakdownMetrics.map((metric, index) => [metric, results[metrics.length + index]]));
+  res.json({ stats, series, breakdowns });
 }));
 
 router.get('/stats/overview', asyncHandler(async (req, res) => {
@@ -97,17 +134,17 @@ router.get('/audit', pageParams, validateDates, asyncHandler(async (req, res) =>
   if (actor && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(actor)) {
     return res.status(400).json({ error: 'Invalid actor ID' });
   }
-  const rows = await auditService.list({
+  const fetched = await auditService.list({
     actor, resource: req.query.resource, action: req.query.action,
-    ...req.dateRange, limit: req.limit, offset: req.offset
+    ...req.dateRange, limit: req.limit + 1, offset: req.offset
   });
-  res.json({ rows, page: req.page, limit: req.limit });
+  res.json({ rows: fetched.slice(0, req.limit), page: req.page, limit: req.limit, has_more: fetched.length > req.limit });
 }));
 
 router.get('/logs/errors', pageParams, validateDates, asyncHandler(async (req, res) => {
   if (String(req.query.route || '').length > 256) return res.status(400).json({ error: 'route filter is too long' });
-  const rows = await errorLogService.list({ route: req.query.route, ...req.dateRange, limit: req.limit, offset: req.offset });
-  res.json({ rows, page: req.page, limit: req.limit });
+  const fetched = await errorLogService.list({ route: req.query.route, ...req.dateRange, limit: req.limit + 1, offset: req.offset });
+  res.json({ rows: fetched.slice(0, req.limit), page: req.page, limit: req.limit, has_more: fetched.length > req.limit });
 }));
 
 router.get('/metrics/requests', pageParams, validateDates, asyncHandler(async (req, res) => {
