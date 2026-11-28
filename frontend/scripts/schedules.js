@@ -11,10 +11,16 @@ const smartScheduleButton = document.getElementById('smart-schedule-btn');
 const saveScheduleButton = document.getElementById('save-schedule-btn');
 const deleteScheduleButton = document.getElementById('delete-schedule-btn');
 const builderMessage = document.getElementById('builder-message');
+const quickAddForm = document.getElementById('quick-add-form');
+const quickAddInput = document.getElementById('quick-add-input');
+const quickAddRequestsList = document.getElementById('quick-add-requests-list');
 
 let schedules = [];
 let activeScheduleId = 'new';
 let events = [];
+let schedulingRequests = [];
+
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function tokenHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -42,6 +48,8 @@ function showBuilderNotice(message, title) {
         <button class="custom-modal-btn warning" type="button">OK</button>
       </div>
     </div>`;
+  notice.querySelector('#builder-notice-title').textContent = title || 'Notice';
+  notice.querySelector('.custom-modal-body').textContent = message;
   document.body.appendChild(notice);
   const close = () => notice.remove();
   notice.querySelector('button').addEventListener('click', close);
@@ -73,7 +81,7 @@ function eventFromForm() {
 function validateBlock(block) {
   if (!block.title || !block.start_time || !block.end_time) return 'Title, start time, and end time are required.';
   if (!['onsite', 'online'].includes(block.modality)) return 'Choose whether this event is onsite or online.';
-  if (block.weekdays.length !== 1) return 'Select one weekday.';
+  if (!block.weekdays.length || block.weekdays.some(day => !WEEKDAYS.includes(day))) return 'Select at least one weekday.';
   if (block.end_time <= block.start_time) return 'End time must be later than start time.';
   return null;
 }
@@ -134,6 +142,62 @@ function renderEvents() {
     card.dataset.weekday = event.weekdays[0] || '';
     card.innerHTML = `<div class="event-card-body card-body-flex"><div><h3 class="card-title-sm">${esc(event.title)}</h3><p class="card-text-main">${esc(formatBlock(event))}</p><p class="card-text-sub">${esc(event.description || '')}</p></div><button class="btn-remove btn-remove-inline" type="button" data-event-key="new-${index}"><img src="../assets/delete.png" alt="" class="btn-icon"> REMOVE</button></div>`;
     eventsList.appendChild(card);
+  });
+}
+
+function formatRequestDate(date) {
+  if (!date) return '';
+  return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+function renderSchedulingRequests() {
+  quickAddRequestsList.replaceChildren();
+  if (!schedulingRequests.length) {
+    const empty = document.createElement('p');
+    empty.className = 'quick-add-help';
+    empty.textContent = 'No pending requests.';
+    quickAddRequestsList.appendChild(empty);
+    return;
+  }
+
+  schedulingRequests.forEach(request => {
+    const article = document.createElement('article');
+    article.className = 'quick-add-request';
+    const content = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = request.title;
+    const type = document.createElement('p');
+    type.textContent = request.request_type === 'smart_schedule_request'
+      ? 'Smart-scheduling request'
+      : 'Meeting request';
+    const details = [];
+    details.push(`${request.duration_minutes} min`);
+    if (request.preferred_date) details.push(formatRequestDate(request.preferred_date));
+    if (request.window_start && request.window_end) {
+      details.push(`${formatRequestDate(request.window_start)} – ${formatRequestDate(request.window_end)}`);
+    }
+    if (request.preferred_start_time) details.push(`at ${request.preferred_start_time.slice(0, 5)}`);
+    if (request.time_of_day) details.push(request.time_of_day);
+    if (Array.isArray(request.weekdays) && request.weekdays.length) details.push(request.weekdays.join(', '));
+    const summary = document.createElement('p');
+    summary.textContent = details.join(' · ');
+    const source = document.createElement('p');
+    source.className = 'quick-add-help';
+    source.textContent = request.source_text;
+    content.append(title, type, summary, source);
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'btn-remove btn-remove-inline';
+    removeButton.type = 'button';
+    removeButton.dataset.requestId = request.id;
+    removeButton.textContent = 'CANCEL';
+    removeButton.setAttribute('aria-label', `Cancel ${request.title} request`);
+    article.append(content, removeButton);
+    quickAddRequestsList.appendChild(article);
   });
 }
 
@@ -214,8 +278,88 @@ function addEvent() {
   showBuilderNotice('Weekly block added. Save the schedule to sync it.', 'Weekly block added');
 }
 
+function addQuickBlock(block) {
+  const error = validateBlock(block);
+  if (error) throw new Error(error);
+  const conflict = findBlockConflict(block, events);
+  if (conflict) {
+    const weekday = block.weekdays.find(day => conflict.weekdays.includes(day));
+    throw new Error(`This block overlaps an existing block on ${weekday}.`);
+  }
+  events.push(block);
+  renderEvents();
+}
+
+function removeQuickBlocks(weekdays, titleFilter) {
+  const matches = events.map(block => ({
+    block,
+    matchingDays: block.weekdays.filter(day =>
+      weekdays.includes(day) && (!titleFilter || block.title.toLowerCase().includes(titleFilter))
+    )
+  })).filter(match => match.matchingDays.length);
+  if (!matches.length) {
+    showBuilderNotice(`No weekly block matched ${weekdays.join(', ')}.`, 'No matching block');
+    return;
+  }
+
+  const removeMatches = () => {
+    const removeDaysByBlock = new Map(matches.map(match => [match.block, new Set(match.matchingDays)]));
+    events = events.flatMap(block => {
+      const removeDays = removeDaysByBlock.get(block);
+      if (!removeDays) return [block];
+      const remainingDays = block.weekdays.filter(day => !removeDays.has(day));
+      return remainingDays.length ? [{ ...block, weekdays: remainingDays }] : [];
+    });
+    renderEvents();
+    const occurrenceCount = matches.reduce((count, match) => count + match.matchingDays.length, 0);
+    setMessage(`Removed ${occurrenceCount} weekday occurrence${occurrenceCount === 1 ? '' : 's'} from ${matches.length} block${matches.length === 1 ? '' : 's'}. Save to sync the change.`);
+  };
+  const message = `Remove ${weekdays.join(', ')} from ${matches.length} matching block${matches.length === 1 ? '' : 's'}? Save the schedule to sync this deletion.`;
+  if (typeof window.confirmPopup === 'function') {
+    window.confirmPopup(message, removeMatches, null, 'Confirm block cancellation', 'warning');
+  } else if (window.confirm(message)) {
+    removeMatches();
+  }
+}
+
+async function submitQuickAdd(event) {
+  event.preventDefault();
+  try {
+    const intent = window.SchedulaQuickAdd.parse(quickAddInput.value);
+    if (intent.type === 'weekly_block') {
+      addQuickBlock(intent.block);
+      quickAddInput.value = '';
+      setMessage(`Added ${intent.block.title} on ${intent.block.weekdays.join(', ')}. Save the schedule to sync it.`);
+      return;
+    }
+    if (intent.type === 'delete') {
+      removeQuickBlocks(intent.weekdays, intent.title_filter);
+      quickAddInput.value = '';
+      return;
+    }
+
+    const request = await requestJson('/scheduling-requests', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...intent.request,
+        schedule_id: activeScheduleId === 'new' ? null : activeScheduleId
+      })
+    });
+    if (!request || typeof request.id !== 'string' || request.request_type !== intent.request.request_type) {
+      throw new Error('The schedule server returned an invalid scheduling request.');
+    }
+    schedulingRequests.unshift(request);
+    renderSchedulingRequests();
+    quickAddInput.value = '';
+    setMessage(`${request.request_type === 'smart_schedule_request' ? 'Smart-scheduling' : 'Meeting'} request saved.`);
+  } catch (error) {
+    setMessage(error.message, true);
+    showBuilderNotice(error.message, 'Quick Add could not complete');
+  }
+}
+
 async function saveSchedule() {
-  if (!events.length) {
+  if (!events.length && activeScheduleId === 'new') {
     showBuilderNotice('Add at least one weekly block before saving.', 'Schedule is empty');
     return;
   }
@@ -308,6 +452,7 @@ async function importScheduleEvents(importedEvents) {
 
 scheduleSelector.addEventListener('change', event => selectSchedule(event.target.value));
 eventsDayFilter.addEventListener('change', renderEvents);
+quickAddForm.addEventListener('submit', submitQuickAdd);
 scheduleExcelButton.addEventListener('click', () => {
   window.SchedulaScheduleExcel.open({
     getExistingEvents: () => events,
@@ -327,6 +472,18 @@ eventsList.addEventListener('click', event => {
   events.splice(index, 1);
   renderEvents();
 }); 
+quickAddRequestsList.addEventListener('click', async event => {
+  const button = event.target.closest('[data-request-id]');
+  if (!button) return;
+  try {
+    await requestJson(`/scheduling-requests/${button.dataset.requestId}`, { method: 'DELETE' });
+    schedulingRequests = schedulingRequests.filter(request => request.id !== button.dataset.requestId);
+    renderSchedulingRequests();
+  } catch (error) {
+    setMessage(error.message, true);
+    showBuilderNotice(error.message, 'Unable to cancel request');
+  }
+});
 deleteScheduleButton.addEventListener('click', () => {
   if (activeScheduleId === 'new') {
     showBuilderNotice('Select an existing schedule before deleting.', 'Schedule selection required');
@@ -356,10 +513,22 @@ deleteScheduleButton.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
-  try { await loadSchedules();   } catch (error) {
+  try {
+    await loadSchedules();
+  } catch (error) {
     eventsList.setAttribute('aria-busy', 'false');
     eventsList.innerHTML = `<p class="text-muted-light">${window.APP_UTILS?.escapeHtml(error.message) || 'Unable to load schedules.'}</p>`;
     setMessage(error.message, true);
     showBuilderNotice(error.message, 'Unable to load schedules');
+    return;
+  }
+  try {
+    const response = await requestJson('/scheduling-requests');
+    if (!Array.isArray(response)) throw new Error('The schedule server returned an invalid request list.');
+    schedulingRequests = response;
+    renderSchedulingRequests();
+  } catch (error) {
+    quickAddRequestsList.textContent = `Unable to load requests: ${error.message}`;
+    setMessage(error.message, true);
   }
 });

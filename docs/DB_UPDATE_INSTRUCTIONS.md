@@ -37,9 +37,10 @@ Apply the schema and demo data in order:
 ```powershell
 Get-Content .\backend\sql\migrations\001_schedula_schema.up.sql | psql
 Get-Content .\backend\sql\migrations\002_demo_seed.up.sql | psql
+Get-Content .\backend\sql\migrations\005_scheduling_requests.up.sql | psql
 ```
 
-The commands are safe to rerun because the schema uses idempotent creation and the demo seed uses conflict guards. Verify the resulting tables:
+For an existing database, apply `005_scheduling_requests.up.sql` to enable persisted Quick Add requests. Verify the resulting tables:
 
 ```powershell
 psql -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;"
@@ -58,9 +59,9 @@ Remove-Item Env:PGPASSWORD
 1. Open pgAdmin and connect to the target PostgreSQL server.
 2. Select the target database, then open **Query Tool**.
 3. Open `backend/sql/migrations/001_schedula_schema.up.sql` and execute it.
-4. Confirm there are no errors, then open and execute `backend/sql/migrations/002_demo_seed.up.sql`.
+4. Confirm there are no errors, then execute `backend/sql/migrations/002_demo_seed.up.sql` followed by `backend/sql/migrations/005_scheduling_requests.up.sql`.
 5. Refresh **Schemas > public > Tables**.
-6. Confirm `users`, `profiles`, `preferences`, `schedules`, `events`, `availability_blocks`, `groups`, `memberships`, `schedule_shares`, `consolidated_views`, and `invitations` exist.
+6. Confirm `users`, `profiles`, `preferences`, `schedules`, `events`, `scheduling_requests`, `availability_blocks`, `groups`, `memberships`, `schedule_shares`, `consolidated_views`, and `invitations` exist.
 7. Run the verification queries from the psql section.
 
 Execute the seed only after the schema migration succeeds. If the query tool reports that an extension cannot be created, connect as a database owner/superuser or ask the database administrator to enable `pgcrypto`, `citext`, and `btree_gist`.
@@ -70,11 +71,12 @@ Execute the seed only after the schema migration succeeds. If the query tool rep
 Rollback is intentionally manual and destructive for this starter-template replacement. Run the schema rollback only after taking a backup:
 
 ```powershell
+Get-Content .\backend\sql\migrations\005_scheduling_requests.down.sql | psql
 Get-Content .\backend\sql\migrations\002_demo_seed.down.sql | psql
 Get-Content .\backend\sql\migrations\001_schedula_schema.down.sql | psql
 ```
 
-The rollback removes the generic schema. It does not restore the removed academic tables or data. Restore those from a database backup if required.
+Apply `005_scheduling_requests.down.sql` first only when rolling back the Quick Add request feature. The full rollback removes the generic schema. It does not restore the removed academic tables or data. Restore those from a database backup if required.
 
 ## Application Configuration
 

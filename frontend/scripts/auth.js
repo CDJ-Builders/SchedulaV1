@@ -107,7 +107,34 @@ function handleMockApi(url, options = {}) {
     return jsonResponse(JSON.parse(userStr));
   }
 
-  // 2. Schedules
+  // 2. Scheduling requests
+  if (cleanPath.includes('/scheduling-requests')) {
+    let requests = JSON.parse(localStorage.getItem('schedula_dev_scheduling_requests') || '[]');
+    const match = cleanPath.match(/\/scheduling-requests\/([^\/?#]+)/);
+    const requestId = match ? match[1] : null;
+
+    if (method === 'GET') return jsonResponse(requests);
+
+    if (method === 'POST') {
+      const body = options.body ? JSON.parse(options.body) : {};
+      const request = {
+        ...body,
+        id: `dev-request-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        created_at: new Date().toISOString()
+      };
+      requests.unshift(request);
+      localStorage.setItem('schedula_dev_scheduling_requests', JSON.stringify(requests));
+      return jsonResponse(request, 201);
+    }
+
+    if (method === 'DELETE' && requestId) {
+      requests = requests.filter(request => request.id !== requestId);
+      localStorage.setItem('schedula_dev_scheduling_requests', JSON.stringify(requests));
+      return new Response(null, { status: 204 });
+    }
+  }
+
+  // 3. Schedules
   if (cleanPath.includes('/schedules')) {
     let schedules = [];
     try {
@@ -175,12 +202,12 @@ function handleMockApi(url, options = {}) {
     }
   }
 
-  // 3. Events conflicts
+  // 4. Events conflicts
   if (cleanPath.includes('/events/conflicts')) {
     return jsonResponse([]);
   }
 
-  // 4. Preferences
+  // 5. Preferences
   if (cleanPath.includes('/preferences')) {
     if (method === 'GET') {
       const defaultPrefs = {
@@ -202,7 +229,7 @@ function handleMockApi(url, options = {}) {
     }
   }
 
-  // 5. User Profile
+  // 6. User Profile
   if (cleanPath.includes('/user/profile')) {
     if (method === 'GET') {
       const user = JSON.parse(localStorage.getItem('user') || JSON.stringify(DEV_USER));
@@ -224,7 +251,7 @@ function handleMockApi(url, options = {}) {
     }
   }
 
-  // 6. Availability
+  // 7. Availability
   if (cleanPath.includes('/availability')) {
     if (method === 'GET') {
       const stored = localStorage.getItem('schedula_dev_availability');
@@ -238,7 +265,7 @@ function handleMockApi(url, options = {}) {
     }
   }
 
-  // 7. Login / Signup
+  // 8. Login / Signup
   if (cleanPath.includes('/login') || cleanPath.includes('/signup')) {
     ensureDevSession(true);
     return jsonResponse({
@@ -248,7 +275,7 @@ function handleMockApi(url, options = {}) {
     });
   }
 
-  // 8. Refresh
+  // 9. Refresh
   if (cleanPath.includes('/refresh')) {
     return jsonResponse({
       token: DEV_TOKEN,
@@ -256,7 +283,7 @@ function handleMockApi(url, options = {}) {
     });
   }
 
-  // 9. Logout
+  // 10. Logout
   if (cleanPath.includes('/logout')) {
     return jsonResponse({ success: true });
   }

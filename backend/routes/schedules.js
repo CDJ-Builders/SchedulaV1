@@ -2,6 +2,7 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const { authenticateToken } = require('../middleware/auth');
 const scheduleService = require('../services/scheduleService');
+const schedulingRequestService = require('../services/schedulingRequestService');
 
 const router = express.Router();
 router.use(authenticateToken);
@@ -47,6 +48,19 @@ router.get('/events/conflicts', asyncHandler(async (req, res) => {
   const { start_at: startAt, end_at: endAt, schedule_id: scheduleId, event_id: eventId } = req.query;
   if (!startAt || !endAt) return res.status(400).json({ error: 'start_at and end_at are required' });
   res.json(await scheduleService.findConflicts(req.user.user_id, eventId, startAt, endAt, scheduleId));
+}));
+
+router.get('/scheduling-requests', asyncHandler(async (req, res) => {
+  res.json(await schedulingRequestService.listRequests(req.user.user_id));
+}));
+
+router.post('/scheduling-requests', asyncHandler(async (req, res) => {
+  res.status(201).json(await schedulingRequestService.createRequest(req.user.user_id, req.body));
+}));
+
+router.delete('/scheduling-requests/:requestId', asyncHandler(async (req, res) => {
+  await schedulingRequestService.deleteRequest(req.user.user_id, req.params.requestId);
+  res.status(204).send();
 }));
 
 module.exports = router;

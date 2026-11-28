@@ -78,6 +78,15 @@
 
         <div class="work">
           <div class="event-form-panel card">
+            <form id="quick-add-form" class="quick-add-panel">
+              <label class="field" for="quick-add-input">
+                <span>Natural-language Quick Add</span>
+                <textarea id="quick-add-input" rows="2" placeholder="CS321 Mon/Wed 1-2:30pm rm 402 Sir Reyes"
+                  aria-describedby="quick-add-help" required></textarea>
+              </label>
+              <p id="quick-add-help" class="quick-add-help">Add a weekly class, request a meeting, or cancel a weekday block. Examples: “may meeting tayo bukas ng hapon, 1 hr” · “find time for team mtg 2 hrs this week” · “cancel my friday class”.</p>
+              <button id="quick-add-btn" class="btn-primary" type="submit">Quick Add</button>
+            </form>
             <h2>Add weekly block</h2>
             <div class="event-form-grid">
               <div class="builder-form-column">
@@ -119,6 +128,12 @@
                 </svg>Add block</button>
               <p id="builder-message" class="text-muted-light" role="status"></p>
             </div>
+            <section class="quick-add-requests" aria-labelledby="quick-add-requests-title">
+              <h3 id="quick-add-requests-title">Pending scheduling requests</h3>
+              <div id="quick-add-requests-list" aria-live="polite">
+                <p class="quick-add-help">Loading requests…</p>
+              </div>
+            </section>
           </div>
 
           <div class="card events-panel">
@@ -166,6 +181,7 @@
   <script src="../frontend/scripts/header.js"></script>
   <script src="../frontend/scripts/footer.js"></script>
   <script src="../frontend/scripts/auth.js"></script>
+  <script src="../frontend/scripts/quickAdd.js"></script>
   <script src="../frontend/scripts/schedules.js"></script>
 </body>
 

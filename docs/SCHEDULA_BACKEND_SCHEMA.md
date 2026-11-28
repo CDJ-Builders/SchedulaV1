@@ -10,6 +10,7 @@ The backend uses PostgreSQL with generic scheduling entities. Apply the executab
 - `schedules`: user-owned calendar containers with nullable `group_id`, timezone, and color.
 - `events`: schedule blocks with required `title`, UTC `start_at`, UTC `end_at`, timezone, owner, generated `event_window`, and nullable generic metadata.
 - `schedule_context`: JSONB goals, constraints, and tags per schedule.
+- `scheduling_requests`: persisted meeting and smart-scheduling requests, including duration, preferred date/time window, original user text, and optional schedule association.
 - `recurrence_rules`: RFC 5545 RRULE definitions per recurring event.
 - `recurrence_exceptions`: cancelled or overridden recurrence instances.
 - `availability_blocks`: user-level UTC free/busy windows with a generated range.
@@ -36,7 +37,7 @@ The backend uses PostgreSQL with generic scheduling entities. Apply the executab
 
 - `backend/routes/auth.js`: authentication and token lifecycle.
 - `backend/routes/user.js`: session, profile, preferences, and availability.
-- `backend/routes/schedules.js`: schedules, events, and conflict lookup.
+- `backend/routes/schedules.js`: schedules, events, conflict lookup, and scheduling-request listing, creation, and cancellation.
 - `backend/routes/admin.js`: generic user and schedule administration.
 - `backend/middleware/auth.js`: JWT verification and platform-admin authorization.
 - `backend/services/`: parameterized SQL and business rules; routes remain thin.

@@ -8,9 +8,7 @@ function configurationError(message) {
 }
 
 function normalizeConfiguration(configuration) {
-  if (!Array.isArray(configuration) || !configuration.length) {
-    throw configurationError('configuration must contain at least one weekly block');
-  }
+  if (!Array.isArray(configuration)) throw configurationError('configuration must be an array of weekly blocks');
   return configuration.map((block) => {
     const title = typeof block?.title === 'string' ? block.title.trim() : '';
     const description = typeof block?.description === 'string' ? block.description.trim() : '';
@@ -21,7 +19,7 @@ function normalizeConfiguration(configuration) {
     const endTime = typeof block?.end_time === 'string' ? block.end_time : '';
     const modality = typeof block?.modality === 'string' ? block.modality : 'onsite';
     const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-    if (!title || weekdays.length !== 1 || !validTime.test(startTime) || !validTime.test(endTime)) {
+    if (!title || !weekdays.length || !validTime.test(startTime) || !validTime.test(endTime)) {
       throw configurationError('Each weekly block requires title, weekdays, start_time, and end_time');
     }
     if (!['onsite', 'online'].includes(modality)) {

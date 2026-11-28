@@ -245,6 +245,66 @@
   padding-bottom: 6px;
 }
 
+.quick-add-panel {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 16px;
+  border: 2px solid rgba(98, 41, 138, .36);
+  border-radius: 16px;
+  background: rgba(230, 214, 241, .55);
+}
+
+.quick-add-panel .field {
+  margin: 0;
+}
+
+.quick-add-panel textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.quick-add-help {
+  margin: 0 0 6px;
+  color: #5b4778;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.quick-add-panel .btn-primary {
+  justify-self: start;
+}
+
+.quick-add-requests {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(98, 41, 138, .25);
+}
+
+.quick-add-requests h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.quick-add-request {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(98, 41, 138, .15);
+}
+
+.quick-add-request p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.quick-add-request button {
+  flex: none;
+}
+
 #builder-message {
   flex: 1 1 200px;
   font-size: 15px;
